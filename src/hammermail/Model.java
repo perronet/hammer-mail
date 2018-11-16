@@ -34,7 +34,7 @@ public class Model {
     
     private final SimpleStringProperty currentMail = new SimpleStringProperty(); //TODO change everything to mail objects (use SimpleObjectProperty) 
                                                                            //then find a way to print them properly
-    private ArrayList<User> listuser;
+    private ArrayList<User> listUser;
 
     private int idCounter = 0;
     
@@ -42,19 +42,17 @@ public class Model {
         setCurrentMail("Select a mail from the list");
         listMail = FXCollections.observableArrayList("mail a", "mail b", "mail c");
         
-        //Uncomment to test mail objects instead of strings
-        /*
-        listMail.setAll(
-            new Mail(0, "Mailzero", "marco", "andrea", "ciao", ""),
-            new Mail(1, "Mailuno", "andrea", "gaetano", "ue gaetà", ""),
-            new Mail(2, "Maildue", "marco", "gaetano", "hey come stai", "")
-        );
-        */
-
+        //Uncomment to test mail objects instead of strings  
+        //listMail.setAll(
+        //    new Mail(0, "Mailzero", "marco", "andrea", "ciao", ""),
+        //    new Mail(1, "Mailuno", "andrea", "gaetano", "ue gaetà", ""),
+        //    new Mail(2, "Maildue", "marco", "gaetano", "hey come stai", "")
+        //);
+        
         //Not working        
-        //listuser.add(new User("marco", "qwerty", "marco.maida@hammermail.com")); 
-        //listuser.add(new User("andrea", "12345", "andrea.rondinelli@hammermail.com"));
-        //listuser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));
+        //listUser.add(new User("marco", "qwerty", "marco.maida@hammermail.com")); 
+        //listUser.add(new User("andrea", "12345", "andrea.rondinelli@hammermail.com"));
+        //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));
     }
    
     public final String getCurrentMail(){ return currentMail.get(); }
