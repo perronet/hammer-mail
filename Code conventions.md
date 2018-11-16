@@ -100,6 +100,7 @@ Use a ChangeListener if you need to know the new (or old) value in the listener,
 ###### Use Ctrl + / to comment/uncomment current line or selected lines
 
 Prefer this over multiline comments so commenting/uncommenting is faster for everybody, this is especially useful for xml
+
 If you don't like the shortcut just change it in Tools->Options->Keymaps
 
 # Netbeans tips
