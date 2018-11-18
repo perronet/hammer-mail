@@ -30,7 +30,7 @@ The same is true for every method
 public Boolean isFieldEmpty();
 ```
 
-The only exception are the @FXML variables in the UiController binded to the FXML document, these are lowercase only 
+The only exception are the @FXML variables in the UIController binded to the FXML document, these are lowercase only 
 ```
 private Label idcounter;
 private TextField userinput;
@@ -86,9 +86,9 @@ testProperty().addListener((ObservableValue o, Object oldVal, Object newVal) -> 
 });				
 ```
 
-Not working? Use the proper cast.
+Not working? Remove types.
 ```
-testProperty().addListener((ChangeListener)(ObservableValue o, Object oldVal, Object newVal) -> { 
+testProperty().addListener((o, oldVal, newVal) -> { 
 	/* code */
 });				
 ```

@@ -14,26 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package hammermail;
+package hammermail.client;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 
-public class UiController implements Initializable {
+public class UIController implements Initializable {
 
     @FXML
     private Label user;
@@ -68,9 +61,9 @@ public class UiController implements Initializable {
 
         listmail.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
 
-        listmail.getSelectionModel().selectedIndexProperty().addListener((ChangeListener)(ObservableValue o, Object oldVal, Object newVal) -> { //implementation of ChangeListener
+        listmail.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
             System.out.println("New mail selected from list");
-            int newindex = (int)newVal;
+            int newindex = (int)newValue;
             m.setCurrentMail(m.getMailByIndex(newindex) + "     Testo mail qui");
         });
         
