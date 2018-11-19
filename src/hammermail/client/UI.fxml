@@ -65,6 +65,6 @@
   
   <!--bind css document-->
   <stylesheets>
-    <URL value="@ui.css" />
+    <URL value="@UI.css" />
   </stylesheets>
 </AnchorPane>
