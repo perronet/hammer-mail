@@ -18,6 +18,8 @@ package hammermail.client;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
 /**
@@ -27,12 +29,23 @@ import javafx.fxml.Initializable;
  */
 public class UIEditorController implements Initializable {
 
+    /*private Model m;
+    
+    @FXML //to add onAction="#handleSend"
+    private void handleSend(ActionEvent event){
+        m.addMail();  
+    }*/
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+        /*  public void init(Model model)
+            if(this.m != null){
+                throw new IllegalStateException("Only one initialization per model.");
+            }
+            this.m = model; need to change HammerMail.java
+        */
+    }  
     
 }

@@ -18,8 +18,12 @@ package hammermail.client;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -39,7 +43,19 @@ public class UIController implements Initializable {
     
     @FXML
     private void handleCreate(ActionEvent event){
-        m.addMail();
+    
+        try{    
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 300, 350);
+            Stage stage = new Stage();
+            stage.setTitle("Write a mail...");
+            stage.setScene(scene);
+            stage.show();
+        }catch(IOException e){
+            System.out.println (e.toString());
+        }
+        m.addMail();  //to move into "send"'s action listener
     }  
 
     @FXML
