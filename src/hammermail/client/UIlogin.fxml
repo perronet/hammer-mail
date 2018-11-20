@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UILoginController">
-    <stylesheets>
-        <URL value="@UI.css"/>
+<AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="450.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UILoginController">
+  
+	<children>
+		<Text layoutX="80.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hammer Mail" />	  
+		<HBox layoutX="60.0" layoutY="80.0" prefHeight="170.0" prefWidth="300.0" />
+        <Label layoutX="90.0" layoutY="130.0" prefHeight="16.0" prefWidth="73.0" text="Username" />
+	  	   <TextField fx:id="username" layoutX="180.0" layoutY="130.0" />      
+      
+		<Label layoutX="90.0" layoutY="175.0" text="Password" />
+	       <PasswordField fx:id="password" layoutX="180.0" layoutY="170.0" />
+		<Button layoutX="330.0" layoutY="240.0" onAction="#handleLogin" text="Submit" />
+		
+      	<Text fx:id="loginfailure" layoutX="80.0" layoutY="75.0" text="" />
+		
+	</children>
+  
+
+   <stylesheets>
+        <URL value="@UI.css" />
     </stylesheets>
+	
 </AnchorPane>

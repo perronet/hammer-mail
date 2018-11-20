@@ -28,6 +28,8 @@ public class HammerMail extends Application {
     public void start(Stage stage) throws Exception {
         
         Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
+		//Uncomment to test login view
+		//Parent root = FXMLLoader.load(getClass().getResource("UIlogin.fxml"));
        
         Scene scene = new Scene(root);
         stage.setScene(scene);

@@ -18,7 +18,19 @@ package hammermail.client;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -27,9 +39,47 @@ import javafx.fxml.Initializable;
  */
 public class UILoginController implements Initializable {
 
-    /**
-     * Initializes the controller class.
-     */
+	@FXML
+	private TextField username;
+	
+	@FXML
+	private PasswordField password;
+	
+	@FXML
+	private AnchorPane anchorpane;
+	
+	@FXML 
+	private Text loginfailure;
+	
+	private Stage stage;
+	
+	@FXML
+	private void handleLogin(ActionEvent event){
+		// username, password to the server
+		boolean logged = true;
+		//use of bool: waiting for the DB check credential implementations
+		try {
+			if (logged){
+				stage = (Stage)((Button)event.getSource()).getScene().getWindow();
+				stage.close();
+				FXMLLoader fxmlLoad = new FXMLLoader(getClass().getResource("UI.fxml"));
+				Parent root = (Parent) fxmlLoad.load();
+				Stage stage = new Stage();
+				stage.setTitle("HammerMail - Home");
+				stage.setScene(new Scene(root));
+				stage.show();
+			}
+			else {
+				loginfailure.setFill(Color.rgb(255,0,0));
+				loginfailure.setText("Wrong credentials");
+
+			}
+		} catch (Exception e){
+		
+		}
+		
+    }  
+	
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
