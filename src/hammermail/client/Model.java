@@ -65,6 +65,8 @@ public class Model {
         idCounter++;
     }
     
+    //TODO Tostring?
+    
     public void removeMail(){ //TODO remove specified element 
         listMail.remove(listMail.size()-1);
     }

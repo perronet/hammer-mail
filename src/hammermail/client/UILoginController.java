@@ -55,30 +55,30 @@ public class UILoginController implements Initializable {
 	
 	@FXML
 	private void handleLogin(ActionEvent event){
-		// username, password to the server
-		boolean logged = true;
-		//use of bool: waiting for the DB check credential implementations
-		try {
-			if (logged){
-				stage = (Stage)((Button)event.getSource()).getScene().getWindow();
-				stage.close();
-				FXMLLoader fxmlLoad = new FXMLLoader(getClass().getResource("UI.fxml"));
-				Parent root = (Parent) fxmlLoad.load();
-				Stage stage = new Stage();
-				stage.setTitle("HammerMail - Home");
-				stage.setScene(new Scene(root));
-				stage.show();
-			}
-			else {
-				loginfailure.setFill(Color.rgb(255,0,0));
-				loginfailure.setText("Wrong credentials");
+            //username, password to the server
+            boolean logged = true;
+            //use of bool: waiting for the DB check credential implementations
+            try {
+                if (logged){
+                    stage = (Stage)((Button)event.getSource()).getScene().getWindow(); //get this stage
+                    stage.close(); //close myself
+                    
+                    //spawn a new stage
+                    Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
+                    Stage newstage = new Stage();
+                    newstage.setTitle("HammerMail - Home");
+                    newstage.setScene(new Scene(root));
+                    newstage.show();
+                }
+                else {
+                    loginfailure.setFill(Color.rgb(255,0,0));
+                    loginfailure.setText("Wrong credentials");
 
-			}
-		} catch (Exception e){
-		
-		}
-		
-    }  
+                }
+            } catch (Exception e){
+
+            }
+        }  
 	
     @Override
     public void initialize(URL url, ResourceBundle rb) {

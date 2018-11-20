@@ -52,6 +52,13 @@ public class UIController implements Initializable {
             stage.setTitle("Write a mail...");
             stage.setScene(scene);
             stage.show();
+            
+            // Handler to save drafts on window closed
+            stage.setOnCloseRequest(e -> {
+                System.out.println("Stage is closing");
+                // TODO Save draft
+            });
+            
         }catch(IOException e){
             System.out.println (e.toString());
         }
