@@ -40,7 +40,7 @@ public class Mail {
     
     @Override
     public String toString(){
-        return "Test";
+        return getId() + " " + getSender() + " " + getTitle();
     }
     
     //Every getter, setter and property getter has the following format

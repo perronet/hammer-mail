@@ -27,6 +27,11 @@ public class User { //Users will be static, no need to use properties (may chang
         this.password = password;
         this.mail = mail;
     }
+ 
+    @Override
+    public String toString(){
+        return name + " " + mail;
+    }
     
     public String getName() {
         return name;

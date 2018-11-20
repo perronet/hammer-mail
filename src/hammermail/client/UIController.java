@@ -29,6 +29,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
+import hammermail.core.Mail;
 
 public class UIController implements Initializable {
 
@@ -36,7 +37,7 @@ public class UIController implements Initializable {
     private Label user;
     
     @FXML
-    private ListView<String> listmail;
+    private ListView<Mail> listmail;
     
     @FXML
     private TextArea mailcontent;
@@ -77,7 +78,7 @@ public class UIController implements Initializable {
         m = new Model();
         
         //BINDINGS
-        mailcontent.textProperty().bind(m.currentMailProperty());
+//        mailcontent.textProperty().bind(m.currentMailProperty()); //changed this bind to a listener for convenience
         
         //SETUP LISTENERS AND OTHER PARAMETERS
         listmail.setItems(m.getListMail()); //the ListView will automatically refresh the view to represent the items in the ObservableList
@@ -87,10 +88,12 @@ public class UIController implements Initializable {
         listmail.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
             System.out.println("New mail selected from list");
             int newindex = (int)newValue;
-            m.setCurrentMail(m.getMailByIndex(newindex) + "     Testo mail qui");
-        });
+            m.setCurrentMail(m.getMailByIndex(newindex));
+        });     
         
-//        listmail.getSelectionModel().getSelectedIndex();        
+        m.currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
+            mailcontent.setText(newValue.toString());
+        });
     }    
     
 }

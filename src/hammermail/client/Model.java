@@ -17,32 +17,31 @@
 package hammermail.client;
 
 import hammermail.core.User;
+import hammermail.core.Mail;
 import java.util.ArrayList;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Model {
     
-    //private ObservableList<Mail> listMail = FXCollections.observableArrayList();
-    private final ObservableList<String> listMail;
+    private final ObservableList<Mail> listMail = FXCollections.observableArrayList();
     
-    private final SimpleStringProperty currentMail = new SimpleStringProperty(); //TODO change everything to mail objects (use SimpleObjectProperty) 
-                                                                           //then find a way to print them properly
+    private final SimpleObjectProperty<Mail> currentMail = new SimpleObjectProperty(); 
+    
     private ArrayList<User> listUser;
 
-    private int idCounter = 0;
+    private int idCounter = 3;
     
     public Model() { //TODO load mails and user from file 
-        setCurrentMail("Select a mail from the list");
-        listMail = FXCollections.observableArrayList("mail a", "mail b", "mail c");
-        
-        //Uncomment to test mail objects instead of strings  
-        //listMail.setAll(
-        //    new Mail(0, "Mailzero", "marco", "andrea", "ciao", ""),
-        //    new Mail(1, "Mailuno", "andrea", "gaetano", "ue gaetà", ""),
-        //    new Mail(2, "Maildue", "marco", "gaetano", "hey come stai", "")
-        //);
+        setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ""));
+
+        listMail.setAll(
+            new Mail(0, "marco", "andrea", "Mailzero", "ciao", ""),
+            new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ""),
+            new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", "")
+        );
         
         //Not working        
         //listUser.add(new User("marco", "qwerty", "marco.maida@hammermail.com")); 
@@ -50,28 +49,26 @@ public class Model {
         //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));
     }
    
-    public final String getCurrentMail(){ return currentMail.get(); }
+    public final Mail getCurrentMail(){ return currentMail.get(); }
     
-    public final void setCurrentMail(String s){ currentMail.set(s); }
+    public final void setCurrentMail(Mail m){ currentMail.set(m); }
     
-    public SimpleStringProperty currentMailProperty() { return currentMail; }
+    public SimpleObjectProperty<Mail> currentMailProperty() { return currentMail; }
     
-    public ObservableList<String> getListMail(){ 
+    public ObservableList<Mail> getListMail(){ 
         return listMail;
     }
     
     public void addMail(){
-        listMail.add("newmail " + idCounter);
+        listMail.add(new Mail(idCounter, "Mailnuova", "marco", "gaetano", "hey come stai", ""));
         idCounter++;
     }
-    
-    //TODO Tostring?
     
     public void removeMail(){ //TODO remove specified element 
         listMail.remove(listMail.size()-1);
     }
     
-    public String getMailByIndex(int i){
+    public Mail getMailByIndex(int i){
         return listMail.get(i);
     }
     
