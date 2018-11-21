@@ -164,7 +164,7 @@ public class Database {
         }    
     }
  
-	protected static void dbAddMail(Mail mail){
+    protected static void dbAddMail(Mail mail){
         try (Connection conn = DriverManager.getConnection(dbUrl);){
             String sql = "INSERT INTO email VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -215,13 +215,13 @@ public class Database {
 				//first value only for test, consider meaning of "id" in mail class
 				//fourth value only for test, considere how to implement in db
                 Mail m = new Mail( 1,
-								/*rs.getInt("user_id"), */
-								rs.getString("from_user"), 
-								rs.getString("to_user"),
-								"title",
-								rs.getString("time"),
-								rs.getString("text"));
-				mailList.add(m);
+                                /*rs.getInt("user_id"), */
+                                rs.getString("from_user"), 
+                                rs.getString("to_user"),
+                                "title",
+                                rs.getString("time"),
+                                rs.getString("text"));
+                mailList.add(m);
             }
             rs.close();
             pstmt.close();
@@ -231,7 +231,7 @@ public class Database {
                 ex.printStackTrace(System.out);
         }
         return mailList;
-  }
+    }
 	
     protected static ArrayList<Mail> getSentMail(String userN){
         ArrayList<Mail> mailList = new ArrayList<>();
@@ -246,13 +246,13 @@ public class Database {
 				//first value only for test, consider meaning of "id" in mail class
 				//forth value only for test, considere how to implement in db
                 Mail m = new Mail(1,
-								/*rs.getInt("user_id"), */
-								rs.getString("from_user"), 
-								rs.getString("to_user"),
-								"title",
-								rs.getString("time"),
-								rs.getString("text"));
-				mailList.add(m);
+                                /*rs.getInt("user_id"), */
+                                rs.getString("from_user"), 
+                                rs.getString("to_user"),
+                                "title",
+                                rs.getString("time"),
+                                rs.getString("text"));
+                mailList.add(m);
             }
             rs.close();
             pstmt.close();
