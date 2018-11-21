@@ -21,6 +21,8 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
 
 /**
  * FXML Controller class
@@ -29,23 +31,47 @@ import javafx.fxml.Initializable;
  */
 public class UIEditorController implements Initializable {
 
-    /*private Model m;
+    private Model m;
+   
+    @FXML
+    private TextArea receiversmail;
+    @FXML
+    private TextArea mailsubject;
+    @FXML
+    private TextArea bodyfield;
     
-    @FXML //to add onAction="#handleSend"
+    private String receiver, subject, text;
+    
+    
+    @FXML 
     private void handleSend(ActionEvent event){
-        m.addMail();  
-    }*/
+        receiver = receiversmail.getText();
+        subject = mailsubject.getText();
+        text = bodyfield.getText();
+        m.addMail(receiver, subject, text);  
+    }
+    
+    @FXML 
+    private void handleSave(ActionEvent event){
+        receiver = receiversmail.getText();
+        subject = mailsubject.getText();
+        text = bodyfield.getText();
+        m.saveDraft(receiver, subject, text);
+    }
     /**
      * Initializes the controller class.
      */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        /*  public void init(Model model)
-            if(this.m != null){
+    
+    public void init(Model model){ //to add parameter "current user" to set sender
+        if(this.m != null){
                 throw new IllegalStateException("Only one initialization per model.");
             }
-            this.m = model; need to change HammerMail.java
-        */
-    }  
+        this.m = model; //Binding the model
+    }
+       
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        
+    } 
     
 }

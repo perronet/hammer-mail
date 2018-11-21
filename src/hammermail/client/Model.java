@@ -28,6 +28,8 @@ public class Model {
     
     private final ObservableList<Mail> listMail = FXCollections.observableArrayList();
     
+    private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();//invisible
+    
     private final SimpleObjectProperty<Mail> currentMail = new SimpleObjectProperty(); 
     
     private ArrayList<User> listUser;
@@ -59,8 +61,14 @@ public class Model {
         return listMail;
     }
     
-    public void addMail(){
-        listMail.add(new Mail(idCounter, "Mailnuova", "marco", "gaetano", "hey come stai", ""));
+    public void addMail(String receiver, String title, String text){
+        listMail.add(new Mail(idCounter, "marco", receiver, title, text, "data"));
+        idCounter++;
+    }
+    
+    //invisible saves
+    public void saveDraft(String receiver, String title, String text){
+        listDraft.add(new Mail(idCounter, "marco", receiver, title, text, "data"));
         idCounter++;
     }
     

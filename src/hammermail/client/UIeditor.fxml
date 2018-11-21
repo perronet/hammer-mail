@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="EditorAnchorPane" prefHeight="250.0" prefWidth="300.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UIEditorController">
+<AnchorPane id="EditorAnchorPane" prefHeight="450.0" prefWidth="350.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UIEditorController">
     <children>
         <BorderPane prefHeight="100.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             
@@ -15,21 +15,21 @@
             <center>
                 <AnchorPane id="CenterAnchorPane">
                     <children>
-                        <Label fx:id="label1" text="Receiver(s)" layoutX="0" layoutY="0" minHeight="16" minWidth="80"/> 
-                        <TextField fx:id="receiversmail" layoutX="0" layoutY="30" minHeight="16" minWidth="300"/> 
-                        <Label fx:id="label2" text="Subject" layoutX="0" layoutY="80" minHeight="16" minWidth="80"/> 
-                        <TextField fx:id="mailsubject" layoutX="0" layoutY="110" minHeight="16" minWidth="300"/> 
-                        <Label fx:id="label3" text="Body" layoutX="0" layoutY="150" minHeight="16" minWidth="80"/>
-                        <TextField fx:id="bodyfield" layoutX="0" layoutY="180" minHeight="100" minWidth="300"/> 
+                        <Label fx:id="label1" layoutX="0" layoutY="0" minHeight="16" minWidth="80" text="Receiver(s)" /> 
+                        <TextArea fx:id="receiversmail" layoutX="0" layoutY="30" minHeight="16" maxWidth="350" wrapText="true"/> 
+                        <Label fx:id="label2" layoutX="0" layoutY="80" minHeight="16" minWidth="80" text="Subject" /> 
+                        <TextArea fx:id="mailsubject" layoutX="0" layoutY="110" minHeight="16" maxWidth="350" wrapText="true"/> 
+                        <Label fx:id="label3" layoutX="0" layoutY="150" minHeight="16" minWidth="80" text="Body" />
+                        <TextArea fx:id="bodyfield" layoutX="0" layoutY="180" minHeight="40" maxWidth="350" wrapText="true"/> 
                     </children>
                 </AnchorPane>
             </center>
             <!--bottom pane-->
             <bottom>
-                <AnchorPane id="BottomAnchorPane">
+                <AnchorPane id="BottomAnchorPane" prefHeight="29.0" prefWidth="463.0">
                     <children>
-                        <Button fx:id="saveasdraft" text="Save as draft" layoutX="0" layoutY="30" minHeight="15" minWidth="40"/>
-                        <Button fx:id="send" text="Send" layoutX="250" layoutY="30" minHeight="15" minWidth="40"/>
+                        <Button fx:id="saveasdraft" layoutX="0" minHeight="15" minWidth="40" onAction="#handleSave" text="Save as draft" />
+                        <Button fx:id="send" layoutX="300.0" layoutY="3.0" minHeight="15" minWidth="40" onAction="#handleSend" text="Send" />
                     </children>
                 </AnchorPane>
             </bottom>
@@ -38,6 +38,6 @@
     </children>
     
     <stylesheets>
-        <URL value="@UI.css"/>
+        <URL value="@UI.css" />
     </stylesheets>
 </AnchorPane>

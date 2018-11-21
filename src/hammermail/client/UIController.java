@@ -30,6 +30,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import javafx.scene.Parent;
 
 public class UIController implements Initializable {
 
@@ -48,7 +49,10 @@ public class UIController implements Initializable {
         try{    
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 300, 350);
+            Parent root = fxmlLoader.load();
+            UIEditorController editorController = fxmlLoader.getController();
+            editorController.init(m);
+            Scene scene = new Scene(root, 350, 450);
             Stage stage = new Stage();
             stage.setTitle("Write a mail...");
             stage.setScene(scene);
@@ -57,13 +61,13 @@ public class UIController implements Initializable {
             // Handler to save drafts on window closed
             stage.setOnCloseRequest(e -> {
                 System.out.println("Stage is closing");
-                // TODO Save draft
+                //m.saveDraft(receiversmail.getText(), mailsubject.getText(), bodyfield.getText()); TO FIX
             });
             
         }catch(IOException e){
             System.out.println (e.toString());
         }
-        m.addMail();  //to move into "send"'s action listener
+        
     }  
 
     @FXML
@@ -72,7 +76,7 @@ public class UIController implements Initializable {
     }  
     
     private Model m;
-    
+       
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         m = new Model();
