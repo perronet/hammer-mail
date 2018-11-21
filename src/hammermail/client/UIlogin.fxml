@@ -11,7 +11,7 @@
 
 <AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="450.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hammermail.client.UILoginController">
 
-	<children>
+    <children>
         <Text layoutX="80.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hammer Mail" />	  
         <HBox layoutX="60.0" layoutY="80.0" prefHeight="170.0" prefWidth="300.0" />
         <Label layoutX="90.0" layoutY="130.0" prefHeight="16.0" prefWidth="73.0" text="Username" />
