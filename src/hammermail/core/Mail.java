@@ -16,11 +16,11 @@
  */
 package hammermail.core;
 
-//import java.util.Date;
+import java.io.Serializable;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class Mail {
+public class Mail implements Serializable {
 
     private SimpleIntegerProperty id = new SimpleIntegerProperty();
     private SimpleStringProperty sender = new SimpleStringProperty();

@@ -30,13 +30,19 @@ public class Model {
     
     private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();//invisible
     
-    private final SimpleObjectProperty<Mail> currentMail = new SimpleObjectProperty(); 
+    private final SimpleObjectProperty<Mail> currentMail;
     
     private ArrayList<User> listUser;
 
     private int idCounter = 3;
     
+    //Use this         
+    //listUser.add(new User("marco", "qwerty", "marco.maida@hammermail.com")); 
+    //listUser.add(new User("andrea", "12345", "andrea.rondinelli@hammermail.com"));
+    //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));    
+    
     public Model() { //TODO load mails and user from file 
+        currentMail = new SimpleObjectProperty<>(); 
         setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ""));
 
         listMail.setAll(
@@ -44,11 +50,6 @@ public class Model {
             new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ""),
             new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", "")
         );
-        
-        //Not working        
-        //listUser.add(new User("marco", "qwerty", "marco.maida@hammermail.com")); 
-        //listUser.add(new User("andrea", "12345", "andrea.rondinelli@hammermail.com"));
-        //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));
     }
    
     public final Mail getCurrentMail(){ return currentMail.get(); }

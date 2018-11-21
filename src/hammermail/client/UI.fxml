@@ -39,7 +39,7 @@
               <!-- Right panel -->
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="253.0" prefWidth="215.0">
                 <children>
-                  <TextArea fx:id="mailcontent" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />      
+                  <TextArea fx:id="mailcontent" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" editable="false"/>      
                 </children>
               </AnchorPane>
             </items>
