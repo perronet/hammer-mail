@@ -12,20 +12,20 @@
 <AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="450.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hammermail.client.UILoginController">
 
 	<children>
-		<Text layoutX="80.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hammer Mail" />	  
-		<HBox layoutX="60.0" layoutY="80.0" prefHeight="170.0" prefWidth="300.0" />
-		<Label layoutX="90.0" layoutY="130.0" prefHeight="16.0" prefWidth="73.0" text="Username" />
-			<TextField fx:id="username" layoutX="180.0" layoutY="130.0" />      
+        <Text layoutX="80.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hammer Mail" />	  
+        <HBox layoutX="60.0" layoutY="80.0" prefHeight="170.0" prefWidth="300.0" />
+        <Label layoutX="90.0" layoutY="130.0" prefHeight="16.0" prefWidth="73.0" text="Username" />
+            <TextField fx:id="username" layoutX="180.0" layoutY="130.0" />      
       
-		<Label layoutX="90.0" layoutY="175.0" text="Password" />
-			<PasswordField fx:id="password" layoutX="180.0" layoutY="170.0" />
-		<Button layoutX="330.0" layoutY="240.0" onAction="#handleLogin" text="Submit" />
+        <Label layoutX="90.0" layoutY="175.0" text="Password" />
+            <PasswordField fx:id="password" layoutX="180.0" layoutY="170.0" />
+        <Button layoutX="330.0" layoutY="240.0" onAction="#handleLogin" text="Submit" />
 
-		<Text fx:id="loginfailure" layoutX="80.0" layoutY="75.0" text="" />
-		<Button layoutX="60.0" layoutY="240.0" onAction="#handleSignup" text="Sign up" />
-	</children>
-	
-	<stylesheets>
-		<URL value="@UI.css" />
-	</stylesheets>
+        <Text fx:id="loginfailure" layoutX="80.0" layoutY="75.0" text="" />
+        <Button layoutX="60.0" layoutY="240.0" onAction="#handleSignup" text="Sign up" />
+    </children>
+
+    <stylesheets>
+        <URL value="@UI.css" />
+    </stylesheets>
 </AnchorPane>
