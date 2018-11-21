@@ -181,7 +181,7 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
         }
-  }
+    }
 
     protected static void dbRemoveMail(Mail mail){
         try (Connection conn = DriverManager.getConnection(dbUrl);){         
