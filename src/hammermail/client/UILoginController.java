@@ -39,50 +39,52 @@ import javafx.stage.Stage;
  */
 public class UILoginController implements Initializable {
 
-	@FXML
-	private TextField username;
-	
-	@FXML
-	private PasswordField password;
-	
-	@FXML
-	private AnchorPane anchorpane;
-	
-	@FXML 
-	private Text loginfailure;
-	
-	private Stage stage;
-	
-	@FXML
-	private void handleLogin(ActionEvent event){
-            //username, password to the server
-            boolean logged = true;
-            //use of bool: waiting for the DB check credential implementations
-            try {
-                if (logged){
-                    stage = (Stage)((Button)event.getSource()).getScene().getWindow(); //get this stage
-                    stage.close(); //close myself
-                    
-                    //spawn a new stage
-                    Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
-                    Stage newstage = new Stage();
-                    newstage.setTitle("HammerMail - Home");
-                    newstage.setScene(new Scene(root));
-                    newstage.show();
-                }
-                else {
-                    loginfailure.setFill(Color.rgb(255,0,0));
-                    loginfailure.setText("Wrong credentials");
+    @FXML
+    private TextField username;
 
-                }
-            } catch (Exception e){
+    @FXML
+    private PasswordField password;
 
+    @FXML 
+    private Text loginfailure;
+
+    private Stage stage;
+
+    @FXML
+    private void handleLogin(ActionEvent event){
+        //username, password to the server
+        boolean logged = true;
+        //use of bool: waiting for the DB check credential implementations
+        try {
+            if (logged){
+                stage = (Stage)((Button)event.getSource()).getScene().getWindow(); //get this stage
+                stage.close(); //close myself
+
+                //spawn a new stage
+                Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
+                Stage newstage = new Stage();
+                newstage.setTitle("HammerMail - Home");
+                newstage.setScene(new Scene(root));
+                newstage.show();
             }
-        }  
-	
+            else {
+                loginfailure.setFill(Color.rgb(255,0,0));
+                loginfailure.setText("Wrong credentials");
+            }
+        } catch (Exception e){
+            //TODO
+        }
+}  
+
+    @FXML
+    private void handleSignup(ActionEvent event){
+        //contact server, that will call Database.dbAddUser(username, psw)
+    }
+
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
-    
+
 }
