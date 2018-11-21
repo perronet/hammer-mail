@@ -74,7 +74,7 @@ public class UILoginController implements Initializable {
         } catch (Exception e){
             //TODO
         }
-}  
+    }  
 
     @FXML
     private void handleSignup(ActionEvent event){
