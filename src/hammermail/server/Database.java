@@ -96,28 +96,28 @@ public class Database {
     
 	//Check the user login credential
     protected static boolean checkPassword(String userN, String passW){
-		String dbPsw = "";
-		try {
-			Connection conn = DriverManager.getConnection(dbUrl);
-			String sql = "SELECT * FROM users WHERE username = ?";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, userN);
-			ResultSet rs = pstmt.executeQuery();
-			dbPsw = rs.getString("password");
+        String dbPsw = "";
+        try {
+            Connection conn = DriverManager.getConnection(dbUrl);
+            String sql = "SELECT * FROM users WHERE username = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            ResultSet rs = pstmt.executeQuery();
+            dbPsw = rs.getString("password");
 
-			rs.close();
-			pstmt.close();
-			conn.close();
+            rs.close();
+            pstmt.close();
+            conn.close();
 
-		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			ex.printStackTrace(System.out);
-		}
-
-		finally{
-			//Never get access to user if DB check fail
-			return dbPsw.equals(passW);
-		}
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+        }
+        
+        finally{
+            //Never get access to user if DB check fail
+            return dbPsw.equals(passW);
+        }
 	}
 
     protected static void dbAddUser(String userN, String psw) {
