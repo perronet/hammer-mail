@@ -29,21 +29,22 @@ import java.util.ArrayList;
 
 public class Database {
     
-    private static final String dbUrl = "jdbc:sqlite:hammer.db";
+    private static final String dbUrl = "jdbc:sqlite:src/hammermail/server/hammer.db";
     
-//    protected static void createDB() {
-//        try (Connection conn = DriverManager.getConnection(dbUrl)) {
-//            if (conn != null) {
-//                DatabaseMetaData meta = conn.getMetaData();
-//                System.out.println("The driver name is " + meta.getDriverName());
-//                System.out.println("A new database has been created.");
-//            }
-//        } catch (SQLException e) {
-//        System.out.println(e.getMessage());
-//        }
-//    }
+    public static void createDB() {
+        try (Connection conn = DriverManager.getConnection(dbUrl)) {
+            if (conn != null) {
+                DatabaseMetaData meta = conn.getMetaData();
+                System.out.println("The driver name is " + meta.getDriverName());
+                System.out.println("A new database has been created.");
+            }
+        } catch (SQLException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+        }
+    }
 	
-    protected static void createTables() {
+    public static void createTables() {
         String sqlUser = "CREATE TABLE IF NOT EXISTS users (\n"
                         // + "	user_id integer AUTO_INCREMENT PRIMARY KEY,\n"
                          + " username varchar(255) PRIMARY KEY,\n"
@@ -95,26 +96,27 @@ public class Database {
     
 	//Check the user login credential
     protected static boolean checkPassword(String userN, String passW){
-        try (Connection conn = DriverManager.getConnection(dbUrl);){
+        String dbPsw = "";
+		try {
+			Connection conn = DriverManager.getConnection(dbUrl);
             String sql = "SELECT * FROM users WHERE username = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             ResultSet rs = pstmt.executeQuery();
-            String psw = rs.getString("password");
+            dbPsw = rs.getString("password");
             
             rs.close();
             pstmt.close();
             conn.close();
-            return psw.equals(passW);
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
         }
 		
-		finally {
+		finally{
 			//Never get access to user if DB check fail
-			return false;
+            return dbPsw.equals(passW);
 		}
     }
 
@@ -201,7 +203,7 @@ public class Database {
     }
 	
     protected static ArrayList<Mail> getRiceivedMail(String userN){
-        ArrayList<Mail> mailList = new ArrayList();
+        ArrayList<Mail> mailList = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(dbUrl);) {
             String sql = "SELECT * FROM email WHERE to_user = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -211,7 +213,7 @@ public class Database {
             rs.beforeFirst();
             while (rs.next()) {
 				//first value only for test, consider meaning of "id" in mail class
-				//forth value only for test, considere how to implement in db
+				//fourth value only for test, considere how to implement in db
                 Mail m = new Mail( 1,
 									/*rs.getInt("user_id"), */
                                     rs.getString("from_user"), 
@@ -232,7 +234,7 @@ public class Database {
   }
 	
     protected static ArrayList<Mail> getSentMail(String userN){
-        ArrayList<Mail> mailList = new ArrayList();
+        ArrayList<Mail> mailList = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(dbUrl);) {
             String sql = "SELECT * FROM email WHERE from_user = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
