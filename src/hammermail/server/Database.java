@@ -104,16 +104,16 @@ public class Database {
 			pstmt.setString(1, userN);
 			ResultSet rs = pstmt.executeQuery();
 			dbPsw = rs.getString("password");
-			
+
 			rs.close();
 			pstmt.close();
 			conn.close();
-			
+
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			ex.printStackTrace(System.out);
-        }
-		
+		}
+
 		finally{
 			//Never get access to user if DB check fail
 			return dbPsw.equals(passW);
