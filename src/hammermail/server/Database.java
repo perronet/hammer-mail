@@ -96,29 +96,29 @@ public class Database {
     
 	//Check the user login credential
     protected static boolean checkPassword(String userN, String passW){
-        String dbPsw = "";
+		String dbPsw = "";
 		try {
 			Connection conn = DriverManager.getConnection(dbUrl);
-            String sql = "SELECT * FROM users WHERE username = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
-            ResultSet rs = pstmt.executeQuery();
-            dbPsw = rs.getString("password");
-            
-            rs.close();
-            pstmt.close();
-            conn.close();
-
-        } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
+			String sql = "SELECT * FROM users WHERE username = ?";
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, userN);
+			ResultSet rs = pstmt.executeQuery();
+			dbPsw = rs.getString("password");
+			
+			rs.close();
+			pstmt.close();
+			conn.close();
+			
+		} catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+			ex.printStackTrace(System.out);
         }
 		
 		finally{
 			//Never get access to user if DB check fail
-            return dbPsw.equals(passW);
+			return dbPsw.equals(passW);
 		}
-    }
+	}
 
     protected static void dbAddUser(String userN, String psw) {
         try (Connection conn = DriverManager.getConnection(dbUrl);){
@@ -215,13 +215,13 @@ public class Database {
 				//first value only for test, consider meaning of "id" in mail class
 				//fourth value only for test, considere how to implement in db
                 Mail m = new Mail( 1,
-									/*rs.getInt("user_id"), */
-                                    rs.getString("from_user"), 
-                                    rs.getString("to_user"),
-									"title",
-                                    rs.getString("time"),
-                                    rs.getString("text"));
-                mailList.add(m);
+								/*rs.getInt("user_id"), */
+								rs.getString("from_user"), 
+								rs.getString("to_user"),
+								"title",
+								rs.getString("time"),
+								rs.getString("text"));
+				mailList.add(m);
             }
             rs.close();
             pstmt.close();
@@ -245,14 +245,14 @@ public class Database {
             while (rs.next()) {
 				//first value only for test, consider meaning of "id" in mail class
 				//forth value only for test, considere how to implement in db
-                Mail m = new Mail(  1,
-									/*rs.getInt("user_id"), */
-                                    rs.getString("from_user"), 
-                                    rs.getString("to_user"),
-									"title",
-                                    rs.getString("time"),
-                                    rs.getString("text"));
-                mailList.add(m);
+                Mail m = new Mail(1,
+								/*rs.getInt("user_id"), */
+								rs.getString("from_user"), 
+								rs.getString("to_user"),
+								"title",
+								rs.getString("time"),
+								rs.getString("text"));
+				mailList.add(m);
             }
             rs.close();
             pstmt.close();
