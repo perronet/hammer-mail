@@ -17,6 +17,8 @@
 package hammermail.server;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -27,12 +29,44 @@ import javafx.stage.Stage;
  * @author 00mar
  */
 public class UI extends Application {
-    
+
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("Hello World!");
         primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("UI.fxml"))));
         primaryStage.show();
+
+        startServer();
+        testServer();
+    }
+
+    void startServer() {
+        System.out.println("Starting Server!");
+        Thread t = new Thread(() -> {
+            System.out.println("this is not working, dio!");
+
+            Backend backend = new Backend();
+            backend.startServer();
+        });
+        t.start();
+    }
+
+    void testServer() {
+        System.out.println("Testing Server!");
+        Thread t = new Thread(() -> {
+            try {
+                System.out.println("Testing in 3 seconds!");
+                Thread.sleep(1000);
+                System.out.println("Testing in 2 seconds!");
+                Thread.sleep(1000);
+                System.out.println("Testing in 1 second!");
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            DummyClient c = new DummyClient();
+        });
+        t.start();
     }
 
     /**
@@ -41,5 +75,5 @@ public class UI extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
+
 }
