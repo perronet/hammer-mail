@@ -16,13 +16,20 @@
  */
 package hammermail.client;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  * FXML Controller class
@@ -34,11 +41,9 @@ public class UIEditorController implements Initializable {
     private Model m;
    
     @FXML
-    private TextArea receiversmail;
+    private Stage s;
     @FXML
-    private TextArea mailsubject;
-    @FXML
-    private TextArea bodyfield;
+    private TextArea receiversmail, mailsubject, bodyfield;
     
     private String receiver, subject, text;
     
@@ -46,27 +51,58 @@ public class UIEditorController implements Initializable {
     @FXML 
     private void handleSend(ActionEvent event){
         receiver = receiversmail.getText();
-        subject = mailsubject.getText();
-        text = bodyfield.getText();
-        m.addMail(receiver, subject, text);  
+        //TODO read receiver to each comma and verify it is an existent person
+        if(receiver.equals("")){
+            handleError();
+        }else{
+            subject = mailsubject.getText();
+            text = bodyfield.getText();
+            m.addMail(receiver, subject, text);
+            s.close();
+        }
     }
     
     @FXML 
-    private void handleSave(ActionEvent event){
+    public void handleSave(Event event){
         receiver = receiversmail.getText();
-        subject = mailsubject.getText();
-        text = bodyfield.getText();
-        m.saveDraft(receiver, subject, text);
+        if(receiver.equals("")){
+            if(!(event instanceof WindowEvent)){
+                handleError();
+            }
+        }else{
+            subject = mailsubject.getText();
+            text = bodyfield.getText();
+            m.saveDraft(receiver, subject, text);
+            System.out.println("Draft saved");
+            s.close();
+        }
     }
+    
+    private void handleError(){
+        try{
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("UIEditorError.fxml"));
+                Parent root = fxmlLoader.load();
+                Scene scene = new Scene(root, 200, 200);
+                Stage stage = new Stage();
+                stage.setTitle("Error!");
+                stage.setScene(scene);
+                stage.show();
+            }catch(IOException e){
+                System.out.println (e.toString());
+            }
+    }
+    
     /**
      * Initializes the controller class.
      */
     
-    public void init(Model model){ //to add parameter "current user" to set sender
+    public void init(Model model, Stage stage){ //to add parameter "current user" to set sender
         if(this.m != null){
                 throw new IllegalStateException("Only one initialization per model.");
             }
         this.m = model; //Binding the model
+        this.s = stage;
     }
        
     @Override

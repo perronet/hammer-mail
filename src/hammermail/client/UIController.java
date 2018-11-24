@@ -30,7 +30,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
+import javafx.scene.control.Tab;
+import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
 
@@ -41,7 +44,15 @@ public class UIController implements Initializable {
     private ListView<Mail> listmail;
     
     @FXML
+    private ListView<Mail> listdraft; //To set and to put in a tabpane's tab
+    
+    @FXML
     private TextArea mailcontent;
+    
+    @FXML
+    private Tab tab1, tab2; //use those to handle delete...
+    
+    private String nametab;
     
     @FXML
     private void handleCreate(ActionEvent event){
@@ -50,18 +61,18 @@ public class UIController implements Initializable {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
             Parent root = fxmlLoader.load();
-            UIEditorController editorController = fxmlLoader.getController();
-            editorController.init(m);
             Scene scene = new Scene(root, 350, 450);
             Stage stage = new Stage();
+            UIEditorController editorController = fxmlLoader.getController();
+            editorController.init(m, stage);
             stage.setTitle("Write a mail...");
             stage.setScene(scene);
             stage.show();
             
-            // Handler to save drafts on window closed
+            // Handler to save drafts when closing the window
             stage.setOnCloseRequest(e -> {
+                editorController.handleSave(e);
                 System.out.println("Stage is closing");
-                //m.saveDraft(receiversmail.getText(), mailsubject.getText(), bodyfield.getText()); TO FIX
             });
             
         }catch(IOException e){
@@ -70,8 +81,9 @@ public class UIController implements Initializable {
         
     }  
 
-    @FXML
+    @FXML //TODO: find a way to remove from different tabs
     private void handleDelete(ActionEvent event){
+       // nametab = tab1.selected();
         m.removeMail();
     }  
     
@@ -98,6 +110,22 @@ public class UIController implements Initializable {
         m.currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
             mailcontent.setText(newValue.toString());
         });
+        
+        //SETUP LISTENERS AND OTHER PARAMETERS (For drafts)
+        listdraft.setItems(m.getListDraft()); 
+
+        listdraft.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+
+        listdraft.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> {
+            System.out.println("New draft selected from list");
+            int newindex = (int)newValue;
+            m.setCurrentDraft(m.getDraftByIndex(newindex));
+        });     
+        
+        m.currentDraftProperty().addListener((obsValue, oldValue, newValue) -> {
+            mailcontent.setText(newValue.toString());
+        });
+        
     }    
     
 }

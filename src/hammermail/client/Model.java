@@ -32,6 +32,8 @@ public class Model {
     
     private final SimpleObjectProperty<Mail> currentMail;
     
+    private final SimpleObjectProperty<Mail> currentDraft;
+    
     private ArrayList<User> listUser;
 
     private int idCounter = 3;
@@ -43,6 +45,7 @@ public class Model {
     
     public Model() { //TODO load mails and user from file 
         currentMail = new SimpleObjectProperty<>(); 
+        currentDraft = new SimpleObjectProperty<>();
         setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ""));
 
         listMail.setAll(
@@ -62,6 +65,18 @@ public class Model {
         return listMail;
     }
     
+    //draft methods (to be put in the second tab
+    
+    public final Mail getCurrentDraft(){ return currentDraft.get();}
+    
+    public final void setCurrentDraft(Mail m) {currentDraft.set(m);}
+    
+    public SimpleObjectProperty<Mail> currentDraftProperty() { return currentDraft; }
+    
+    public ObservableList<Mail> getListDraft(){ 
+        return listDraft;
+    }
+    
     public void addMail(String receiver, String title, String text){
         listMail.add(new Mail(idCounter, "marco", receiver, title, text, "data"));
         idCounter++;
@@ -71,6 +86,14 @@ public class Model {
     public void saveDraft(String receiver, String title, String text){
         listDraft.add(new Mail(idCounter, "marco", receiver, title, text, "data"));
         idCounter++;
+    }
+    
+    public void removeDraft(){//OutOfBound exception when list is empty
+        listDraft.remove(listDraft.size()-1);
+    }
+    
+     public Mail getDraftByIndex(int i){
+        return listDraft.get(i);
     }
     
     public void removeMail(){ //TODO remove specified element 
