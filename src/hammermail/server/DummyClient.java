@@ -57,9 +57,9 @@ public final class DummyClient {
             testRequest(mailsReq);
             
             logAction("Testing new mail sent...");
-            RequestNewMail newMailReq = new RequestNewMail(null);//new Mail(Integer.SIZE, "hello", "stallman", "is it true?", "Are nails tasty?", Date.from(Instant.now()).toString()));
-            newMailReq.SetAuthentication("hello", "world");
-            testRequest(newMailReq);
+            RequestSendMail sendMailReq = new RequestSendMail(null);//new Mail(Integer.SIZE, "hello", "stallman", "is it true?", "Are nails tasty?", Date.from(Instant.now()).toString()));
+            sendMailReq.SetAuthentication("hello", "world");
+            testRequest(sendMailReq);
             
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);

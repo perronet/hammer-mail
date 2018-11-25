@@ -22,14 +22,14 @@ import hammermail.core.Mail;
  * The client is sending a new mail
  * @author 00mar
  */
-public class RequestNewMail extends RequestBase {
+public class RequestSendMail extends RequestBase {
     Mail mail;
 
     public Mail getMail() {
         return mail;
     }
     
-    public RequestNewMail(Mail mail) {
+    public RequestSendMail(Mail mail) {
         this.mail = mail;
     }
 }

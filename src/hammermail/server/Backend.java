@@ -181,8 +181,8 @@ class Task implements Runnable {
 
         if (request instanceof RequestSignUp) {
             return handleSignUp((RequestSignUp) request);
-        } else if (request instanceof RequestNewMail) {
-            return handleNewMail((RequestNewMail) request);
+        } else if (request instanceof RequestSendMail) {
+            return handleSendMail((RequestSendMail) request);
         } else if (request instanceof RequestGetMails) {
             return handleGetMails((RequestGetMails) request);
         } else {//should never get here, #TODO do something if it happens
@@ -195,7 +195,7 @@ class Task implements Runnable {
         return new ResponseSuccess();
     }
 
-    ResponseBase handleNewMail(RequestNewMail request) {
+    ResponseBase handleSendMail(RequestSendMail request) {
         //#TODO DB CALLS
         return new ResponseSuccess();
     }
