@@ -53,8 +53,8 @@ public abstract class RequestBase implements Serializable {
      * @return true if the authentication is well-formed
      */
     public boolean IsAuthenticationWellFormed(){
-        return !isNullOrWhiteSpace(username) ||
-               !isNullOrWhiteSpace(password) ||
+        return !isNullOrWhiteSpace(username) &&
+               !isNullOrWhiteSpace(password) &&
                !username.contains("@");
     }
     
