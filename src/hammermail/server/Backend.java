@@ -51,7 +51,7 @@ public class Backend {
             System.out.println("Creating Thread pool...");
             exec = Executors.newFixedThreadPool(Globals.HAMMERMAIL_SERVER_NUM_THREAD);
             System.out.println("Sockets and Threads created. Server starting...");
-            
+
             while (serverLoop());//#TODO fill this while with proper logging
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
@@ -64,7 +64,11 @@ public class Backend {
      * This method will loop until the server is working
      */
     boolean serverLoop() {
-        try (Socket incoming = serverSocket.accept()) {
+        System.out.println("Waiting for request...");
+
+        try {
+            Socket incoming = serverSocket.accept();
+            System.out.println("Received request! Starting new task...");
             handleNewRequest(incoming);
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
@@ -73,7 +77,7 @@ public class Backend {
 
         return true;
     }
-    
+
     void handleNewRequest(Socket clientSocket) {
         Task task = new Task(clientSocket);
         exec.execute(task);
@@ -83,6 +87,8 @@ public class Backend {
      * Stops threads and socket. Use it to stop the server
      */
     void stopServer() {
+        System.out.println("Stopping server...");
+
         //Stopping threads
         exec.shutdown();
         try {
@@ -100,11 +106,11 @@ public class Backend {
             }
         }
     }
-
 }
 
 /**
  * Represents a single task of the HammerMail server
+ *
  * @author 00mar
  */
 class Task implements Runnable {
@@ -126,15 +132,18 @@ class Task implements Runnable {
         InputStream inStream = null;
         OutputStream outStream = null;
         try {
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+            System.out.println("Task initialized! Receiving data...");
 
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
             Object obj = in.readObject();
-            
+
             //#TODO MANAGE RESPONSES
-            System.out.println("Server received request");
+            System.out.println("Server task received request");
             ResponseBase response = new ResponseBase();
-            response.response = "Received object of type: " + obj.getClass(); 
+            response.response = "Received object of type: " + obj.getClass();
+            
+            out.writeObject(response);
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {

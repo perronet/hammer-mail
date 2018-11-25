@@ -22,7 +22,7 @@ import java.util.Date;
  * The client wants a list of new mails.
  * @author 00mar
  */
-public class RequestGetMails {
+public class RequestGetMails extends RequestBase {
     Date lastMailDate;
     
     /**

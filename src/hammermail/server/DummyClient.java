@@ -18,6 +18,7 @@ package hammermail.server;
 
 import hammermail.core.Globals;
 import hammermail.net.requests.RequestGetMails;
+import hammermail.net.responses.ResponseBase;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -49,9 +50,10 @@ public class DummyClient {
             
             String str;
             
-            while ((str = (String) in.readObject()) != null) {
-                System.out.println(str);
-            }
+            ResponseBase response = (ResponseBase)in.readObject();
+            System.out.println("This is the client. Got a response: " + response.response);
+            System.out.println("This is the client. The type is : " + ((Object)response).getClass());
+
             
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);

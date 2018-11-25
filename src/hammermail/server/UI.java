@@ -41,10 +41,7 @@ public class UI extends Application {
     }
 
     void startServer() {
-        System.out.println("Starting Server!");
         Thread t = new Thread(() -> {
-            System.out.println("this is not working, dio!");
-
             Backend backend = new Backend();
             backend.startServer();
         });

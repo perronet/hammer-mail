@@ -20,7 +20,7 @@ package hammermail.net.requests;
  * The client is signing up to HammerMail. Yay! 
  * @author 00mar
  */
-public class RequestSignUp {
+public class RequestSignUp extends RequestBase {
     /**
      * Actually, for sign up we only need the user and password.
      * Maybe in the future we can have other stuff like name, surname, ecc.
