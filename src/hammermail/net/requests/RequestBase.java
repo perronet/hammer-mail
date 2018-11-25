@@ -33,7 +33,7 @@ public abstract class RequestBase implements Serializable {
     * @param password the password
     * @return true if the authentication is well-formed
     */
-    public boolean SetAutentication(String username, String password) {
+    public boolean SetAuthentication(String username, String password) {
         this.username = username;
         this.password = password;
         return IsAuthenticationWellFormed();

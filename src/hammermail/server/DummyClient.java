@@ -17,13 +17,15 @@
 package hammermail.server;
 
 import hammermail.core.Globals;
-import hammermail.net.requests.RequestGetMails;
-import hammermail.net.responses.ResponseBase;
+import hammermail.core.Mail;
+import hammermail.net.requests.*;
+import hammermail.net.responses.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Level;
@@ -34,29 +36,48 @@ import java.util.logging.Logger;
  *
  * @author 00mar
  */
-public class DummyClient {
+public final class DummyClient {
 
     public DummyClient() {
         try {
-            Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-            RequestGetMails req = new RequestGetMails(Date.from(Instant.now()));
-            
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            //Testing Signup
+            logAction("Testing invalid...");
+            RequestSignUp errorReq = new RequestSignUp();
+            errorReq.SetAuthentication("hello", null);//password is not valid
+            testRequest(errorReq);
 
-            System.out.println("SENDING REQUEST");
-
-            out.writeObject(req);
+            logAction("Testing signup...");
+            RequestSignUp signupReq = new RequestSignUp();
+            signupReq.SetAuthentication("hello", "world");
+            testRequest(signupReq);
             
-            String str;
+            logAction("Testing mails...");
+            RequestGetMails mailsReq = new RequestGetMails();
+            mailsReq.SetAuthentication("hello", "world");
+            testRequest(mailsReq);
             
-            ResponseBase response = (ResponseBase)in.readObject();
-            System.out.println("This is the client. Got a response: " + response.response);
-            System.out.println("This is the client. The type is : " + ((Object)response).getClass());
-
+            logAction("Testing new mail sent...");
+            RequestNewMail newMailReq = new RequestNewMail(null);//new Mail(Integer.SIZE, "hello", "stallman", "is it true?", "Are nails tasty?", Date.from(Instant.now()).toString()));
+            newMailReq.SetAuthentication("hello", "world");
+            testRequest(newMailReq);
             
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public void testRequest(RequestBase req) throws IOException, ClassNotFoundException {
+        Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+        logAction("Socket initialized. Sending Request...");
+        out.writeObject(req);
+        ResponseBase response = (ResponseBase) in.readObject();
+        logAction("Got a response! The type is : " + ((Object) response).getClass());
+    }
+
+    public void logAction(String log) {
+        System.out.println("#### CLIENT #### " + log);
+    }
+
 }

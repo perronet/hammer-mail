@@ -17,16 +17,15 @@
 package hammermail.server;
 
 import hammermail.core.Globals;
-import hammermail.net.responses.ResponseBase;
+import hammermail.net.requests.*;
+import hammermail.net.responses.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class implements the backend of the Hammermail server.
+ * This class implements the backend of the HammerMail server.
  *
  * @author 00mar
  */
@@ -64,11 +63,11 @@ public class Backend {
      * This method will loop until the server is working
      */
     boolean serverLoop() {
-        System.out.println("Waiting for request...");
+        logAction("Waiting for request...");
 
         try {
             Socket incoming = serverSocket.accept();
-            System.out.println("Received request! Starting new task...");
+            logAction("Received request! Starting new task...");
             handleNewRequest(incoming);
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
@@ -87,14 +86,14 @@ public class Backend {
      * Stops threads and socket. Use it to stop the server
      */
     void stopServer() {
-        System.out.println("Stopping server...");
+        logAction("Stopping server...");
 
         //Stopping threads
         exec.shutdown();
         try {
             exec.awaitTermination(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
+            logAction(e.getMessage());
         }
 
         //Closing socket
@@ -105,6 +104,10 @@ public class Backend {
                 Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    public void logAction(String log) {
+        System.out.println("°°°° BACKEND °°°° " + log);
     }
 }
 
@@ -132,18 +135,21 @@ class Task implements Runnable {
         InputStream inStream = null;
         OutputStream outStream = null;
         try {
-            System.out.println("Task initialized! Receiving data...");
+            logAction("Task initialized! Receiving data...");
 
             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
             Object obj = in.readObject();
 
             //#TODO MANAGE RESPONSES
-            System.out.println("Server task received request");
-            ResponseBase response = new ResponseBase();
-            response.response = "Received object of type: " + obj.getClass();
-            
-            out.writeObject(response);
+            logAction("Server task received request");
+
+            if (!(obj instanceof RequestBase)) {
+                logAction("Error: received object of type: " + obj.getClass());
+            } else {
+                ResponseBase response = handleRequest((RequestBase) obj);
+                out.writeObject(response);
+            }
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -160,5 +166,46 @@ class Task implements Runnable {
                 Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    /**
+     * Given a valid request, generates a proper response
+     *
+     * @param request
+     * @return
+     */
+    ResponseBase handleRequest(RequestBase request) {
+        if (!request.IsAuthenticationWellFormed()) {
+            return new ResponseError(ResponseError.ErrorType.INCORRECT_AUTHENTICATION);
+        }
+
+        if (request instanceof RequestSignUp) {
+            return handleSignUp((RequestSignUp) request);
+        } else if (request instanceof RequestNewMail) {
+            return handleNewMail((RequestNewMail) request);
+        } else if (request instanceof RequestGetMails) {
+            return handleGetMails((RequestGetMails) request);
+        } else {//should never get here, #TODO do something if it happens
+            return null;
+        }
+    }
+
+    ResponseBase handleSignUp(RequestSignUp request) {
+        //#TODO DB CALLS
+        return new ResponseSuccess();
+    }
+
+    ResponseBase handleNewMail(RequestNewMail request) {
+        //#TODO DB CALLS
+        return new ResponseSuccess();
+    }
+
+    ResponseBase handleGetMails(RequestGetMails request) {
+        //#TODO DB CALLS
+        return new ResponseMails(null);
+    }
+    
+    public void logAction(String log) {
+        System.out.println("**** SERVER **** " + log);
     }
 }

@@ -10,6 +10,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
+ * Stallman si mangia i piedi
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -21,7 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -34,10 +37,19 @@ public class UI extends Application {
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("Hello World!");
         primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("UI.fxml"))));
+
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+        primaryStage.setX(primaryScreenBounds.getMinX() + primaryScreenBounds.getWidth() - 400);
+        primaryStage.setY(primaryScreenBounds.getMinY() + primaryScreenBounds.getHeight() - 300);
+        primaryStage.setWidth(300);
+        primaryStage.setHeight(200);
+
         primaryStage.show();
 
         startServer();
-        testServer();
+        
+        for(int i = 0; i < 1; i++)//Up to 200 working on my machine
+            testServer();
     }
 
     void startServer() {

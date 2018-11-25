@@ -14,28 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package hammermail.net.requests;
+package hammermail.net.responses;
 
-import java.util.Date;
+import hammermail.core.Mail;
+import java.util.List;
 
 /**
- * The client wants a list of new mails.
+ * Sent by the user when sending mails
  * @author 00mar
  */
-public class RequestGetMails extends RequestBase {
-    
-    //Date lastMailDate;
-    
-    //#TODO implement mail list diff system
-    
-    /**
-     * Create a Request
-     * @param lastMailDate the last mail Date. The server will respond with only more recent mails.
-     * If you want all mails, just set this to null.
-     */
-    /*public RequestGetMails (Date lastMailDate)
-    {
-        this.lastMailDate = lastMailDate;
+public class ResponseMails extends ResponseBase {
+    List<Mail> mails;
+
+    public ResponseMails(List<Mail> mails) {
+        this.mails = mails;
     }
-    */
 }
