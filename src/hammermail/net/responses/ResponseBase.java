@@ -22,7 +22,6 @@ import java.io.Serializable;
  *
  * @author 00mar
  */
-public class ResponseBase implements Serializable {
+public abstract class ResponseBase implements Serializable {
 
-    public String response; //TEMPORARY, JUST MADE TO TEST STUFF!
 }
