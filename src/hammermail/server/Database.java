@@ -161,6 +161,38 @@ public class Database {
         }
     }
 
+    protected boolean isUser(String userN){
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean isUser = false;
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM users WHERE username = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            rs = pstmt.executeQuery();
+            if (rs.next())
+               isUser = true;
+
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            } finally { 
+                    return isUser;
+            }
+        }
+
+    }
+
     protected void dbAddUser(String userN, String psw) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -389,4 +421,5 @@ public class Database {
         }
     }
 
+    
 }
