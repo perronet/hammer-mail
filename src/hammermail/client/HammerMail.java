@@ -39,10 +39,6 @@ public class HammerMail extends Application {
 
     
     public static void main(String[] args) {
-		//ONLY FOR TEST, Database.java members will have protected access
-		//only for the server. This two call only once.
-		//hammermail.server.Database.createDB();
-		//hammermail.server.Database.createTables();
 		launch(args);
 		
 
