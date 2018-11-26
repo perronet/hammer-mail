@@ -136,11 +136,10 @@ public class Database {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             rs = pstmt.executeQuery();
-            if (rs.isClosed()) {
+            if (!rs.next())
                 dbPsw = null;
-                return false;
-            }
-            dbPsw = rs.getString("password");
+            else
+                dbPsw = rs.getString("password");
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
@@ -173,7 +172,7 @@ public class Database {
             pstmt.setString(1, userN);
             rs = pstmt.executeQuery();
 
-            if (rs.isClosed()) {
+            if (!rs.next()) {
                 sql = "INSERT INTO users VALUES (?, ?)";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, userN);
