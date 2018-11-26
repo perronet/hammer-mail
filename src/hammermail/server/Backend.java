@@ -32,6 +32,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static hammermail.net.responses.ResponseError.ErrorType.*;
+//import static hammermail.net.responses.ResponseError.ErrorType.INCORRECT_AUTHENTICATION;
+//import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
+//import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
+//import static hammermail.net.responses.ResponseError.ErrorType.SIGNUP_USERNAME_TAKEN;
+
+
 /**
  * This class implements the backend of the HammerMail server.
  *
@@ -191,17 +198,38 @@ class Task implements Runnable {
     }
 
     ResponseBase handleSignUp(RequestSignUp request) {
-        //#TODO DB CALLS
+        Database db = new Database(false);
+        if (db.isUser(request.getUsername()))
+            return new ResponseError(SIGNUP_USERNAME_TAKEN);
+        else
+            db.addUser(request.getUsername(), request.getPassword());
+        
         return new ResponseSuccess();
     }
 
     ResponseBase handleSendMail(RequestSendMail request) {
-        //#TODO DB CALLS
-        return new ResponseSuccess();
+//        Database db = new Database(false);
+//        //note: checkPassword return false on not-existing user
+//        if (db.checkPassword(request.getUsername(), request.getPassword())){
+//            
+//            if (db.isUser(request.getMail().getReceiver())){
+//                db.addMail(request.getMail());
+//                //TODO servers things?
+//                return new ResponseSuccess();
+//            } else 
+//                return new ResponseError(SENDING_TO_UNEXISTING_USER);
+//        } else 
+//            return new ResponseError(INCORRECT_AUTHENTICATION);
+       return new ResponseSuccess();
     }
 
     ResponseBase handleGetMails(RequestGetMails request) {
-        //#TODO DB CALLS
+//        Database db = new Database(false);
+//        
+//        if (db.checkPassword(request.getUsername(), request.getPassword()))
+//            return new ResponseMails(db.getMails(request.getUsername()));
+//        else
+//            return new ResponseError(INCORRECT_AUTHENTICATION);
         return new ResponseMails(null);
     }
     

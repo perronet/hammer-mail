@@ -17,7 +17,6 @@
 package hammermail.server;
 
 import hammermail.core.Globals;
-import hammermail.core.Mail;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import java.io.IOException;

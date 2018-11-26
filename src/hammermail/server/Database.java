@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 
 
 public class Database {
-    private static final String URL = "src/test/hammer.db";
+    private static final String URL = "src/hammermail/server/hammer.db";
     private static final String DB_URL = "jdbc:sqlite:" + URL;
 
     public Database(boolean dropOld) {
@@ -193,7 +193,7 @@ public class Database {
 
     }
 
-    protected void dbAddUser(String userN, String psw) {
+    protected void addUser(String userN, String psw) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -230,7 +230,7 @@ public class Database {
         }
     }
 
-    protected void dbRemoveUser(String userN) {
+    protected void removeUser(String userN) {
         Connection conn = null;
         PreparedStatement pstmt = null;
 
@@ -257,7 +257,7 @@ public class Database {
 
     }
 
-    protected void dbAddMail(Mail mail) {
+    protected void addMail(Mail mail) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
@@ -285,7 +285,7 @@ public class Database {
         }
     }
 
-    protected void dbRemoveMail(Mail mail) {
+    protected void removeMail(Mail mail) {
         Connection conn = null;
         PreparedStatement pstmt = null;
 
@@ -379,6 +379,64 @@ public class Database {
                 mailList.add(m);
             }
 
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            } finally {
+                return mailList;
+            }
+        }
+    }
+
+    protected ArrayList<Mail> getMails(String userN) {
+        ArrayList<Mail> mailList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM email WHERE sender = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Mail m = new Mail(1,
+                        /*rs.getInt("user_id"), */
+                        rs.getString("sender"),
+                        rs.getString("receiver"),
+                        rs.getString("title"),
+                        rs.getString("email_text"),
+                        rs.getTimestamp("time"));
+                mailList.add(m);
+            }
+            
+            sql = "SELECT * FROM email WHERE receiver = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                Mail m = new Mail(1,
+                        /*rs.getInt("user_id"), */
+                        rs.getString("sender"),
+                        rs.getString("receiver"),
+                        rs.getString("title"),
+                        rs.getString("email_text"),
+                        rs.getTimestamp("time"));
+                mailList.add(m);
+            }
+            
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
