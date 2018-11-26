@@ -29,8 +29,12 @@ public class HammerMail extends Application {
         
 //        Uncomment to start without login
 //        Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("UIlogin.fxml"));
-       
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
+        Parent root = fxmlLoader.load();       
+        UILoginController loginController = fxmlLoader.getController();
+        loginController.init(stage);
+        
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("HammerMail");

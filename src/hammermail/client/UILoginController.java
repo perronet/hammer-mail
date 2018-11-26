@@ -32,13 +32,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-/**
- * FXML Controller class
- *
- * @author marco
- */
 public class UILoginController implements Initializable {
 
+    private Stage s;
+        
     @FXML
     private TextField username;
 
@@ -48,8 +45,6 @@ public class UILoginController implements Initializable {
     @FXML 
     private Text loginfailure;
 
-    private Stage stage;
-
     @FXML
     private void handleLogin(ActionEvent event){
         //username, password to the server
@@ -57,8 +52,7 @@ public class UILoginController implements Initializable {
         //use of bool: waiting for the DB check credential implementations
         try {
             if (logged){
-                stage = (Stage)((Button)event.getSource()).getScene().getWindow(); //get this stage
-                stage.close(); //close myself
+                s.close(); //close myself
 
                 //spawn a new stage
                 Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
@@ -81,7 +75,11 @@ public class UILoginController implements Initializable {
         //contact server, that will call Database.dbAddUser(username, psw)
     }
 
-
+    //"Constructor"
+    public void init(Stage stage){ 
+        this.s = stage;
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO

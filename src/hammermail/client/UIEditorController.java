@@ -40,39 +40,32 @@ public class UIEditorController implements Initializable {
 
     private Model m;
    
-    @FXML
     private Stage s;
+    
     @FXML
     private TextArea receiversmail, mailsubject, bodyfield;
     
-    private String receiver, subject, text;
-    
-    
     @FXML 
     private void handleSend(ActionEvent event){
-        receiver = receiversmail.getText();
         //TODO read receiver to each comma and verify it is an existent person
+        String receiver = receiversmail.getText();
         if(receiver.equals("")){
             handleError();
         }else{
-            subject = mailsubject.getText();
-            text = bodyfield.getText();
-            m.addMail(receiver, subject, text);
+            m.addMail(receiver, mailsubject.getText(), bodyfield.getText());
             s.close();
         }
     }
     
     @FXML 
     public void handleSave(Event event){
-        receiver = receiversmail.getText();
+        String receiver = receiversmail.getText();
         if(receiver.equals("")){
-            if(!(event instanceof WindowEvent)){
-                handleError();
+            if(!(event instanceof WindowEvent)){ //"If the window didn't get closed"
+                handleError();                   //TODO just save the draft always, even if the receiver is empty
             }
         }else{
-            subject = mailsubject.getText();
-            text = bodyfield.getText();
-            m.saveDraft(receiver, subject, text);
+            m.saveDraft(receiver, mailsubject.getText(), bodyfield.getText());
             System.out.println("Draft saved");
             s.close();
         }
@@ -97,11 +90,12 @@ public class UIEditorController implements Initializable {
      * Initializes the controller class.
      */
     
+    //"Constructor"
     public void init(Model model, Stage stage){ //to add parameter "current user" to set sender
         if(this.m != null){
-                throw new IllegalStateException("Only one initialization per model.");
-            }
-        this.m = model; //Binding the model
+            throw new IllegalStateException("Only one initialization per model.");
+        }
+        this.m = model; 
         this.s = stage;
     }
        

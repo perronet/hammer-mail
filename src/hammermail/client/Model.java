@@ -83,6 +83,14 @@ public class Model {
         listMail.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
         idCounter++;
     }
+
+    public void removeMail(){ //TODO remove specified element 
+        listMail.remove(listMail.size()-1);
+    }
+    
+    public Mail getMailByIndex(int i){
+        return listMail.get(i);
+    }
     
     //invisible saves
     public void saveDraft(String receiver, String title, String text){
@@ -96,14 +104,6 @@ public class Model {
     
      public Mail getDraftByIndex(int i){
         return listDraft.get(i);
-    }
-    
-    public void removeMail(){ //TODO remove specified element 
-        listMail.remove(listMail.size()-1);
-    }
-    
-    public Mail getMailByIndex(int i){
-        return listMail.get(i);
     }
     
 }

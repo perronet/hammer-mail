@@ -37,6 +37,10 @@ import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
 
+    private Model m;
+    
+    //TODO maybe add a Stage attribute
+    
     @FXML
     private Label user;
     
@@ -86,8 +90,6 @@ public class UIController implements Initializable {
        // nametab = tab1.selected();
         m.removeMail();
     }  
-    
-    private Model m;
        
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
@@ -96,7 +98,7 @@ public class UIController implements Initializable {
         //BINDINGS
 //        mailcontent.textProperty().bind(m.currentMailProperty()); //changed this bind to a listener for convenience
         
-        //SETUP LISTENERS AND OTHER PARAMETERS
+        //SETUP LISTENERS AND OTHER PARAMETERS (listmail)
         listmail.setItems(m.getListMail()); //the ListView will automatically refresh the view to represent the items in the ObservableList
 
         listmail.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
@@ -111,7 +113,7 @@ public class UIController implements Initializable {
             mailcontent.setText(newValue.toString());
         });
         
-        //SETUP LISTENERS AND OTHER PARAMETERS (For drafts)
+        //SETUP LISTENERS AND OTHER PARAMETERS (listdrafts)
         listdraft.setItems(m.getListDraft()); 
 
         listdraft.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
