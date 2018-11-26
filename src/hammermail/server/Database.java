@@ -25,110 +25,155 @@ import java.sql.Statement;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 public class Database {
-    
-    private static final String dbUrl = "jdbc:sqlite:src/hammermail/server/hammer.db";
-    
-    public static void createDB() {
-        try (Connection conn = DriverManager.getConnection(dbUrl)) {
+    private static final String URL = "src/test/hammer.db";
+    private static final String DB_URL = "jdbc:sqlite:" + URL;
+
+    public Database(boolean dropOld) {
+        if (!Files.exists(Paths.get(URL))) {
+            createDB();
+            createTables();
+        } else {
+            if (dropOld) {
+                dropDB();
+                System.out.println("Delete " + URL + " database");
+                createDB();
+                createTables();
+            }
+        }
+    }
+
+    private void createDB() {
+        Connection conn = null;
+        try {
+            try {
+                Class.forName("org.sqlite.JDBC");
+            } catch (ClassNotFoundException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+            conn = DriverManager.getConnection(DB_URL);
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());
                 System.out.println("A new database has been created.");
             }
         } catch (SQLException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-        }
-    }
-	
-    public static void createTables() {
-        String sqlUser = "CREATE TABLE IF NOT EXISTS users (\n"
-                        // + "	user_id integer AUTO_INCREMENT PRIMARY KEY,\n"
-                         + " username varchar(255) PRIMARY KEY,\n"
-                         + " password varchar(255) NOT NULL\n"
-                         + ");";
-
-        String sqlEmail = "CREATE TABLE IF NOT EXISTS email (\n"
-                        + " from_user varchar(255) NOT NULL,\n"
-                        + " to_user varchar(255) NOT NULL,\n"
-                        + " time varchar(255) NOT NULL,\n"
-                        + " email_text text NOT NULL, \n"
-                        + " PRIMARY KEY (from_user, to_user, time), \n"
-                        + " FOREIGN KEY (from_user) REFERENCES users(username) ON DELETE CASCADE, \n"
-                        + " FOREIGN KEY (to_user) REFERENCES users(username) ON DELETE CASCADE\n"
-                        + ");";
-        
-        try (Connection conn = DriverManager.getConnection(dbUrl);
-            Statement stmt = conn.createStatement()) {
-            stmt.execute(sqlUser);
-            stmt.execute(sqlEmail);
-            
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace(System.out);
-        }
-    }
-    
-	//delete?
-    protected static void connectDB(String url) {
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url);
-            System.out.println("Connection to SQLite has been established.");
-
-        } catch (SQLException e) {
             System.out.println(e.getMessage());
+            e.printStackTrace();
+
         } finally {
             try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-                ex.printStackTrace(System.out);
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
 
-    
-	//Check the user login credential
-    protected static boolean checkPassword(String userN, String passW){
-        String dbPsw = "";
-        try {
-            Connection conn = DriverManager.getConnection(dbUrl);
-            String sql = "SELECT * FROM users WHERE username = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
-            ResultSet rs = pstmt.executeQuery();
-            dbPsw = rs.getString("password");
+    private void createTables() {
+        String sqlUser = "CREATE TABLE IF NOT EXISTS users (\n"
+                // + "	user_id integer AUTO_INCREMENT PRIMARY KEY,\n"
+                + " username varchar(255) PRIMARY KEY,\n"
+                + " password varchar(255) NOT NULL\n"
+                + ");";
 
-            rs.close();
-            pstmt.close();
-            conn.close();
+        String sqlEmail = "CREATE TABLE IF NOT EXISTS email (\n"
+                + " sender varchar(255) NOT NULL,\n"
+                + " receiver varchar(255) NOT NULL,\n"
+                + " title varchar(255),\n"
+                + " email_text text NOT NULL, \n"
+                + " time TIMESTAMP NOT NULL,\n"
+                + " PRIMARY KEY (sender, receiver, time), \n"
+                + " FOREIGN KEY (sender) REFERENCES users(username) ON DELETE CASCADE, \n"
+                + " FOREIGN KEY (receiver) REFERENCES users(username) ON DELETE CASCADE\n"
+                + ");";
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            stmt = conn.createStatement();
+            stmt.execute(sqlUser);
+            stmt.execute(sqlEmail);
+
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                stmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void dropDB() {
+        try {
+            Files.deleteIfExists(Paths.get(URL));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
+
+    protected boolean checkPassword(String userN, String passW) {
+        String dbPsw = "";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM users WHERE username = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            rs = pstmt.executeQuery();
+            if (rs.isClosed()) {
+                dbPsw = null;
+                return false;
+            }
+            dbPsw = rs.getString("password");
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
-        }
-        
-        finally{
-            //Never get access to user if DB check fail
-            return dbPsw.equals(passW);
-        }
-	}
 
-    protected static void dbAddUser(String userN, String psw) {
-        try (Connection conn = DriverManager.getConnection(dbUrl);){
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                if (dbPsw != null)
+                    return dbPsw.equals(passW);
+                else
+                    return false;
+            }
+        }
+    }
 
+    protected void dbAddUser(String userN, String psw) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
 
-            if (rs.isClosed()){
+            if (rs.isClosed()) {
                 sql = "INSERT INTO users VALUES (?, ?)";
                 pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, userN);
@@ -138,131 +183,211 @@ public class Database {
                 System.out.println("User already exists");
             }
 
-            rs.close();
-            pstmt.close();
-            conn.close();
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
 
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
             }
+        }
     }
-    
-    protected static void dbRemoveUser(String userN){
-        try (Connection conn = DriverManager.getConnection(dbUrl);){
+
+    protected void dbRemoveUser(String userN) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
             String sql = "DELETE FROM users WHERE username = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             pstmt.executeUpdate();
-
-            pstmt.close();
-            conn.close();
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
-        }    
+
+        } finally {
+            try {
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            }
+        }
+
     }
- 
-    protected static void dbAddMail(Mail mail){
-        try (Connection conn = DriverManager.getConnection(dbUrl);){
-            String sql = "INSERT INTO email VALUES (?, ?, ?, ?)";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+    protected void dbAddMail(Mail mail) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "INSERT INTO email VALUES (?, ?, ?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, mail.getSender());
             pstmt.setString(2, mail.getReceiver());
-            pstmt.setString(3, mail.getDate());
+            pstmt.setString(3, mail.getTitle());
             pstmt.setString(4, mail.getText());
+            pstmt.setTimestamp(5, mail.getDate());
             pstmt.executeUpdate();
-            
-            pstmt.close();
-            conn.close();
-
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            }
         }
     }
 
-    protected static void dbRemoveMail(Mail mail){
-        try (Connection conn = DriverManager.getConnection(dbUrl);){         
-            String sql = "DELETE FROM email WHERE from_user = ? AND "
-                            + "to_user = ? AND time = ? ";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+    protected void dbRemoveMail(Mail mail) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "DELETE FROM email WHERE sender = ? AND "
+                    + "receiver = ? AND time = ? ";
+            pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, mail.getSender());
             pstmt.setString(2, mail.getReceiver());
-            pstmt.setString(3, mail.getDate());
+            pstmt.setTimestamp(3, mail.getDate());
             pstmt.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
 
-            pstmt.close();
-            conn.close();
+        } finally {
+            try {
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            }
+        }
+    }
+
+    protected ArrayList<Mail> getRiceivedMail(String userN) {
+        ArrayList<Mail> mailList = new ArrayList<>();;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM email WHERE receiver = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Mail m = new Mail(1, 
+                        /*rs.getInt("user_id"), */
+                        rs.getString("sender"), 
+                        rs.getString("receiver"),
+                        rs.getString("title"), 
+                        rs.getString("email_text"), 
+                        rs.getTimestamp("time"));
+                mailList.add(m);
+            }
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
-        }    
-    }
-	
-    protected static ArrayList<Mail> getRiceivedMail(String userN){
-        ArrayList<Mail> mailList = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(dbUrl);) {
-            String sql = "SELECT * FROM email WHERE to_user = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
-            ResultSet rs = pstmt.executeQuery();
-            
-            rs.beforeFirst();
-            while (rs.next()) {
-				//first value only for test, consider meaning of "id" in mail class
-				//fourth value only for test, considere how to implement in db
-                Mail m = new Mail( 1,
-                                /*rs.getInt("user_id"), */
-                                rs.getString("from_user"), 
-                                rs.getString("to_user"),
-                                "title",
-                                rs.getString("time"),
-                                rs.getString("text"));
-                mailList.add(m);
-            }
-            rs.close();
-            pstmt.close();
-            conn.close();
-        } catch (SQLException ex) {
+
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
-        }
-        return mailList;
-    }
-	
-    protected static ArrayList<Mail> getSentMail(String userN){
-        ArrayList<Mail> mailList = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(dbUrl);) {
-            String sql = "SELECT * FROM email WHERE from_user = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
-            ResultSet rs = pstmt.executeQuery();
-            
-            rs.beforeFirst();
-            while (rs.next()) {
-				//first value only for test, consider meaning of "id" in mail class
-				//forth value only for test, considere how to implement in db
-                Mail m = new Mail(1,
-                                /*rs.getInt("user_id"), */
-                                rs.getString("from_user"), 
-                                rs.getString("to_user"),
-                                "title",
-                                rs.getString("time"),
-                                rs.getString("text"));
-                mailList.add(m);
+            } finally {
+                return mailList;
             }
-            rs.close();
-            pstmt.close();
-            conn.close();
-        } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
         }
-        return mailList;
     }
 
+    protected ArrayList<Mail> getSentMail(String userN) {
+        ArrayList<Mail> mailList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM email WHERE sender = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userN);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Mail m = new Mail(1,
+                        /*rs.getInt("user_id"), */
+                        rs.getString("sender"),
+                        rs.getString("receiver"),
+                        rs.getString("title"),
+                        rs.getString("email_text"),
+                        rs.getTimestamp("time"));
+                mailList.add(m);
+            }
+
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            } finally {
+                return mailList;
+            }
+        }
+    }
+
+    protected void resetTables() {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            stmt = conn.createStatement();
+            stmt.executeUpdate("DELETE FROM users");
+            stmt.executeUpdate("DELETE FROM email");
+
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                stmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            }
+        }
+    }
 
 }

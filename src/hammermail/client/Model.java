@@ -18,6 +18,7 @@ package hammermail.client;
 
 import hammermail.core.User;
 import hammermail.core.Mail;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,12 +47,13 @@ public class Model {
     public Model() { //TODO load mails and user from file 
         currentMail = new SimpleObjectProperty<>(); 
         currentDraft = new SimpleObjectProperty<>();
-        setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ""));
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ts));
 
         listMail.setAll(
-            new Mail(0, "marco", "andrea", "Mailzero", "ciao", ""),
-            new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ""),
-            new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", "")
+            new Mail(0, "marco", "andrea", "Mailzero", "ciao", ts),
+            new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ts),
+            new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", ts)
         );
     }
    
@@ -78,13 +80,13 @@ public class Model {
     }
     
     public void addMail(String receiver, String title, String text){
-        listMail.add(new Mail(idCounter, "marco", receiver, title, text, "data"));
+        listMail.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
         idCounter++;
     }
     
     //invisible saves
     public void saveDraft(String receiver, String title, String text){
-        listDraft.add(new Mail(idCounter, "marco", receiver, title, text, "data"));
+        listDraft.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
         idCounter++;
     }
     

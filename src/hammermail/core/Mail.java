@@ -18,7 +18,9 @@ package hammermail.core;
 
 import java.io.Serializable;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import java.sql.Timestamp;
 
 public class Mail implements Serializable {
 
@@ -27,9 +29,9 @@ public class Mail implements Serializable {
     private SimpleStringProperty receiver = new SimpleStringProperty();
     private SimpleStringProperty title = new SimpleStringProperty();
     private SimpleStringProperty text = new SimpleStringProperty();
-    private SimpleStringProperty date = new SimpleStringProperty(); //TODO use a standard date format (eg. make it then parse receiver String)
+    private SimpleObjectProperty <Timestamp> date = new SimpleObjectProperty<>();
 
-    public Mail(Integer id, String sender, String receiver, String title, String text, String date){
+    public Mail(Integer id, String sender, String receiver, String title, String text, Timestamp date){
         setId(id);
         setSender(sender);
         setReceiver(receiver);
@@ -40,7 +42,7 @@ public class Mail implements Serializable {
     
     @Override
     public String toString(){
-        return getId() + " " + getSender() + " " + getTitle();
+        return getId() + " " + getSender() + " " + getTitle() + " " + getDate();
     }
     
     //Every getter, setter and property getter has the following format
@@ -82,10 +84,10 @@ public class Mail implements Serializable {
     public SimpleStringProperty textProperty() {return text;}
 
 
-    public final String getDate(){return date.get();}
+    public final Timestamp getDate(){return date.get();}
  
-    public final void setDate(String value){date.set(value);}
+    public final void setDate(Timestamp value){date.set(value);}
  
-    public SimpleStringProperty dateProperty() {return date;}    
-    
+    public SimpleObjectProperty<Timestamp> dateProperty() {return date;}    
+
 }
