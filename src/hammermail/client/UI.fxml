@@ -15,10 +15,11 @@
       <top>
         <AnchorPane id="TopAnchorPane">
           <children>
-            <HBox prefHeight="40.0" prefWidth="600.0" spacing="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <HBox prefHeight="40.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <Label fx:id="user" text="topbar" />
               <Button onAction="#handleCreate" text="generate new mail" />
               <Button onAction="#handleDelete" text="remove mail" />
+              <Button onAction="#handleReceive" text="receive mail" />
             </HBox>
           </children>
         </AnchorPane>
@@ -27,10 +28,10 @@
       <!--center pane-->
       <center>
         <AnchorPane id="CenterAnchorPane">
-          <SplitPane dividerPositions="0.20066889632107024" focusTraversable="true" prefHeight="289.0" prefWidth="411.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+          <SplitPane dividerPositions="0.4" focusTraversable="true" prefHeight="289.0" prefWidth="411.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <items>
               <!-- Left panel -->
-              <TabPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+              <TabPane fx:id="tabs" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                 <Tab fx:id="senttab" text="Sent">
                   <!-- Mail list -->
                   <ListView fx:id="listmail" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
@@ -38,15 +39,18 @@
                 <Tab fx:id="drafttab" text="Drafts">
                   <ListView fx:id="listdraft" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                 </Tab>
+                <Tab fx:id="inboxtab" text="Inbox">
+                  <ListView fx:id="listinbox" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                </Tab>
               </TabPane>
               <!-- Right panel -->
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="253.0" prefWidth="215.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0">
                 <children>
                   <VBox fx:id="centerbox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">  
                     <TextArea fx:id="mailsndrcv" editable="false" prefRowCount="1"/>
                     <TextArea fx:id="mailtitle" editable="false" prefRowCount="1"/>
                     <TextArea fx:id="maildate" editable="false" prefRowCount="1"/>
-                    <TextArea fx:id="mailcontent" editable="false"/>
+                    <TextArea fx:id="mailcontent" editable="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>    
                   </VBox>      
                 </children>
               </AnchorPane>

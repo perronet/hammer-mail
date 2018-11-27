@@ -27,13 +27,15 @@ import javafx.collections.ObservableList;
 
 public class Model {
     
-    private final ObservableList<Mail> listMail = FXCollections.observableArrayList();
+    private final ObservableList<Mail> listInbox = FXCollections.observableArrayList();
     
-    private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();//invisible
+    private final ObservableList<Mail> listMail = FXCollections.observableArrayList(); //TODO rename it "listSent"
+    
+    private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();
     
     private final SimpleObjectProperty<Mail> currentMail;
     
-    private final SimpleObjectProperty<Mail> currentDraft;
+    private final SimpleObjectProperty<Mail> currentDraft; //TODO maybe delete this and use currentMail always?
     
     private ArrayList<User> listUser;
 
@@ -55,6 +57,7 @@ public class Model {
             new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ts),
             new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", ts)
         );
+        
     }
    
     public final Mail getCurrentMail(){ return currentMail.get(); }
@@ -63,20 +66,27 @@ public class Model {
     
     public SimpleObjectProperty<Mail> currentMailProperty() { return currentMail; }
     
-    public ObservableList<Mail> getListMail(){ 
-        return listMail;
+    //Inbox
+    public ObservableList<Mail> getListInbox(){ 
+        return listInbox;
+    }
+
+    public void addReceivedMail(String sender, String title, String text){
+        listInbox.add(new Mail(idCounter, sender, "Me", title, text, new Timestamp(System.currentTimeMillis())));
+        idCounter++;
+    }
+
+    public void removeReceivedMail(){ //TODO remove specified element 
+        listInbox.remove(listInbox.size()-1);
     }
     
-    //draft methods (to be put in the second tab
+    public Mail getReceivedMailByIndex(int i){
+        return listInbox.get(i);
+    }
     
-    public final Mail getCurrentDraft(){ return currentDraft.get();}
-    
-    public final void setCurrentDraft(Mail m) {currentDraft.set(m);}
-    
-    public SimpleObjectProperty<Mail> currentDraftProperty() { return currentDraft; }
-    
-    public ObservableList<Mail> getListDraft(){ 
-        return listDraft;
+    //Sent
+    public ObservableList<Mail> getListMail(){ 
+        return listMail;
     }
     
     public void addMail(String receiver, String title, String text){
@@ -92,7 +102,17 @@ public class Model {
         return listMail.get(i);
     }
     
-    //invisible saves
+    //Drafts  
+    public final Mail getCurrentDraft(){ return currentDraft.get();}
+    
+    public final void setCurrentDraft(Mail m) {currentDraft.set(m);}
+    
+    public SimpleObjectProperty<Mail> currentDraftProperty() { return currentDraft; }
+    
+    public ObservableList<Mail> getListDraft(){ 
+        return listDraft;
+    }
+    
     public void saveDraft(String receiver, String title, String text){
         listDraft.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
         idCounter++;
