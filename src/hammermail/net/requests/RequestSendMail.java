@@ -32,4 +32,13 @@ public class RequestSendMail extends RequestBase {
     public RequestSendMail(Mail mail) {
         this.mail = mail;
     }
+    
+    public boolean IsMailWellFormed(){
+        return mail != null &&
+                mail.getSender() != null &&
+                mail.getReceiver() != null &&
+                mail.getTitle() != null &&
+                mail.getText() != null &&
+                mail.getDate() != null;
+    }
 }

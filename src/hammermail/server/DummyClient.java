@@ -17,6 +17,7 @@
 package hammermail.server;
 
 import hammermail.core.Globals;
+import hammermail.core.Mail;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Level;
@@ -56,7 +58,7 @@ public final class DummyClient {
             testRequest(mailsReq);
             
             logAction("Testing new mail sent...");
-            RequestSendMail sendMailReq = new RequestSendMail(null);//new Mail(Integer.SIZE, "hello", "stallman", "is it true?", "Are nails tasty?", Date.from(Instant.now()).toString()));
+            RequestSendMail sendMailReq = new RequestSendMail(new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis())));
             sendMailReq.SetAuthentication("hello", "world");
             testRequest(sendMailReq);
             

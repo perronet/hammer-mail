@@ -208,29 +208,29 @@ class Task implements Runnable {
     }
 
     ResponseBase handleSendMail(RequestSendMail request) {
-//        Database db = new Database(false);
-//        //note: checkPassword return false on not-existing user
-//        if (db.checkPassword(request.getUsername(), request.getPassword())){
-//            
-//            if (db.isUser(request.getMail().getReceiver())){
-//                db.addMail(request.getMail());
-//                //TODO servers things?
-//                return new ResponseSuccess();
-//            } else 
-//                return new ResponseError(SENDING_TO_UNEXISTING_USER);
-//        } else 
-//            return new ResponseError(INCORRECT_AUTHENTICATION);
-       return new ResponseSuccess();
+        Database db = new Database(false);
+        //note: checkPassword return false on not-existing user
+        if (db.checkPassword(request.getUsername(), request.getPassword())){
+            
+            if (request.IsMailWellFormed() && db.isUser(request.getMail().getReceiver())){
+                db.addMail(request.getMail());
+                //TODO servers things?
+                return new ResponseSuccess();
+            } else 
+                return request.IsMailWellFormed() ? 
+                new ResponseError(SENDING_TO_UNEXISTING_USER) :
+                new ResponseError(SENDING_INVALID_MAIL);
+        } else 
+            return new ResponseError(INCORRECT_AUTHENTICATION);
     }
 
     ResponseBase handleGetMails(RequestGetMails request) {
-//        Database db = new Database(false);
-//        
-//        if (db.checkPassword(request.getUsername(), request.getPassword()))
-//            return new ResponseMails(db.getMails(request.getUsername()));
-//        else
-//            return new ResponseError(INCORRECT_AUTHENTICATION);
-        return new ResponseMails(null);
+        Database db = new Database(false);
+        
+        if (db.checkPassword(request.getUsername(), request.getPassword()))
+            return new ResponseMails(db.getMails(request.getUsername()));
+        else
+            return new ResponseError(INCORRECT_AUTHENTICATION);
     }
     
     public void logAction(String log) {
