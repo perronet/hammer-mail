@@ -21,7 +21,6 @@ import hammermail.core.Mail;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -35,7 +34,7 @@ public class Model {
     
     private final SimpleObjectProperty<Mail> currentMail;
     
-    private final SimpleObjectProperty<Mail> currentDraft; //TODO maybe delete this and use currentMail always?
+    private User currenUser;
     
     private ArrayList<User> listUser;
 
@@ -48,7 +47,6 @@ public class Model {
     
     public Model() { //TODO load mails and user from file 
         currentMail = new SimpleObjectProperty<>(); 
-        currentDraft = new SimpleObjectProperty<>();
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ts));
 
@@ -72,7 +70,7 @@ public class Model {
     }
 
     public void addReceivedMail(String sender, String title, String text){
-        listInbox.add(new Mail(idCounter, sender, "Me", title, text, new Timestamp(System.currentTimeMillis())));
+        listInbox.add(new Mail(idCounter, sender, null, title, text, new Timestamp(System.currentTimeMillis()))); //Receiver needs to be null
         idCounter++;
     }
 
@@ -103,12 +101,7 @@ public class Model {
     }
     
     //Drafts  
-    public final Mail getCurrentDraft(){ return currentDraft.get();}
-    
-    public final void setCurrentDraft(Mail m) {currentDraft.set(m);}
-    
-    public SimpleObjectProperty<Mail> currentDraftProperty() { return currentDraft; }
-    
+
     public ObservableList<Mail> getListDraft(){ 
         return listDraft;
     }

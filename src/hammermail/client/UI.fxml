@@ -32,6 +32,9 @@
             <items>
               <!-- Left panel -->
               <TabPane fx:id="tabs" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <Tab fx:id="inboxtab" text="Inbox">
+                  <ListView fx:id="listinbox" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                </Tab>
                 <Tab fx:id="senttab" text="Sent">
                   <!-- Mail list -->
                   <ListView fx:id="listmail" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
@@ -39,18 +42,21 @@
                 <Tab fx:id="drafttab" text="Drafts">
                   <ListView fx:id="listdraft" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                 </Tab>
-                <Tab fx:id="inboxtab" text="Inbox">
-                  <ListView fx:id="listinbox" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                </Tab>
               </TabPane>
               <!-- Right panel -->
               <AnchorPane minHeight="0.0" minWidth="0.0">
                 <children>
                   <VBox fx:id="centerbox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">  
-                    <TextArea fx:id="mailsndrcv" editable="false" prefRowCount="1"/>
-                    <TextArea fx:id="mailtitle" editable="false" prefRowCount="1"/>
+                    <HBox spacing = "5.0">  
+                      <Label fx:id="fromto" text="From" minWidth="45.0" HBox.hgrow="NEVER"/>  
+                      <TextArea fx:id="mailfromto" editable="false" prefRowCount="1" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <HBox spacing = "5.0"> 
+                      <Label fx:id="subject" text="Subject" minWidth="45.0" HBox.hgrow="NEVER"/> 
+                      <TextArea fx:id="mailtitle" editable="false" prefRowCount="1" HBox.hgrow="ALWAYS"/>
+                    </HBox> 
                     <TextArea fx:id="maildate" editable="false" prefRowCount="1"/>
-                    <TextArea fx:id="mailcontent" editable="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>    
+                    <TextArea fx:id="mailcontent" editable="false"/>   
                   </VBox>      
                 </children>
               </AnchorPane>

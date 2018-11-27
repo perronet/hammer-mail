@@ -139,13 +139,13 @@ class Task implements Runnable {
     }
 
     void handleClient(Socket clientSocket) {
-        InputStream inStream = null;
-        OutputStream outStream = null;
+        ObjectInputStream in = null;
+        ObjectOutputStream out = null;
         try {
             logAction("Task initialized! Receiving data...");
 
-            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+            in = new ObjectInputStream(clientSocket.getInputStream());
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
             Object obj = in.readObject();
 
             //#TODO MANAGE RESPONSES
@@ -163,11 +163,11 @@ class Task implements Runnable {
             Logger.getLogger(Task.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                if (inStream != null) {
-                    inStream.close();
+                if (in != null) {
+                    in.close();
                 }
-                if (outStream != null) {
-                    outStream.close();
+                if (out != null) {
+                    out.close();
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);

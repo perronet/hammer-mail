@@ -31,6 +31,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tab;
@@ -45,12 +46,15 @@ public class UIController implements Initializable {
     
     @FXML
     private Label user;
+
+    @FXML
+    private Label fromto, subject;
     
     @FXML
     private ListView<Mail> listinbox, listmail, listdraft; //TODO rename listmail as "listsent"
     
     @FXML
-    private TextArea mailsndrcv, mailtitle, maildate, mailcontent;
+    private TextArea mailfromto, mailtitle, maildate, mailcontent;
     
     @FXML
     private TabPane tabs;
@@ -104,20 +108,17 @@ public class UIController implements Initializable {
         m = new Model();
             
         //Current mail listener
-        
         m.currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
-            mailsndrcv.setText(newValue.getReceiver()); //TODO received mail or sent mail (use different types of mail)
-            mailtitle.setText(newValue.getTitle()); 
-            maildate.setText(newValue.getDate().toString());
-            mailcontent.setText(newValue.getText());
+            if(newValue.isReceived()){ //This mail was received
+                mailfromto.setText(newValue.getSender());
+            }else{ //This mail was sent or is draft
+                mailfromto.setText(newValue.getReceiver()); 
+            }
+            maildate.setText(newValue.getDate().toString()); //TODO this should handle null values like in drafts, needs testing
+            mailtitle.setText(newValue.getTitle());    
+            mailcontent.setText(newValue.getText());    
         });
-        
-        //Draft listener //TODO maybe remove later and use only one listener?
-        
-        m.currentDraftProperty().addListener((obsValue, oldValue, newValue) -> {
-            mailcontent.setText(newValue.toString());
-        });
-        
+   
         //SETUP SENT LIST
         
         listmail.setItems(m.getListMail()); //the ListView will automatically refresh the view to represent the items in the ObservableList
@@ -127,10 +128,12 @@ public class UIController implements Initializable {
         listmail.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
             System.out.println("New mail selected from list");
             int newindex = (int)newValue;
-            m.setCurrentMail(m.getMailByIndex(newindex));
+            if(!listmail.getSelectionModel().isEmpty()){ 
+                m.setCurrentMail(m.getMailByIndex(newindex));
+            }
         });     
            
-        listmail.setCellFactory(param -> new MailCell(false)); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
+        listmail.setCellFactory(param -> new MailCell()); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
         
         //SETUP DRAFT LIST
         
@@ -141,10 +144,12 @@ public class UIController implements Initializable {
         listdraft.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> {
             System.out.println("New draft selected from list");
             int newindex = (int)newValue;
-            m.setCurrentDraft(m.getDraftByIndex(newindex));
+            if(!listdraft.getSelectionModel().isEmpty()){
+                m.setCurrentMail(m.getDraftByIndex(newindex));
+            }
         });     
             
-        listdraft.setCellFactory(param -> new MailCell(false));
+        listdraft.setCellFactory(param -> new MailCell());
         
         //SETUP INBOX LIST
         
@@ -155,27 +160,40 @@ public class UIController implements Initializable {
         listinbox.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { 
             System.out.println("New received mail selected from list");
             int newindex = (int)newValue;
-            m.setCurrentMail(m.getReceivedMailByIndex(newindex));
+            if(!listinbox.getSelectionModel().isEmpty()){
+                m.setCurrentMail(m.getReceivedMailByIndex(newindex));
+            }
         });     
   
-        listinbox.setCellFactory(param -> new MailCell(true));
+        listinbox.setCellFactory(param -> new MailCell());
         
         //OTHER SETUPS
         
+        fromto.setAlignment(Pos.CENTER);
+        subject.setAlignment(Pos.CENTER);
+        
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE); //can't close tabs
+        tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections
+            clearAllSelections();
+            if((int) newValue == 0){ //Inbox tab selected
+                fromto.setText("From");
+            }else{
+                fromto.setText("To");
+            }
+        });
         
     }    
 
+    private void clearAllSelections(){
+        listinbox.getSelectionModel().clearSelection();
+        listmail.getSelectionModel().clearSelection();
+        listdraft.getSelectionModel().clearSelection();
+    }
+    
 }
 
 class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show a Mail object in different ways
 
-    boolean isReceived; //True if this is a received mail
-    
-    public MailCell(boolean isReceived) {
-        this.isReceived = isReceived;
-    }
-    
     @Override
     protected void updateItem(Mail item, boolean empty) {
         super.updateItem(item, empty);
@@ -183,10 +201,10 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
         if (empty || item == null || item.getId() == null) {
             setText(null);
         } else {
-            if(isReceived){
+            if(item.isReceived()){ //Mail was received
                 setText(item.getSender() + " - " + item.getTitle());
             }else{
-                if(item.getReceiver() == null || item.getTitle() == null){ //Handle drafts
+                if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)
                     setText("(No subject)");
                 }else{
                     setText(item.getReceiver() + " - " + item.getTitle());

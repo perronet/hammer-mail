@@ -42,6 +42,15 @@ public class Mail implements Serializable {
         return getId() + " " + getSender() + " " + getTitle() + " " + getDate();
     }
 
+    public boolean isDraft(){
+        return this.date == null;
+    }
+    
+    public boolean isReceived(){
+        return this.receiver == null && !isDraft();
+    }
+    
+    //Getter and setters
     public Integer getId() {
         return id;
     }
