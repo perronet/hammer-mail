@@ -126,6 +126,11 @@ public class Database {
     }
 
     protected boolean checkPassword(String userN, String passW) {
+        
+        if (!isUser(userN)){
+            return false;
+        }
+        
         String dbPsw = "";
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -136,10 +141,7 @@ public class Database {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             rs = pstmt.executeQuery();
-            if (!rs.next())
-                dbPsw = null;
-            else
-                dbPsw = rs.getString("password");
+            dbPsw = rs.getString("password");
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
@@ -153,10 +155,7 @@ public class Database {
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             } finally {
-                if (dbPsw != null)
-                    return dbPsw.equals(passW);
-                else
-                    return false;
+                return dbPsw.equals(passW);
             }
         }
     }
@@ -479,5 +478,4 @@ public class Database {
         }
     }
 
-    
 }
