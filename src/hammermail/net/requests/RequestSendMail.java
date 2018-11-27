@@ -17,6 +17,7 @@
 package hammermail.net.requests;
 
 import hammermail.core.Mail;
+import static hammermail.core.Utils.isNullOrWhiteSpace;
 
 /**
  * The client is sending a new mail
@@ -35,8 +36,8 @@ public class RequestSendMail extends RequestBase {
     
     public boolean IsMailWellFormed(){
         return mail != null &&
-                mail.getSender() != null &&
-                mail.getReceiver() != null &&
+                !isNullOrWhiteSpace(mail.getSender()) &&
+                !isNullOrWhiteSpace(mail.getReceiver()) &&
                 mail.getTitle() != null &&
                 mail.getText() != null &&
                 mail.getDate() != null;
