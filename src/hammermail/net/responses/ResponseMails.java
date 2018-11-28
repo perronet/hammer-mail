@@ -29,4 +29,9 @@ public class ResponseMails extends ResponseBase {
     public ResponseMails(List<Mail> mails) {
         this.mails = mails;
     }
+
+//     we will need this to extract the mails in the response
+//    public List<Mail> getMails() {
+//        return mails;
+//    }
 }

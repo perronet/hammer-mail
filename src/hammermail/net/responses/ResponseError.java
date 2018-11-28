@@ -41,4 +41,9 @@ public class ResponseError extends ResponseBase {
     public ResponseError(ErrorType errorType) {
         this.errorType = errorType;
     }
+
+//    we will need this fro specify what type of error occurs
+//    public ErrorType getErrorType(){
+//        return this.errorType;
+//    }
 }
