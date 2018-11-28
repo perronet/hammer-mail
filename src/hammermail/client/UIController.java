@@ -33,9 +33,11 @@ import hammermail.core.Mail;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
@@ -62,40 +64,31 @@ public class UIController implements Initializable {
     @FXML
     private Tab inboxtab, senttab, drafttab; //use those to handle delete...
     
-    private String nametab;
+    @FXML
+    private HBox bottombox;
     
     @FXML
     private void handleCreate(ActionEvent event){
     
-        try{    
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root, 350, 450);
-            Stage stage = new Stage();
-            UIEditorController editorController = fxmlLoader.getController();
-            editorController.init(m, stage);
-            stage.setTitle("Write a mail...");
-            stage.setScene(scene);
-            stage.show();
-            
-            // Handler to save drafts when closing the window
-            stage.setOnCloseRequest(e -> {
-                editorController.handleSave(e);
-                System.out.println("Stage is closing");
-            });
-            
-        }catch(IOException e){
-            System.out.println (e.toString());
-        }
+        openEditor("","","", false);
         
     }  
 
     @FXML //TODO: find a way to remove from different tabs
     private void handleDelete(ActionEvent event){
-       // nametab = tab1.selected();
-        m.removeMail();
-    }  
+       if(senttab.isSelected()){
+           m.removeMail();
+       }else if(drafttab.isSelected()){
+           m.removeDraft();
+       }else if(inboxtab.isSelected()){
+           m.removeReceivedMail();
+       }
+    }
+    
+    @FXML
+    private void handleForward(ActionEvent e){
+        m.addMail(m.getMailByIndex(0).getSender(), m.getMailByIndex(0).getTitle(), m.getMailByIndex(0).getText());
+    }
 
     @FXML
     private void handleReceive(ActionEvent event){ //just for testing
@@ -182,12 +175,119 @@ public class UIController implements Initializable {
             }
         });
         
-    }    
+        //Listener that shows the right buttons in the view for each tab
+        //TODOs: forward the selected mail; Remove the selected mail; Send the selected draft and notify errors
+        //TODO: If you are replying or forwarding a mail, you shouldn't be able to save as draft e then modify it.
+        tabs.getSelectionModel().selectedItemProperty().addListener((ob, oldtab, newtab) -> {
+            bottombox.getChildren().clear();
+            if(senttab == newtab){
+                sentTabInitialize();
+            }else if(drafttab == newtab){
+                draftTabInitialize();
+            }else if(inboxtab == newtab){
+                inboxTabInitialize();
+            }
+        });
+        
+    }
+            
 
     private void clearAllSelections(){
         listinbox.getSelectionModel().clearSelection();
         listmail.getSelectionModel().clearSelection();
         listdraft.getSelectionModel().clearSelection();
+    }
+    
+    private void openEditor(String sndrcv, String title, String body, boolean modifiable){
+        try{    
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
+            Parent root = fxmlLoader.load();
+            Scene scene = new Scene(root, 350, 450);
+            Stage stage = new Stage();
+            UIEditorController editorController = fxmlLoader.getController();
+            editorController.init(m, stage);
+            editorController.setTextAreas(sndrcv, title, body, modifiable);
+            stage.setTitle("Write a mail...");
+            stage.setScene(scene);
+            stage.show();
+            
+            // Handler to save drafts when closing the window
+            stage.setOnCloseRequest(e -> {
+                editorController.handleSave(e);
+                System.out.println("Stage is closing");
+            });
+            
+        }catch(IOException e){
+            System.out.println (e.toString());
+        }
+    }
+    
+    //Duplicate. To move.
+    private void handleError(){
+        try{
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("UIEditorError.fxml"));
+                Parent root = fxmlLoader.load();
+                Scene scene = new Scene(root, 200, 200);
+                Stage stage = new Stage();
+                stage.setTitle("Error!");
+                stage.setScene(scene);
+                stage.show();
+            }catch(IOException e){
+                System.out.println (e.toString());
+            }
+    }
+    
+    private void sentTabInitialize(){
+        Button forwardButton = new Button("Forward");
+        forwardButton.setOnAction((ActionEvent e) -> {
+            openEditor("", mailtitle.getText(), "Forwarded by: " + mailfromto.getText() + " -- " +mailcontent.getText(), false);
+            //m.addMail(m.getMailByIndex(0).getSender(), m.getMailByIndex(0).getTitle(), m.getMailByIndex(0).getText());
+        });
+        bottombox.getChildren().add(forwardButton);
+    }
+    
+    private void draftTabInitialize(){
+        Button sendButton = new Button("Send");
+        sendButton.setOnAction((ActionEvent e) -> {
+            if(mailfromto.getText().equals("")){
+                handleError();
+            }else{
+                m.addMail(mailfromto.getText(), mailtitle.getText(), mailcontent.getText());
+                m.removeDraft();
+            }
+        });
+        bottombox.getChildren().add(sendButton);
+                
+        Button modifyButton = new Button("Modify");
+        modifyButton.setOnAction((ActionEvent e) -> {
+            String cont = mailcontent.getText();
+            String fromTo = mailfromto.getText();
+            String title = mailtitle.getText();
+            openEditor(fromTo, title, cont, true);
+            m.removeDraft();
+            //remove current draft and replace if saved, delete if sent
+        });
+        bottombox.getChildren().add(modifyButton);
+    }
+    
+    //TO ADD: reply all
+    private void inboxTabInitialize(){
+        Button forwardButton = new Button("Forward");
+        forwardButton.setOnAction((ActionEvent e) -> {
+            //add a "get receiver" to not open the editor
+            openEditor("", mailtitle.getText(), "Forwarded by: " + mailfromto.getText() + " -- " +mailcontent.getText(), false);
+            // m.addMail(m.getReceivedMailByIndex(0).getSender(), m.getReceivedMailByIndex(0).getTitle(), m.getReceivedMailByIndex(0).getText());
+        });
+            bottombox.getChildren().add(forwardButton);
+            Button replyButton = new Button("Reply");
+            replyButton.setOnAction((ActionEvent e) -> {
+            //need to find a way to not open the editor
+            String fromTo = mailfromto.getText();
+            openEditor(fromTo, "", "", false);
+        });
+        bottombox.getChildren().add(replyButton);
     }
     
 }

@@ -27,14 +27,13 @@ public class HammerMail extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         
-//        Uncomment to start without login
-//        Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
-        FXMLLoader fxmlLoader = new FXMLLoader();
+        Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
+//      Uncomment to start with login
+/*      FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
         Parent root = fxmlLoader.load();       
         UILoginController loginController = fxmlLoader.getController();
-        loginController.init(stage);
-        
+        loginController.init(stage);*/  
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("HammerMail");

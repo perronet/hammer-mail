@@ -60,12 +60,12 @@ public class UIEditorController implements Initializable {
     @FXML 
     public void handleSave(Event event){
         String receiver = receiversmail.getText();
-        if(receiver.equals("")){
-            if(!(event instanceof WindowEvent)){ //"If the window didn't get closed"
-                handleError();                   //TODO just save the draft always, even if the receiver is empty
-            }
-        }else{
-            m.saveDraft(receiver, mailsubject.getText(), bodyfield.getText());
+        String mailsub = mailsubject.getText();
+        String body = bodyfield.getText();
+        if(receiver.equals("") && mailsub.equals("") && body.equals("") && (event instanceof WindowEvent)){
+            s.close();
+        }else{            
+            m.saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
             s.close();
         }
@@ -97,6 +97,20 @@ public class UIEditorController implements Initializable {
         }
         this.m = model; 
         this.s = stage;
+    }
+    
+    //If the field is not empty, it cannot be modified
+    public void setTextAreas(String sndrcv, String tit, String text, boolean modifiable){
+        receiversmail.setText(sndrcv);
+        mailsubject.setText(tit);
+        bodyfield.setText(text);
+        if(!(modifiable)){
+            if(!(sndrcv.equals(""))){ receiversmail.setEditable(false);}
+            if(!(tit.equals(""))){ mailsubject.setEditable(false);}
+            if(!(text.equals(""))){ bodyfield.setEditable(false);}
+        }
+        
+        
     }
        
     @Override
