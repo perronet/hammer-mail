@@ -164,8 +164,7 @@ public class UILoginController implements Initializable {
     * @param event:
     */
     private void spawnLogin(ActionEvent event){
-        // s = (Stage)((Button)event.getSource()).getScene().getWindow();
-         //spawn a new stage
+         //spawn a new login view
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
