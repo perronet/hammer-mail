@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2018 gaet
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package hammermail.server;
 
 import hammermail.core.Mail;
@@ -28,6 +12,7 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 
 
 public class Database {
@@ -61,7 +46,6 @@ public class Database {
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());
-                System.out.println("A new database has been created.");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -78,20 +62,23 @@ public class Database {
 
     private void createTables() {
         String sqlUser = "CREATE TABLE IF NOT EXISTS users (\n"
-                // + "	user_id integer AUTO_INCREMENT PRIMARY KEY,\n"
-                + " username varchar(255) PRIMARY KEY,\n"
-                + " password varchar(255) NOT NULL\n"
+                //+ " user_id INTEGER AUTO_INCREMENT PRIMARY KEY,\n"
+                + " username VARCHAR(255) PRIMARY KEY,\n"
+                + " password VARCHAR(255) NOT NULL\n"
                 + ");";
 
         String sqlEmail = "CREATE TABLE IF NOT EXISTS email (\n"
-                + " sender varchar(255) NOT NULL,\n"
-                + " receiver varchar(255) NOT NULL,\n"
-                + " title varchar(255),\n"
-                + " email_text text NOT NULL, \n"
-                + " time TIMESTAMP NOT NULL,\n"
-                + " PRIMARY KEY (sender, receiver, time), \n"
-                + " FOREIGN KEY (sender) REFERENCES users(username) ON DELETE CASCADE, \n"
-                + " FOREIGN KEY (receiver) REFERENCES users(username) ON DELETE CASCADE\n"
+                
+                + " email_id INTEGER PRIMARY KEY , "
+                + " sender VARCHAR(255) NOT NULL,\n"
+                + " receiver VARCHAR(1023) NOT NULL,\n"
+                + " title VARCHAR(255),\n"
+                + " email_text TEXT NOT NULL, \n"
+                + " time TIMETSAMP NOT NULL,\n"
+                + " deleted VARCHAR(1023) DEFAULT ' ', \n"
+                + " FOREIGN KEY (sender) REFERENCES users(username) "
+                + " ON UPDATE CASCADE \n"
+                + " ON DELETE CASCADE \n"
                 + ");";
         Connection conn = null;
         Statement stmt = null;
@@ -256,12 +243,17 @@ public class Database {
 
     }
 
-    protected void addMail(Mail mail) {
+    protected int addMail(Mail mail) {
         Connection conn = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int mailID = -1;
+        
         try {
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "INSERT INTO email VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO email(sender, receiver, title, email_text, time) "
+                           + "VALUES (?, ?, ?, ?, ?)";
+         
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, mail.getSender());
             pstmt.setString(2, mail.getReceiver());
@@ -269,6 +261,24 @@ public class Database {
             pstmt.setString(4, mail.getText());
             pstmt.setTimestamp(5, mail.getDate());
             pstmt.executeUpdate();
+            
+            sql = "SELECT email_id FROM email   WHERE sender = ? "
+                           + "AND receiver = ? AND title = ? AND email_text = ? AND time = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, mail.getSender());
+            pstmt.setString(2, mail.getReceiver());
+            pstmt.setString(3, mail.getTitle());
+            pstmt.setString(4, mail.getText());
+            pstmt.setTimestamp(5, mail.getDate());
+            rs = pstmt.executeQuery();
+            
+            if(rs.next())
+                mailID = rs.getInt("email_id");
+            
+            if (rs.next()){
+                System.out.println("Temp print, hope that never print!!!");
+            }
+            
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
@@ -277,9 +287,12 @@ public class Database {
             try {
                 pstmt.close();
                 conn.close();
+                rs.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
+            } finally {
+                return mailID;
             }
         }
     }
@@ -311,7 +324,7 @@ public class Database {
             }
         }
     }
-
+    
     protected ArrayList<Mail> getRiceivedMail(String userN) {
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
@@ -476,6 +489,66 @@ public class Database {
                 ex.printStackTrace(System.out);
             }
         }
+    }
+
+    protected void dbStatus(){
+        ArrayList<Mail> mailList = new ArrayList<>();;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM users";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            System.out.println("Hammer DB - Database status \n *********************************** \n");
+            
+            System.out.println("HammerMail users");
+            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
+            System.out.println("________________________________________________________");
+            while (rs.next()) {
+                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
+                System.out.println("________________________________________________________");
+            }
+            
+            
+            sql = "SELECT * FROM email";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            System.out.println("\n\nHammerMail email");
+            System.out.println("Id\t| From\t| To\t| Titolo\t| Text\t| Time\t| Deleted From");
+            System.out.println("_______________________________________________________________________");
+            while (rs.next()) {
+                System.out.println(rs.getInt("email_id") 
+                        + "\t | " + rs.getString("sender")
+                        + "\t | " + rs.getString("receiver")
+                        + "\t | " + rs.getString("title")
+                        + "\t | " + rs.getString("email_text")
+                        + "\t | " + rs.getDate("time")
+                        + "\t | " + rs.getString("deleted")
+                );
+                System.out.println("_______________________________________________________________________");
+            }
+
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+
+        } finally {
+            try {
+                rs.close();
+                pstmt.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                ex.printStackTrace(System.out);
+            }
+        }
+    
+    
     }
 
 }

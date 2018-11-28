@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018 sai
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +16,20 @@
  */
 package hammermail.net.responses;
 
-import hammermail.core.Mail;
-import java.util.List;
-
 /**
- * Sent by the user when sending mails
- * @author 00mar
+ *
+ * @author sai
  */
-public class ResponseMails extends ResponseBase {
-    List<Mail> mails;
-
-    public ResponseMails(List<Mail> mails) {
-        this.mails = mails;
+public class ResponseMailSent extends ResponseSuccess {
+    
+    int mailID;
+    
+    public ResponseMailSent(int id){
+        this.mailID = id;
     }
 
-    public List<Mail> getMails() {
-        return mails;
+    public int getMailID() {
+        return this.mailID;
     }
+
 }

@@ -215,9 +215,9 @@ class Task implements Runnable {
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
 
             if (request.IsMailWellFormed() && db.isUser(request.getMail().getReceiver())) {
-                db.addMail(request.getMail());
+                int mailID =  db.addMail(request.getMail());              
                 //TODO servers things?
-                return new ResponseSuccess();
+                return new ResponseMailSent(mailID);
             } else {
                 return request.IsMailWellFormed()
                         ? new ResponseError(SENDING_TO_UNEXISTING_USER)

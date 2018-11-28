@@ -17,7 +17,9 @@
  */
 package hammermail.server;
 
+import hammermail.core.Mail;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
