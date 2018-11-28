@@ -38,7 +38,6 @@ import static hammermail.net.responses.ResponseError.ErrorType.*;
 //import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
 //import static hammermail.net.responses.ResponseError.ErrorType.SIGNUP_USERNAME_TAKEN;
 
-
 /**
  * This class implements the backend of the HammerMail server.
  *
@@ -112,7 +111,7 @@ public class Backend {
             }
         }
     }
-    
+
     public void logAction(String log) {
         System.out.println("°°°° BACKEND °°°° " + log);
     }
@@ -192,6 +191,8 @@ class Task implements Runnable {
             return handleSendMail((RequestSendMail) request);
         } else if (request instanceof RequestGetMails) {
             return handleGetMails((RequestGetMails) request);
+        } else if (request instanceof RequestDeleteMails) {
+            return handleDeleteMails((RequestDeleteMails) request);
         } else {//should never get here, #TODO do something if it happens
             return null;
         }
@@ -199,40 +200,49 @@ class Task implements Runnable {
 
     ResponseBase handleSignUp(RequestSignUp request) {
         Database db = new Database(false);
-        if (db.isUser(request.getUsername()))
+        if (db.isUser(request.getUsername())) {
             return new ResponseError(SIGNUP_USERNAME_TAKEN);
-        else
+        } else {
             db.addUser(request.getUsername(), request.getPassword());
-        
+        }
+
         return new ResponseSuccess();
     }
 
     ResponseBase handleSendMail(RequestSendMail request) {
         Database db = new Database(false);
         //note: checkPassword return false on not-existing user
-        if (db.checkPassword(request.getUsername(), request.getPassword())){
-            
-            if (request.IsMailWellFormed() && db.isUser(request.getMail().getReceiver())){
+        if (db.checkPassword(request.getUsername(), request.getPassword())) {
+
+            if (request.IsMailWellFormed() && db.isUser(request.getMail().getReceiver())) {
                 db.addMail(request.getMail());
                 //TODO servers things?
                 return new ResponseSuccess();
-            } else 
-                return request.IsMailWellFormed() ? 
-                new ResponseError(SENDING_TO_UNEXISTING_USER) :
-                new ResponseError(SENDING_INVALID_MAIL);
-        } else 
+            } else {
+                return request.IsMailWellFormed()
+                        ? new ResponseError(SENDING_TO_UNEXISTING_USER)
+                        : new ResponseError(SENDING_INVALID_MAIL);
+            }
+        } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
+        }
     }
 
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
-        
-        if (db.checkPassword(request.getUsername(), request.getPassword()))
+
+        if (db.checkPassword(request.getUsername(), request.getPassword())) {
             return new ResponseMails(db.getMails(request.getUsername()));
-        else
+        } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
+        }
     }
-    
+
+    private ResponseBase handleDeleteMails(RequestDeleteMails requestDeleteMails) {
+        //#TODO DB CALLS
+        return new ResponseSuccess();
+    }
+
     public void logAction(String log) {
         System.out.println("**** SERVER **** " + log);
     }

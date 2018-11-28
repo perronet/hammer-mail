@@ -25,10 +25,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,17 +49,25 @@ public final class DummyClient {
             RequestSignUp signupReq = new RequestSignUp();
             signupReq.SetAuthentication("hello", "world");
             testRequest(signupReq);
-            
+
             logAction("Testing mails...");
             RequestGetMails mailsReq = new RequestGetMails();
             mailsReq.SetAuthentication("hello", "world");
             testRequest(mailsReq);
-            
+
             logAction("Testing new mail sent...");
-            RequestSendMail sendMailReq = new RequestSendMail(new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis())));
+            Mail newMail = new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis()));
+            RequestSendMail sendMailReq = new RequestSendMail(newMail);
             sendMailReq.SetAuthentication("hello", "world");
             testRequest(sendMailReq);
-            
+
+            logAction("Testing delete mail...");
+            ArrayList mailsToDelete = new ArrayList();
+            mailsToDelete.add(newMail);
+            RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
+            deleteMailsReq.SetAuthentication("hello", "world");
+            testRequest(deleteMailsReq);
+
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);
         }
