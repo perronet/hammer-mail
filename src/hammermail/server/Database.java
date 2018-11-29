@@ -325,7 +325,7 @@ public class Database {
         }
     }
     
-    protected ArrayList<Mail> getRiceivedMail(String userN) {
+    protected ArrayList<Mail> getReceivedMails(String userN) {
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -333,9 +333,9 @@ public class Database {
 
         try {
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE receiver = ?";
+            String sql = "SELECT * FROM email WHERE receiver LIKE ? ORDER BY time DESC";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
+            pstmt.setString(1, "%" + userN + "%");
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -367,7 +367,7 @@ public class Database {
         }
     }
 
-    protected ArrayList<Mail> getSentMail(String userN) {
+    protected ArrayList<Mail> getSentMails(String userN) {
         ArrayList<Mail> mailList = new ArrayList<>();
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -375,7 +375,7 @@ public class Database {
 
         try {
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE sender = ?";
+            String sql = "SELECT * FROM email WHERE sender = ? ORDER BY time DESC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             rs = pstmt.executeQuery();
@@ -417,7 +417,7 @@ public class Database {
 
         try {
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE sender = ?";
+            String sql = "SELECT * FROM email WHERE sender = ? ORDER BY time DESC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             rs = pstmt.executeQuery();
@@ -433,9 +433,9 @@ public class Database {
                 mailList.add(m);
             }
             
-            sql = "SELECT * FROM email WHERE receiver = ?";
+            sql = "SELECT * FROM email WHERE receiver LIKE ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
+            pstmt.setString(1, "%" + userN + "%");
             rs = pstmt.executeQuery();
             
             while (rs.next()) {
@@ -514,25 +514,28 @@ public class Database {
             }
             
             
-            sql = "SELECT * FROM email";
+            sql = "SELECT * FROM email ORDER BY time DESC";
             pstmt = conn.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
             System.out.println("\n\nHammerMail email");
-            System.out.println("Id\t| From\t| To\t| Titolo\t| Text\t| Time\t| Deleted From");
-            System.out.println("_______________________________________________________________________");
+            System.out.println("Id\t| From\t| To\t| Titolo\t| Text\t| Time\t\t| Deleted From");
+            System.out.println("_________________________________________________________________________________________________");
+            
+            Timestamp t = null;
             while (rs.next()) {
+                t = new Timestamp(rs.getDate("time").getTime());
                 System.out.println(rs.getInt("email_id") 
                         + "\t | " + rs.getString("sender")
                         + "\t | " + rs.getString("receiver")
                         + "\t | " + rs.getString("title")
                         + "\t | " + rs.getString("email_text")
-                        + "\t | " + rs.getDate("time")
+                        + "\t | " + t
                         + "\t | " + rs.getString("deleted")
                 );
-                System.out.println("_______________________________________________________________________");
+                System.out.println("_________________________________________________________________________________________________");
             }
-
+//
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);

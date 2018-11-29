@@ -232,7 +232,8 @@ class Task implements Runnable {
         Database db = new Database(false);
 
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
-            return new ResponseMails(db.getMails(request.getUsername()));
+            return new ResponseMails(db.getReceivedMails(request.getUsername()),
+                                                    db.getSentMails(request.getUsername()));
         } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }

@@ -74,10 +74,18 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseMails){
                     s.close(); //close login view
-                    //sort mail from most recently to least recently (maybe can implement directly in DB)
-                    //append the mails list to client local JSON file
-                    //need to update MODEL with the new list in response.getMails();
+                    
+                    //now in response we can get received and sent mail ordered by descendant date
+                    //with response.getReceivedMails and response.getSentMails
+                    
+                    //insert the mails list to client local JSON file
+                    //Result = (new mail receive) : [old mail receive]
+                    //          = (new mail sent) : [old mail sent] 
+                    
+                    //we had to put now the content of JSON file in the model observable list
+                    //need to update MODEL
 
+                    
                     //spawn the stage with the primary view
                     Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
                     Stage newstage = new Stage();

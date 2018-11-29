@@ -24,13 +24,27 @@ import java.util.List;
  * @author 00mar
  */
 public class ResponseMails extends ResponseBase {
-    List<Mail> mails;
+    private List<Mail> receivedMails;
+    private List<Mail> sentMails;
 
-    public ResponseMails(List<Mail> mails) {
-        this.mails = mails;
+    public ResponseMails(List<Mail> rec, List<Mail> sent) {
+        this.receivedMails = rec;
+        this.sentMails = sent;
     }
 
-    public List<Mail> getMails() {
-        return mails;
+    public void setReceivedMails(List<Mail> rec) {
+        this.receivedMails = rec;
+    }
+     
+    public List<Mail> getReceivedMails() {
+        return receivedMails;
+    }
+
+    public void setSentMails(List<Mail> sentMails) {
+        this.sentMails = sentMails;
+    }
+    
+    public List<Mail> getSentMails() {
+        return sentMails;
     }
 }

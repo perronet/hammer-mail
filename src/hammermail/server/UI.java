@@ -75,7 +75,11 @@ public class UI extends Application {
             } catch (InterruptedException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            DummyClient c = new DummyClient();
+            try {
+                DummyClient c = new DummyClient();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
         t.start();
     }

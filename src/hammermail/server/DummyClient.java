@@ -37,7 +37,36 @@ import java.util.logging.Logger;
  */
 public final class DummyClient {
 
-    public DummyClient() {
+    public DummyClient() throws InterruptedException {
+        
+        Database db1 = new Database(true);
+        db1.addUser("marco", "psw");
+        db1.addUser("omar", "psw");
+        db1.addUser("tano", "psw");
+        db1.addUser("andrea", "psw");
+                
+        // id, sender, receiver, title, text, date
+        Timestamp t = new Timestamp(System.currentTimeMillis());
+        Mail m1 = new Mail(0, "marco", "andrea", "titolo", "text", t);
+        Thread.sleep((long) 4);
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m2 = new Mail(1, "omar", "marco", "titolo", "text", t);
+        Thread.sleep((long) 4);
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m3 = new Mail(2, "tano", "omar", "titolo", "tano invia", t);
+        Thread.sleep((long) 4);
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m4 = new Mail(3, "andrea", "tano", "titolo", "tano riceve", t);
+    
+        db1.addMail(m1);
+        db1.addMail(m2);
+        db1.addMail(m3);
+        db1.addMail(m4);
+        
+        db1.dbStatus();
+
+
+
         try {
             //Testing Signup
             logAction("Testing invalid...");
@@ -50,11 +79,13 @@ public final class DummyClient {
             signupReq.SetAuthentication("hello", "world");
             testRequest(signupReq);
 
+
             logAction("Testing mails...");
             RequestGetMails mailsReq = new RequestGetMails();
-            mailsReq.SetAuthentication("hello", "world");
+            mailsReq.SetAuthentication("tano", "psw");
             testRequest(mailsReq);
-
+            
+            
             logAction("Testing new mail sent...");
             Mail newMail = new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis()));
             RequestSendMail sendMailReq = new RequestSendMail(newMail);
@@ -81,6 +112,12 @@ public final class DummyClient {
         out.writeObject(req);
         ResponseBase response = (ResponseBase) in.readObject();
         logAction("Got a response! The type is : " + ((Object) response).getClass());
+        
+        if (response instanceof ResponseMails){
+            System.out.println( "response received: " + ((ResponseMails)response).getReceivedMails());
+            System.out.println("response sent: " + ((ResponseMails)response).getSentMails());
+        }
+        
     }
 
     public void logAction(String log) {
