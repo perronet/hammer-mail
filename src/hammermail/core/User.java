@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,27 +20,25 @@ import java.io.Serializable;
 
 public class User implements Serializable { //Users will be static, no need to use properties (may change this later on)
     
-    private String name;
+    private String username;
     private String password; 
-    private String mail;
 
-    public User(String name, String password, String mail) {
-        this.name = name;
+    public User(String username, String password) {
+        this.username = username;
         this.password = password;
-        this.mail = mail;
     }
  
     @Override
     public String toString(){
-        return name + " " + mail;
+        return username;
     }
     
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserame(String name) {
+        this.username = name;
     }
 
     public String getPassword() {
@@ -51,12 +49,5 @@ public class User implements Serializable { //Users will be static, no need to u
         this.password = password;
     }
 
-    public String getMail() {
-        return mail;
-    }
 
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-    
 }
