@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.List;
 
 
 public class Database {
@@ -302,33 +303,23 @@ public class Database {
         ResultSet rs = null;
         
         try {
-            
+//            
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE email_id = ?";
+            String sql = "UPDATE email SET deleted = deleted || ? WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, Integer.toString(mailID));
-            rs = pstmt.executeQuery();
-            
-            String deleted = null;
-            if (rs.next())
-                deleted = rs.getString("deleted");
-            else 
-                return;
-                
-            sql = "UPDATE email SET deleted = ? WHERE email_id = ?";
-            pstmt = conn.prepareStatement(sql);
-            String replaceDel = "'" + deleted + toRemove + "'";
-            String replaceID = String.valueOf(mailID);
-            pstmt.setString(1, replaceDel);
+            //String replaceDel = "'" + deleted + toRemove + "'";
+            String replaceID = Integer.toString(mailID);
+            pstmt.setString(1, toRemove);
             pstmt.setString(2, replaceID);
             pstmt.executeUpdate();
+
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
             try {
-                rs.close();
+                //rs.close();
                 pstmt.close();
                 conn.close();
             } catch (SQLException ex) {
@@ -337,7 +328,7 @@ public class Database {
             }
         }
     }
-    
+   
     protected ArrayList<Mail> getReceivedMails(String userN) {
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
