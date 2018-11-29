@@ -39,7 +39,7 @@ public final class DummyClient {
 
     public DummyClient() throws InterruptedException {
         
-        Database db1 = new Database(false);
+//        Database db1 = new Database(false);
 //        db1.addUser("marco", "psw");
 //        db1.addUser("omar", "psw");
 //        db1.addUser("tano", "psw");
@@ -57,15 +57,20 @@ public final class DummyClient {
 //        Thread.sleep((long) 4);
 //        t = new Timestamp(System.currentTimeMillis());
 //        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
-//    
+//
+//        t = new Timestamp(System.currentTimeMillis());
+//        Mail m5 = new Mail(4, "omar", "tano", "titolo", "tano riceve", t);
+//
+//
 //        db1.addMail(m1);
 //        db1.addMail(m2);
 //        db1.addMail(m3);
 //        db1.addMail(m4);
+//        db1.addMail(m5);
 //        db1.removeMail(m1.getId(), "marco");
-//
-        
-        db1.dbStatus();
+////
+//        
+//        db1.dbStatus();
 
 
 

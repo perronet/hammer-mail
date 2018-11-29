@@ -55,7 +55,8 @@ public class UIController implements Initializable {
     private Label fromto, subject, tofrom;
     
     @FXML
-    private ListView<Mail> listinbox, listmail, listdraft; //TODO rename listmail as "listsent"
+    private ListView<Mail> listinbox, listsent, listdraft; 
+    //renamed, Gaetano
     
     @FXML
     private TextArea mailfromto, mailtitle, maildate, mailcontent, mailtofrom;
@@ -122,19 +123,19 @@ public class UIController implements Initializable {
    
         //SETUP SENT LIST
         
-        listmail.setItems(Model.getModel().getListMail()); //the ListView will automatically refresh the view to represent the items in the ObservableList
+        listsent.setItems(Model.getModel().getListSent()); //the ListView will automatically refresh the view to represent the items in the ObservableList
 
-        listmail.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
+        listsent.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
 
-        listmail.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
+        listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
             System.out.println("New mail selected from list");
             int newindex = (int)newValue;
-            if(!listmail.getSelectionModel().isEmpty()){ 
+            if(!listsent.getSelectionModel().isEmpty()){ 
                 Model.getModel().setCurrentMail(Model.getModel().getMailByIndex(newindex));
             }
         });     
            
-        listmail.setCellFactory(param -> new MailCell()); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
+        listsent.setCellFactory(param -> new MailCell()); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
         
         //SETUP DRAFT LIST
         
@@ -199,7 +200,7 @@ public class UIController implements Initializable {
 
     private void clearAllSelections(){
         listinbox.getSelectionModel().clearSelection();
-        listmail.getSelectionModel().clearSelection();
+        listsent.getSelectionModel().clearSelection();
         listdraft.getSelectionModel().clearSelection();
     }
     

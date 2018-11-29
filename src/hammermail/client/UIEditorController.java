@@ -18,6 +18,7 @@ package hammermail.client;
 
 import hammermail.core.Globals;
 import hammermail.core.Mail;
+import hammermail.core.User;
 import static hammermail.core.Utils.isNullOrWhiteSpace;
 import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestSendMail;
@@ -72,7 +73,8 @@ public class UIEditorController implements Initializable {
             Timestamp ts = new Timestamp(System.currentTimeMillis());
             Mail mail = new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
             RequestSendMail request = new RequestSendMail(mail);
-            request.SetAuthentication(mail.getSender(), Model.getModel().getCurrentUser().getPassword());
+            User current = Model.getModel().getCurrentUser();
+            request.SetAuthentication(current.getUsername(), current.getPassword());
             
             try {
                 ResponseBase response = sendRequest(request);
@@ -83,17 +85,19 @@ public class UIEditorController implements Initializable {
                     handleError();
                 } else if (response instanceof ResponseMailSent){
                     int mailID = ((ResponseMailSent) response).getMailID();
+                    mail.setId(mailID);
+                    Model.getModel().getListSent().add(mail);
+
                     //WRITE ID-MAIL ON JSON
                 }
                 
-                Model.getModel().addMail(receiver, mailsubject.getText(), bodyfield.getText());
 
             } catch (UnknownHostException ex){
-                System.out.println("catch");
+                System.out.println("catch1");
                 handleError();
             // set the response to error internal_error
             } catch (ClassNotFoundException | IOException classEx){
-                System.out.println("catch");
+                System.out.println("catch2");
                 handleError();
             // set the response to error internal_error
             } finally {

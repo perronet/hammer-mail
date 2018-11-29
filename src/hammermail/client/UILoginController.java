@@ -17,6 +17,7 @@
 package hammermail.client;
 
 import hammermail.core.Globals;
+import hammermail.core.Mail;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import static hammermail.net.responses.ResponseError.ErrorType.INTERNAL_ERROR;
@@ -27,6 +28,8 @@ import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -62,9 +65,7 @@ public class UILoginController implements Initializable {
             if (username.getText().isEmpty() || password.getText().isEmpty())
                 spawnLogin(event);
             else {
-                //Compose request and send
-                //the RequestGetMail will be called with the Date argument
-                //use sentinel for initial value (the first login or if no mails are in the mail box)
+                //the RequestGetMail will be called with the Date argument from JSON
                 RequestGetMails requestGetMail = new RequestGetMails();
                 requestGetMail.SetAuthentication(username.getText(), password.getText());
                 ResponseBase response = sendRequest(requestGetMail);
@@ -75,17 +76,18 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseMails){
                     Model.getModel().setCurrentUser(requestGetMail.getUsername(), requestGetMail.getPassword());
-
-                    //now in response we can get received and sent mail ordered by descendant date
-                    //with response.getReceivedMails and response.getSentMails
+                    List<Mail> received = ((ResponseMails) response).getReceivedMails();
+                    List<Mail> sent = ((ResponseMails) response).getSentMails();
                     
                     //insert the mails list to client local JSON file
-                    //Result = (new mail receive) : [old mail receive]
-                    //          = (new mail sent) : [old mail sent] 
+                    //received = received + JSON received
+                    //sent = sent + JSON sent 
                     
-                    //we had to put now the content of JSON file in the model observable list
-                    //need to update MODEL
-
+                    //Update Model
+                    //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
+                    Model.getModel().getListInbox().setAll(received);
+                    Model.getModel().getListSent().setAll(sent);
+                    
                     //spawn the stage with the primary view
                     FXMLLoader uiLoader = new FXMLLoader();
                     uiLoader.setLocation(getClass().getResource("UI.fxml"));
@@ -131,13 +133,10 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Username taken");
 
                 } else if (response instanceof ResponseSuccess){
-                    //Compose requeste for gets mails list
-                    //with the Date argument in future, as before in handleLogin
-                    
-                    //User signup accepted, now the model hold this information in currentUser
-                    //here we can also use username and password with getText()
+                    //Is User, so set Model
                     Model.getModel().setCurrentUser(requestSignUp.getUsername(), requestSignUp.getPassword());
                     
+                    //Compose request to get mail, With time take from JSON
                     RequestGetMails requestGetMail = new RequestGetMails();
                     requestGetMail.SetAuthentication(username.getText(), password.getText());
                     response = sendRequest(requestGetMail);
@@ -150,17 +149,19 @@ public class UILoginController implements Initializable {
                         loginfailure.setFill(Color.rgb(0,230,0));
                         loginfailure.setText("Logging in ...");
                         s.close();
+                        
+                        List<Mail> received = ((ResponseMails) response).getReceivedMails();
+                        List<Mail> sent = ((ResponseMails) response).getSentMails();
 
-                    //now in response we can get received and sent mail ordered by descendant date
-                    //with response.getReceivedMails and response.getSentMails
-                    
-                    //insert the mails list to client local JSON file
-                    //Result = (new mail receive) : [old mail receive]
-                    //          = (new mail sent) : [old mail sent] 
-                    
-                    //we had to put now the content of JSON file in the model observable list
-                    //need to update MODEL
+                        //insert the mails list to client local JSON file
+                        //received = received + JSON received
+                        //sent = sent + JSON sent 
 
+                        //Update Model
+                        //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
+                        Model.getModel().getListInbox().setAll(received);
+                        Model.getModel().getListSent().setAll(sent);
+                    
                         //spawn a new stage
                         try {
                             Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));

@@ -215,24 +215,30 @@ class Task implements Runnable {
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
 
             if (request.IsMailWellFormed()) {
-                
+                String msg = "";
                 String rec = (request.getMail().getReceiver()).replaceAll("\\s+","");
-                String [] receivers = rec.split(";");
+                String [] receivers = rec.split(";");  
+                
+                if (receivers.length == 1){
+                    if (!db.isUser(receivers[0]))
+                        return new ResponseError(SENDING_TO_UNEXISTING_USER);
+                }
+                
                 rec = "";
                 for(int i = 0; i < receivers.length; i++){
-                    if (db.isUser(receivers[i])){
+                    if (db.isUser(receivers[i]))
                         rec = rec + ";" + receivers[i];
-                    }
+                    else 
+                        msg += receivers[i] + ";";
                 }
+                rec = rec.substring(1);
                 request.getMail().setReceiver(rec);
                 int mailID =  db.addMail(request.getMail());              
                 //TODO servers things?
                 return new ResponseMailSent(mailID);
-            } else {
-                return request.IsMailWellFormed()
-                        ? new ResponseError(SENDING_TO_UNEXISTING_USER)
-                        : new ResponseError(SENDING_INVALID_MAIL);
-            }
+            } else 
+                return new ResponseError(SENDING_INVALID_MAIL);
+            
         } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }

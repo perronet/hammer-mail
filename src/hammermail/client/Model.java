@@ -30,7 +30,7 @@ public class Model {
     
     private final ObservableList<Mail> listInbox = FXCollections.observableArrayList();
     
-    private final ObservableList<Mail> listMail = FXCollections.observableArrayList(); //TODO rename it "listSent"
+    private final ObservableList<Mail> listSent = FXCollections.observableArrayList(); //TODO rename it "listSent"
     
     private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();
     
@@ -48,18 +48,17 @@ public class Model {
     //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));    
     
     public Model() { //TODO load mails and user from file 
-//        this.model = new Model();
         currentMail = new SimpleObjectProperty<>(); 
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         
         //Gaetano: Why in the costructor? 
         setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ts));
 
-        listMail.setAll(
-            new Mail(0, "marco", "andrea", "Mailzero", "ciao", ts),
-            new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ts),
-            new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", ts)
-        );
+//        listSent.setAll(
+//            new Mail(0, "marco", "andrea", "Mailzero", "ciao", ts),
+//            new Mail(1, "andrea", "gaetano", "Mailuno", "ue gaetà", ts),
+//            new Mail(2, "marco", "gaetano", "Maildue", "hey come stai", ts)
+//        );
         
     }
 
@@ -79,7 +78,7 @@ public class Model {
     public ObservableList<Mail> getListInbox(){ 
         return listInbox;
     }
-
+    
     public void addReceivedMail(String sender, String title, String text){
         listInbox.add(new Mail(idCounter, sender, null, title, text, new Timestamp(System.currentTimeMillis()))); //Receiver needs to be null
         idCounter++;
@@ -94,21 +93,22 @@ public class Model {
     }
     
     //Sent
-    public ObservableList<Mail> getListMail(){ 
-        return listMail;
+    public ObservableList<Mail> getListSent(){ 
+        return listSent;
     }
     
+    //we can bypass this, look UIEditorController, row 89, handleSend 
     public void addMail(String receiver, String title, String text){
-        listMail.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
+        listSent.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
         idCounter++;
     }
 
     public void removeMail(){ //TODO remove specified element 
-        listMail.remove(listMail.size()-1);
+        listSent.remove(listSent.size()-1);
     }
     
     public Mail getMailByIndex(int i){
-        return listMail.get(i);
+        return listSent.get(i);
     }
     
     //Drafts  
