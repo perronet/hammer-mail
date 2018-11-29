@@ -30,6 +30,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import java.util.StringTokenizer;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -38,6 +39,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
@@ -50,13 +52,13 @@ public class UIController implements Initializable {
     private Label user;
 
     @FXML
-    private Label fromto, subject;
+    private Label fromto, subject, tofrom;
     
     @FXML
     private ListView<Mail> listinbox, listmail, listdraft; //TODO rename listmail as "listsent"
     
     @FXML
-    private TextArea mailfromto, mailtitle, maildate, mailcontent;
+    private TextArea mailfromto, mailtitle, maildate, mailcontent, mailtofrom;
     
     @FXML
     private TabPane tabs;
@@ -66,6 +68,8 @@ public class UIController implements Initializable {
     
     @FXML
     private HBox bottombox;
+    
+    private String currentUser = "Dummy";
     
     @FXML
     private void handleCreate(ActionEvent event){
@@ -85,10 +89,6 @@ public class UIController implements Initializable {
        }
     }
     
-    @FXML
-    private void handleForward(ActionEvent e){
-        m.addMail(m.getMailByIndex(0).getSender(), m.getMailByIndex(0).getTitle(), m.getMailByIndex(0).getText());
-    }
 
     @FXML
     private void handleReceive(ActionEvent event){ //just for testing
@@ -100,12 +100,16 @@ public class UIController implements Initializable {
         
         m = new Model();
             
+        inboxTabInitialize();
+        
         //Current mail listener
         m.currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
             if(newValue.isReceived()){ //This mail was received
                 mailfromto.setText(newValue.getSender());
+                mailtofrom.setText(newValue.getReceiver());
             }else{ //This mail was sent or is draft
-                mailfromto.setText(newValue.getReceiver()); 
+                mailfromto.setText(newValue.getReceiver());
+                mailtofrom.setText(newValue.getSender());
             }
             maildate.setText(newValue.getDate().toString()); //TODO this should handle null values like in drafts, needs testing
             mailtitle.setText(newValue.getTitle());    
@@ -170,8 +174,18 @@ public class UIController implements Initializable {
             clearAllSelections();
             if((int) newValue == 0){ //Inbox tab selected
                 fromto.setText("From");
+                tofrom.setText("To");
             }else{
                 fromto.setText("To");
+                tofrom.setText("From");
+            }
+            bottombox.getChildren().clear();
+            if((int) newValue == 1){
+                sentTabInitialize();
+            }else if((int) newValue == 2){
+                draftTabInitialize();
+            }else if((int) newValue == 0){
+                inboxTabInitialize();
             }
         });
         
@@ -179,14 +193,7 @@ public class UIController implements Initializable {
         //TODOs: forward the selected mail; Remove the selected mail; Send the selected draft and notify errors
         //TODO: If you are replying or forwarding a mail, you shouldn't be able to save as draft e then modify it.
         tabs.getSelectionModel().selectedItemProperty().addListener((ob, oldtab, newtab) -> {
-            bottombox.getChildren().clear();
-            if(senttab == newtab){
-                sentTabInitialize();
-            }else if(drafttab == newtab){
-                draftTabInitialize();
-            }else if(inboxtab == newtab){
-                inboxTabInitialize();
-            }
+            
         });
         
     }
@@ -280,14 +287,31 @@ public class UIController implements Initializable {
             openEditor("", mailtitle.getText(), "Forwarded by: " + mailfromto.getText() + " -- " +mailcontent.getText(), false);
             // m.addMail(m.getReceivedMailByIndex(0).getSender(), m.getReceivedMailByIndex(0).getTitle(), m.getReceivedMailByIndex(0).getText());
         });
-            bottombox.getChildren().add(forwardButton);
-            Button replyButton = new Button("Reply");
-            replyButton.setOnAction((ActionEvent e) -> {
-            //need to find a way to not open the editor
+        bottombox.getChildren().add(forwardButton);
+        Button replyButton = new Button("Reply");
+        replyButton.setOnAction((ActionEvent e) -> {
             String fromTo = mailfromto.getText();
             openEditor(fromTo, "", "", false);
         });
         bottombox.getChildren().add(replyButton);
+        //TODO: add unmodifiable field "your mail" in the editor and set it with "currentuser"
+        Button replyAllButton = new Button("Reply All");
+        replyAllButton.setOnAction((ActionEvent e) -> {
+            String toFrom = "Dummy, Ao, We"; //get from field "receivers"
+            StringTokenizer st = new StringTokenizer(toFrom, ",");
+            String newFromTo = "";
+            String test = ""; //to improve
+            String sender = mailfromto.getText();
+            while(st.hasMoreTokens()){
+                test = st.nextToken();
+                if(!(test.equals(currentUser))){ //use currentuser instead
+                    newFromTo = newFromTo + test + ",";
+                }
+            }
+            newFromTo = newFromTo + sender;
+            openEditor(newFromTo, "", "", false);
+        });
+        bottombox.getChildren().add(replyAllButton);
     }
     
 }
