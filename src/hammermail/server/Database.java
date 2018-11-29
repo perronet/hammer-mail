@@ -296,7 +296,7 @@ public class Database {
         }
     }
 
-    protected void removeMail(Mail mail, String toRemove) {
+    protected void removeMail(int mailID, String toRemove) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -306,8 +306,7 @@ public class Database {
             conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, mail.getId().toString());
-            System.out.println("ID: " + mail.getId());
+            pstmt.setString(1, Integer.toString(mailID));
             rs = pstmt.executeQuery();
             
             String deleted = null;
@@ -319,7 +318,7 @@ public class Database {
             sql = "UPDATE email SET deleted = ? WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
             String replaceDel = "'" + deleted + toRemove + "'";
-            String replaceID = String.valueOf(mail.getId());
+            String replaceID = String.valueOf(mailID);
             pstmt.setString(1, replaceDel);
             pstmt.setString(2, replaceID);
             pstmt.executeUpdate();

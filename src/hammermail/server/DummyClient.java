@@ -62,7 +62,7 @@ public final class DummyClient {
         db1.addMail(m2);
         db1.addMail(m3);
         db1.addMail(m4);
-        db1.removeMail(m1, "marco");
+        db1.removeMail(m1.getId(), "marco");
 
         
         db1.dbStatus();
