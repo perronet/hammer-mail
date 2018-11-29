@@ -34,9 +34,10 @@ public class Model {
     
     private final SimpleObjectProperty<Mail> currentMail;
     
-    private User currenUser;
     
-    private ArrayList<User> listUser;
+    private User currentUser;
+
+//    private ArrayList<User> listUser;
 
     private int idCounter = 3;
     
@@ -119,4 +120,11 @@ public class Model {
         return listDraft.get(i);
     }
     
+    public User getCurrentUser() {
+        return currentUser;
+    }     
+     
+    public void setCurrentUser(String username, String password){
+         this.currentUser = new User(username, password);
+    }
 }
