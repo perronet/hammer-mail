@@ -107,9 +107,13 @@ public class UIController implements Initializable {
             if(newValue.isReceived()){ //This mail was received
                 mailfromto.setText(newValue.getSender());
                 mailtofrom.setText(newValue.getReceiver());
+                fromto.setText("From");
+                tofrom.setText("To");
             }else{ //This mail was sent or is draft
                 mailfromto.setText(newValue.getReceiver());
                 mailtofrom.setText(newValue.getSender());
+                fromto.setText("To");
+                tofrom.setText("From");
             }
             maildate.setText(newValue.getDate().toString()); //TODO this should handle null values like in drafts, needs testing
             mailtitle.setText(newValue.getTitle());    
@@ -170,15 +174,10 @@ public class UIController implements Initializable {
         subject.setAlignment(Pos.CENTER);
         
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE); //can't close tabs
-        tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections
+        
+        //TABS LISTENER
+        tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
             clearAllSelections();
-            if((int) newValue == 0){ //Inbox tab selected
-                fromto.setText("From");
-                tofrom.setText("To");
-            }else{
-                fromto.setText("To");
-                tofrom.setText("From");
-            }
             bottombox.getChildren().clear();
             if((int) newValue == 1){
                 sentTabInitialize();
@@ -192,17 +191,24 @@ public class UIController implements Initializable {
         //Listener that shows the right buttons in the view for each tab
         //TODOs: forward the selected mail; Remove the selected mail; Send the selected draft and notify errors
         //TODO: If you are replying or forwarding a mail, you shouldn't be able to save as draft e then modify it.
-        tabs.getSelectionModel().selectedItemProperty().addListener((ob, oldtab, newtab) -> {
-            
-        });
+//        tabs.getSelectionModel().selectedItemProperty().addListener((ob, oldtab, newtab) -> {
+//            
+//        });
         
     }
-            
 
     private void clearAllSelections(){
         listinbox.getSelectionModel().clearSelection();
         listmail.getSelectionModel().clearSelection();
         listdraft.getSelectionModel().clearSelection();
+    }
+    
+    private void clearAllText(){
+        mailfromto.clear();
+        mailtitle.clear(); 
+        maildate.clear(); 
+        mailcontent.clear(); 
+        mailtofrom.clear();
     }
     
     private void openEditor(String sndrcv, String title, String body, boolean modifiable){
