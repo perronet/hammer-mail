@@ -29,11 +29,15 @@ public class HammerMail extends Application {
         
 //        Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
 //      Uncomment to start with login
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
-        Parent root = fxmlLoader.load();       
-        UILoginController loginController = fxmlLoader.getController();
+        Model model = new Model();
+        
+        //Login Controller
+        FXMLLoader loginLoader = new FXMLLoader();
+        loginLoader.setLocation(getClass().getResource("UIlogin.fxml"));
+        Parent root = loginLoader.load();       
+        UILoginController loginController = loginLoader.getController();
         loginController.init(stage);
+        
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("HammerMail");

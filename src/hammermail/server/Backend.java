@@ -214,7 +214,17 @@ class Task implements Runnable {
         //note: checkPassword return false on not-existing user
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
 
-            if (request.IsMailWellFormed() && db.isUser(request.getMail().getReceiver())) {
+            if (request.IsMailWellFormed()) {
+                
+                String rec = (request.getMail().getReceiver()).replaceAll("\\s+","");
+                String [] receivers = rec.split(";");
+                rec = "";
+                for(int i = 0; i < receivers.length; i++){
+                    if (db.isUser(receivers[i])){
+                        rec = rec + ";" + receivers[i];
+                    }
+                }
+                request.getMail().setReceiver(rec);
                 int mailID =  db.addMail(request.getMail());              
                 //TODO servers things?
                 return new ResponseMailSent(mailID);

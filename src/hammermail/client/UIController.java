@@ -44,7 +44,7 @@ import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
 
-    private Model m;
+//    private Model m;
     
     //TODO maybe add a Stage attribute
     
@@ -81,29 +81,29 @@ public class UIController implements Initializable {
     @FXML //TODO: find a way to remove from different tabs
     private void handleDelete(ActionEvent event){
        if(senttab.isSelected()){
-           m.removeMail();
+           Model.getModel().removeMail();
        }else if(drafttab.isSelected()){
-           m.removeDraft();
+           Model.getModel().removeDraft();
        }else if(inboxtab.isSelected()){
-           m.removeReceivedMail();
+           Model.getModel().removeReceivedMail();
        }
     }
     
 
     @FXML
     private void handleReceive(ActionEvent event){ //just for testing
-        m.addReceivedMail("marco", "titolo", "testo");
+        Model.getModel().addReceivedMail("marco", "titolo", "testo");
     }  
     
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
-        m = new Model();
+//        m = new Model();
             
         inboxTabInitialize();
         
         //Current mail listener
-        m.currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
+        (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
             if(newValue.isReceived()){ //This mail was received
                 mailfromto.setText(newValue.getSender());
                 mailtofrom.setText(newValue.getReceiver());
@@ -122,7 +122,7 @@ public class UIController implements Initializable {
    
         //SETUP SENT LIST
         
-        listmail.setItems(m.getListMail()); //the ListView will automatically refresh the view to represent the items in the ObservableList
+        listmail.setItems(Model.getModel().getListMail()); //the ListView will automatically refresh the view to represent the items in the ObservableList
 
         listmail.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
 
@@ -130,7 +130,7 @@ public class UIController implements Initializable {
             System.out.println("New mail selected from list");
             int newindex = (int)newValue;
             if(!listmail.getSelectionModel().isEmpty()){ 
-                m.setCurrentMail(m.getMailByIndex(newindex));
+                Model.getModel().setCurrentMail(Model.getModel().getMailByIndex(newindex));
             }
         });     
            
@@ -138,7 +138,7 @@ public class UIController implements Initializable {
         
         //SETUP DRAFT LIST
         
-        listdraft.setItems(m.getListDraft()); 
+        listdraft.setItems(Model.getModel().getListDraft()); 
 
         listdraft.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 
@@ -146,7 +146,7 @@ public class UIController implements Initializable {
             System.out.println("New draft selected from list");
             int newindex = (int)newValue;
             if(!listdraft.getSelectionModel().isEmpty()){
-                m.setCurrentMail(m.getDraftByIndex(newindex));
+                Model.getModel().setCurrentMail(Model.getModel().getDraftByIndex(newindex));
             }
         });     
             
@@ -154,7 +154,7 @@ public class UIController implements Initializable {
         
         //SETUP INBOX LIST
         
-        listinbox.setItems(m.getListInbox());
+        listinbox.setItems(Model.getModel().getListInbox());
 
         listinbox.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 
@@ -162,7 +162,7 @@ public class UIController implements Initializable {
             System.out.println("New received mail selected from list");
             int newindex = (int)newValue;
             if(!listinbox.getSelectionModel().isEmpty()){
-                m.setCurrentMail(m.getReceivedMailByIndex(newindex));
+                Model.getModel().setCurrentMail(Model.getModel().getReceivedMailByIndex(newindex));
             }
         });     
   
@@ -219,7 +219,7 @@ public class UIController implements Initializable {
             Scene scene = new Scene(root, 350, 450);
             Stage stage = new Stage();
             UIEditorController editorController = fxmlLoader.getController();
-            editorController.init(m, stage);
+            editorController.init(stage);
             editorController.setTextAreas(sndrcv, title, body, modifiable);
             stage.setTitle("Write a mail...");
             stage.setScene(scene);
@@ -267,8 +267,8 @@ public class UIController implements Initializable {
             if(mailfromto.getText().equals("")){
                 handleError();
             }else{
-                m.addMail(mailfromto.getText(), mailtitle.getText(), mailcontent.getText());
-                m.removeDraft();
+                Model.getModel().addMail(mailfromto.getText(), mailtitle.getText(), mailcontent.getText());
+                Model.getModel().removeDraft();
             }
         });
         bottombox.getChildren().add(sendButton);
@@ -279,7 +279,7 @@ public class UIController implements Initializable {
             String fromTo = mailfromto.getText();
             String title = mailtitle.getText();
             openEditor(fromTo, title, cont, true);
-            m.removeDraft();
+            Model.getModel().removeDraft();
             //remove current draft and replace if saved, delete if sent
         });
         bottombox.getChildren().add(modifyButton);

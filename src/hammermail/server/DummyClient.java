@@ -39,31 +39,31 @@ public final class DummyClient {
 
     public DummyClient() throws InterruptedException {
         
-        Database db1 = new Database(true);
-        db1.addUser("marco", "psw");
-        db1.addUser("omar", "psw");
-        db1.addUser("tano", "psw");
-        db1.addUser("andrea", "psw");
-                
-        // id, sender, receiver, title, text, date
-        Timestamp t = new Timestamp(System.currentTimeMillis());
-        Mail m1 = new Mail(1, "marco", "andrea", "titolo", "text", t);
-        Thread.sleep((long) 4);
-        t = new Timestamp(System.currentTimeMillis());
-        Mail m2 = new Mail(2, "omar", "marco", "titolo", "text", t);
-        Thread.sleep((long) 4);
-        t = new Timestamp(System.currentTimeMillis());
-        Mail m3 = new Mail(3, "tano", "omar", "titolo", "tano invia", t);
-        Thread.sleep((long) 4);
-        t = new Timestamp(System.currentTimeMillis());
-        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
-    
-        db1.addMail(m1);
-        db1.addMail(m2);
-        db1.addMail(m3);
-        db1.addMail(m4);
-        db1.removeMail(m1.getId(), "marco");
-
+        Database db1 = new Database(false);
+//        db1.addUser("marco", "psw");
+//        db1.addUser("omar", "psw");
+//        db1.addUser("tano", "psw");
+//        db1.addUser("andrea", "psw");
+//                
+//        // id, sender, receiver, title, text, date
+//        Timestamp t = new Timestamp(System.currentTimeMillis());
+//        Mail m1 = new Mail(1, "marco", "andrea", "titolo", "text", t);
+//        Thread.sleep((long) 4);
+//        t = new Timestamp(System.currentTimeMillis());
+//        Mail m2 = new Mail(2, "omar", "marco", "titolo", "text", t);
+//        Thread.sleep((long) 4);
+//        t = new Timestamp(System.currentTimeMillis());
+//        Mail m3 = new Mail(3, "tano", "omar", "titolo", "tano invia", t);
+//        Thread.sleep((long) 4);
+//        t = new Timestamp(System.currentTimeMillis());
+//        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
+//    
+//        db1.addMail(m1);
+//        db1.addMail(m2);
+//        db1.addMail(m3);
+//        db1.addMail(m4);
+//        db1.removeMail(m1.getId(), "marco");
+//
         
         db1.dbStatus();
 

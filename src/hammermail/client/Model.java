@@ -26,6 +26,8 @@ import javafx.collections.ObservableList;
 
 public class Model {
     
+    private static Model model = new Model();
+    
     private final ObservableList<Mail> listInbox = FXCollections.observableArrayList();
     
     private final ObservableList<Mail> listMail = FXCollections.observableArrayList(); //TODO rename it "listSent"
@@ -33,7 +35,6 @@ public class Model {
     private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();
     
     private final SimpleObjectProperty<Mail> currentMail;
-    
     
     private User currentUser;
 
@@ -47,8 +48,11 @@ public class Model {
     //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));    
     
     public Model() { //TODO load mails and user from file 
+//        this.model = new Model();
         currentMail = new SimpleObjectProperty<>(); 
         Timestamp ts = new Timestamp(System.currentTimeMillis());
+        
+        //Gaetano: Why in the costructor? 
         setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ts));
 
         listMail.setAll(
@@ -58,7 +62,13 @@ public class Model {
         );
         
     }
+
+    public static Model getModel() {
+        return model;
+    }
    
+    
+    
     public final Mail getCurrentMail(){ return currentMail.get(); }
     
     public final void setCurrentMail(Mail m){ currentMail.set(m); }

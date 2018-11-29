@@ -16,6 +16,22 @@
  */
 package hammermail.client;
 
+import hammermail.core.Globals;
+import hammermail.core.Mail;
+import static hammermail.core.Utils.isNullOrWhiteSpace;
+import hammermail.net.requests.RequestBase;
+import hammermail.net.requests.RequestSendMail;
+import hammermail.net.responses.ResponseBase;
+import hammermail.net.responses.ResponseError;
+import hammermail.net.responses.ResponseError.ErrorType;
+import hammermail.net.responses.ResponseMailSent;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.sql.Timestamp;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -38,22 +54,51 @@ import javafx.stage.WindowEvent;
  */
 public class UIEditorController implements Initializable {
 
-    private Model m;
+//    private Model m;
    
     private Stage s;
     
     @FXML
     private TextArea receiversmail, mailsubject, bodyfield;
     
-    @FXML 
+   @FXML 
     private void handleSend(ActionEvent event){
         //TODO read receiver to each comma and verify it is an existent person
         String receiver = receiversmail.getText();
-        if(receiver.equals("")){
+        if(isNullOrWhiteSpace(receiver)){
             handleError();
         }else{
-            m.addMail(receiver, mailsubject.getText(), bodyfield.getText());
-            s.close();
+            String sender = Model.getModel().getCurrentUser().getUsername();
+            Timestamp ts = new Timestamp(System.currentTimeMillis());
+            Mail mail = new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
+            RequestSendMail request = new RequestSendMail(mail);
+            request.SetAuthentication(mail.getSender(), Model.getModel().getCurrentUser().getPassword());
+            
+            try {
+                ResponseBase response = sendRequest(request);
+                if (response instanceof ResponseError){
+//                  TODO inspect the type of error
+//                  ErrorType err = ((ResponseError)response).getErrorType();
+//                  System.out.println(err);
+                    handleError();
+                } else if (response instanceof ResponseMailSent){
+                    int mailID = ((ResponseMailSent) response).getMailID();
+                    //WRITE ID-MAIL ON JSON
+                }
+                
+                Model.getModel().addMail(receiver, mailsubject.getText(), bodyfield.getText());
+
+            } catch (UnknownHostException ex){
+                System.out.println("catch");
+                handleError();
+            // set the response to error internal_error
+            } catch (ClassNotFoundException | IOException classEx){
+                System.out.println("catch");
+                handleError();
+            // set the response to error internal_error
+            } finally {
+                s.close();
+            }
         }
     }
     
@@ -65,7 +110,7 @@ public class UIEditorController implements Initializable {
         if(receiver.equals("") && mailsub.equals("") && body.equals("") && (event instanceof WindowEvent)){
             s.close();
         }else{            
-            m.saveDraft(receiver, mailsub, body);
+            Model.getModel().saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
             s.close();
         }
@@ -91,11 +136,11 @@ public class UIEditorController implements Initializable {
      */
     
     //"Constructor"
-    public void init(Model model, Stage stage){ //to add parameter "current user" to set sender
-        if(this.m != null){
-            throw new IllegalStateException("Only one initialization per model.");
-        }
-        this.m = model; 
+    public void init(/*Model model, */Stage stage){ //to add parameter "current user" to set sender
+//        if(this.m != null){
+//            throw new IllegalStateException("Only one initialization per model.");
+//        }
+//        this.m = model; 
         this.s = stage;
     }
     
@@ -113,6 +158,18 @@ public class UIEditorController implements Initializable {
         
     }
        
+    
+    //this method should be place in a separate file
+    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
+            Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            out.writeObject(request);
+            return (ResponseBase)in.readObject();
+    }
+    
+    
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         

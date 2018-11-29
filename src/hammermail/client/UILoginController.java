@@ -57,6 +57,7 @@ public class UILoginController implements Initializable {
 
     @FXML
     private void handleLogin(ActionEvent event) {
+        
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
                 spawnLogin(event);
@@ -73,8 +74,8 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
-                    s.close(); //close login view
-                    
+                    Model.getModel().setCurrentUser(requestGetMail.getUsername(), requestGetMail.getPassword());
+
                     //now in response we can get received and sent mail ordered by descendant date
                     //with response.getReceivedMails and response.getSentMails
                     
@@ -85,20 +86,25 @@ public class UILoginController implements Initializable {
                     //we had to put now the content of JSON file in the model observable list
                     //need to update MODEL
 
-                    
                     //spawn the stage with the primary view
-                    Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
+                    FXMLLoader uiLoader = new FXMLLoader();
+                    uiLoader.setLocation(getClass().getResource("UI.fxml"));
+                    Parent root = uiLoader.load();  
+                    UIController uiController = uiLoader.getController();
+                    
+                    s.close(); //close login view
                     Stage newstage = new Stage();
                     newstage.setTitle("HammerMail - Home");
                     newstage.setScene(new Scene(root));
                     newstage.show();
+
                 } 
             }
-        } catch (ClassNotFoundException classEx){
-            // set the response to error internal_error
         } catch (UnknownHostException ex){
+            System.out.println(ex.getMessage());
             // set the response to error internal_error
-        } catch (IOException ioEx){
+        } catch (ClassNotFoundException | IOException ex){
+            System.out.println(ex.getMessage());
             // set the response to error internal_error
         } 
     }  
@@ -127,25 +133,39 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseSuccess){
                     //Compose requeste for gets mails list
                     //with the Date argument in future, as before in handleLogin
+                    
+                    //User signup accepted, now the model hold this information in currentUser
+                    //here we can also use username and password with getText()
+                    Model.getModel().setCurrentUser(requestSignUp.getUsername(), requestSignUp.getPassword());
+                    
                     RequestGetMails requestGetMail = new RequestGetMails();
                     requestGetMail.SetAuthentication(username.getText(), password.getText());
                     response = sendRequest(requestGetMail);
 
                     if (response instanceof ResponseError)
+                        //WARNING, we hope this not happen!!!
                         spawnLogin(event);
 
                     else if (response instanceof ResponseMails){
                         loginfailure.setFill(Color.rgb(0,230,0));
                         loginfailure.setText("Logging in ...");
                         s.close();
-                        //sort mail from most recently to least recently (maybe can implement directly in DB)
-                        //append the mail list to client local JSON
-                        //need to update MODEL with the new list in response.getMails();
+
+                    //now in response we can get received and sent mail ordered by descendant date
+                    //with response.getReceivedMails and response.getSentMails
+                    
+                    //insert the mails list to client local JSON file
+                    //Result = (new mail receive) : [old mail receive]
+                    //          = (new mail sent) : [old mail sent] 
+                    
+                    //we had to put now the content of JSON file in the model observable list
+                    //need to update MODEL
+
                         //spawn a new stage
                         try {
                             Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
                             Stage newstage = new Stage();
-                            newstage.setTitle("HammerMail - Login");
+                            newstage.setTitle("HammerMail - Home");
                             newstage.setScene(new Scene(root));
                             newstage.show();
                         } catch (IOException e){
@@ -162,8 +182,7 @@ public class UILoginController implements Initializable {
             // set the response to error internal_error
         } 
     }
-
-    
+     
     
     //maybe event argument will be eliminated..
     /**
@@ -188,7 +207,7 @@ public class UILoginController implements Initializable {
          } catch (IOException e){
              //TODO
          }
-}
+    }
     
     
     
@@ -205,8 +224,6 @@ public class UILoginController implements Initializable {
     }
     
     
-    
-    //"Constructor"
     public void init(Stage stage){ 
         this.s = stage;
     }
