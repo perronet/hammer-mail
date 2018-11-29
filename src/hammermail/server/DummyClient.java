@@ -47,58 +47,60 @@ public final class DummyClient {
                 
         // id, sender, receiver, title, text, date
         Timestamp t = new Timestamp(System.currentTimeMillis());
-        Mail m1 = new Mail(0, "marco", "andrea", "titolo", "text", t);
+        Mail m1 = new Mail(1, "marco", "andrea", "titolo", "text", t);
         Thread.sleep((long) 4);
         t = new Timestamp(System.currentTimeMillis());
-        Mail m2 = new Mail(1, "omar", "marco", "titolo", "text", t);
+        Mail m2 = new Mail(2, "omar", "marco", "titolo", "text", t);
         Thread.sleep((long) 4);
         t = new Timestamp(System.currentTimeMillis());
-        Mail m3 = new Mail(2, "tano", "omar", "titolo", "tano invia", t);
+        Mail m3 = new Mail(3, "tano", "omar", "titolo", "tano invia", t);
         Thread.sleep((long) 4);
         t = new Timestamp(System.currentTimeMillis());
-        Mail m4 = new Mail(3, "andrea", "tano", "titolo", "tano riceve", t);
+        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
     
         db1.addMail(m1);
         db1.addMail(m2);
         db1.addMail(m3);
         db1.addMail(m4);
+        db1.removeMail(m1, "marco");
+
         
         db1.dbStatus();
 
 
 
         try {
-            //Testing Signup
-            logAction("Testing invalid...");
-            RequestSignUp errorReq = new RequestSignUp();
-            errorReq.SetAuthentication("hello", null);//password is not valid
-            testRequest(errorReq);
-
-            logAction("Testing signup...");
-            RequestSignUp signupReq = new RequestSignUp();
-            signupReq.SetAuthentication("hello", "world");
-            testRequest(signupReq);
-
-
+//            //Testing Signup
+//            logAction("Testing invalid...");
+//            RequestSignUp errorReq = new RequestSignUp();
+//            errorReq.SetAuthentication("hello", null);//password is not valid
+//            testRequest(errorReq);
+//
+//            logAction("Testing signup...");
+//            RequestSignUp signupReq = new RequestSignUp();
+//            signupReq.SetAuthentication("hello", "world");
+//            testRequest(signupReq);
+//
+//
             logAction("Testing mails...");
             RequestGetMails mailsReq = new RequestGetMails();
-            mailsReq.SetAuthentication("tano", "psw");
+            mailsReq.SetAuthentication("marco", "psw");
             testRequest(mailsReq);
-            
-            
-            logAction("Testing new mail sent...");
-            Mail newMail = new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis()));
-            RequestSendMail sendMailReq = new RequestSendMail(newMail);
-            sendMailReq.SetAuthentication("hello", "world");
-            testRequest(sendMailReq);
-
-            logAction("Testing delete mail...");
-            ArrayList mailsToDelete = new ArrayList();
-            mailsToDelete.add(newMail);
-            RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
-            deleteMailsReq.SetAuthentication("hello", "world");
-            testRequest(deleteMailsReq);
-
+//            
+//            
+//            logAction("Testing new mail sent...");
+//            Mail newMail = new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis()));
+//            RequestSendMail sendMailReq = new RequestSendMail(newMail);
+//            sendMailReq.SetAuthentication("hello", "world");
+//            testRequest(sendMailReq);
+//
+//            logAction("Testing delete mail...");
+//            ArrayList mailsToDelete = new ArrayList();
+//            mailsToDelete.add(newMail);
+//            RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
+//            deleteMailsReq.SetAuthentication("hello", "world");
+//            testRequest(deleteMailsReq);
+//
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);
         }
