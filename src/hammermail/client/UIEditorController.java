@@ -70,9 +70,7 @@ public class UIEditorController implements Initializable {
         if(isNullOrWhiteSpace(receiver)){
             handleError();
         }else{
-            String sender = Model.getModel().getCurrentUser().getUsername();
-            Timestamp ts = new Timestamp(System.currentTimeMillis());
-            Mail mail = new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
+            Mail mail = composeMail(receiver);
             RequestSendMail request = new RequestSendMail(mail);
             User current = Model.getModel().getCurrentUser();
             request.SetAuthentication(current.getUsername(), current.getPassword());
@@ -81,22 +79,17 @@ public class UIEditorController implements Initializable {
                 ResponseBase response = sendRequest(request);
                 if (response instanceof ResponseError){
 //                  TODO inspect the type of error
-                  ErrorType err = ((ResponseError)response).getErrorType();
-                  System.out.println(err);
+                    ErrorType err = ((ResponseError)response).getErrorType();
+                    System.out.println(err);
                     handleError();
                 } else if (response instanceof ResponseMailSent){
-                    int mailID = ((ResponseMailSent) response).getMailID();
-                    mail.setId(mailID);
+                    mail.setId(((ResponseMailSent) response).getMailID());
                     Model.getModel().getListSent().add(mail);
 
                     //WRITE ID-MAIL ON JSON
                 }
                 
 
-            } catch (UnknownHostException ex){
-                System.out.println("catch1");
-                handleError();
-            // set the response to error internal_error
             } catch (ClassNotFoundException | IOException classEx){
                 System.out.println("catch2");
                 handleError();
@@ -110,14 +103,16 @@ public class UIEditorController implements Initializable {
         }
     }
     
-    @FXML 
+    
+      @FXML 
     public void handleSave(Event event){
         String receiver = receiversmail.getText();
         String mailsub = mailsubject.getText();
         String body = bodyfield.getText();
-        if(receiver.equals("") && mailsub.equals("") && body.equals("") && (event instanceof WindowEvent)){
+        if(isNullOrWhiteSpace(receiver) && isNullOrWhiteSpace(mailsub) 
+                && isNullOrWhiteSpace(body) && (event instanceof WindowEvent)){
             s.close();
-        }else{            
+        }else{
             Model.getModel().saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
             s.close();
@@ -176,6 +171,11 @@ public class UIEditorController implements Initializable {
             return (ResponseBase)in.readObject();
     }
     
+     private Mail composeMail(String receiver){
+            String sender = Model.getModel().getCurrentUser().getUsername();
+            Timestamp ts = new Timestamp(System.currentTimeMillis());
+            return new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
+    }
     
     
     @Override

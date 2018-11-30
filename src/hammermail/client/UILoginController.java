@@ -50,6 +50,7 @@ import javafx.stage.Stage;
 public class UILoginController implements Initializable {
 
     private Stage s;
+    private Socket clientSocket;
         
     @FXML
     private TextField username;
@@ -76,6 +77,10 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseMails){
                     updateModelReqMail(response);
                     spawnHome();
+                    Thread daemon = new Thread(new Task());
+                    daemon.setDaemon(true);
+//                    daemon.start();
+                    
                 } 
             }
         } catch (ClassNotFoundException | IOException ex){
@@ -208,10 +213,49 @@ public class UILoginController implements Initializable {
     public void init(Stage stage){ 
         this.s = stage;
     }
+        
+    
+    class Task implements Runnable{
+
+        public Task(){
+            if (clientSocket == null)
+                clientSocket = new Socket();
+        }
+
+        @Override
+        public void run() {
+            try {
+                RequestGetMails requestGetMail = new RequestGetMails();
+                requestGetMail.SetAuthentication(username.getText(), password.getText());
+
+                    while (true){
+                        Thread.sleep(5000);
+                        System.out.println("Daemon polling");
+                        ResponseBase response = sendRequest(requestGetMail);
+                        
+                        List<Mail> received = ((ResponseMails) response).getReceivedMails();
+                        List<Mail> sent = ((ResponseMails) response).getSentMails();
+                        if (received.size() > 0)
+                            Model.getModel().getListInbox().addAll(0, received);
+                        if (sent.size() > 0)
+                            Model.getModel().getListSent().addAll(0, sent);
+                            
+                    }
+            } catch (InterruptedException ex) {
+                    //TODO
+            } catch (ClassNotFoundException ex) {
+                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
 
+    
 }
