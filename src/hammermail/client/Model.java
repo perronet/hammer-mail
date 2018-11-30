@@ -19,14 +19,13 @@ package hammermail.client;
 import hammermail.core.User;
 import hammermail.core.Mail;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Model {
     
-    private static Model model = new Model();
+    private static final Model model = new Model(); //this will execute the constructor the first time you call a method
     
     private final ObservableList<Mail> listInbox = FXCollections.observableArrayList();
     
@@ -38,21 +37,11 @@ public class Model {
     
     private User currentUser;
 
-//    private ArrayList<User> listUser;
-
-    private int idCounter = 3;
+    private int idCounter = 3; 
     
-    //Use this         
-    //listUser.add(new User("marco", "qwerty", "marco.maida@hammermail.com")); 
-    //listUser.add(new User("andrea", "12345", "andrea.rondinelli@hammermail.com"));
-    //listUser.add(new User("gaetano", "12345", "gaetano.97@hammermail.com"));    
-    
-    public Model() { //TODO load mails and user from file 
+    private Model() { //TODO load mails and user from file
         currentMail = new SimpleObjectProperty<>(); 
         Timestamp ts = new Timestamp(System.currentTimeMillis());
-        
-        //Gaetano: Why in the costructor? 
-        setCurrentMail(new Mail(0, "Test", "andrea", "Select a mail from the list", "ciao", ts));
 
 //        listSent.setAll(
 //            new Mail(0, "marco", "andrea", "Mailzero", "ciao", ts),

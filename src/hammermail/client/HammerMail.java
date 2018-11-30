@@ -29,7 +29,6 @@ public class HammerMail extends Application {
         
 //        Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
 //      Uncomment to start with login
-        Model model = new Model();
         
         //Login Controller
         FXMLLoader loginLoader = new FXMLLoader();
