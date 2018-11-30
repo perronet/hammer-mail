@@ -327,7 +327,6 @@ public class Database {
     }
    
     protected ArrayList<Mail> getReceivedMails(String userN) {
-        System.out.println("1DB " + "get mails of " +  userN);
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -505,7 +504,7 @@ public class Database {
         }
     }
 
-    protected void dbStatus(){
+    public void dbStatus(){
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
         PreparedStatement pstmt = null;

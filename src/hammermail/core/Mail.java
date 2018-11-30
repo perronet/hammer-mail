@@ -39,7 +39,7 @@ public class Mail implements Serializable {
     
     @Override
     public String toString(){
-        return getId() + " " + getSender() + " " + getTitle() + " " + getDate();
+        return getId() + ", " + getSender() + ", " + getReceiver() + ", " + getTitle() + ", " + getDate();
     }
 
     public boolean isDraft(){

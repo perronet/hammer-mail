@@ -26,6 +26,7 @@ import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
+import hammermail.server.Database;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
@@ -80,8 +81,8 @@ public class UIEditorController implements Initializable {
                 ResponseBase response = sendRequest(request);
                 if (response instanceof ResponseError){
 //                  TODO inspect the type of error
-//                  ErrorType err = ((ResponseError)response).getErrorType();
-//                  System.out.println(err);
+                  ErrorType err = ((ResponseError)response).getErrorType();
+                  System.out.println(err);
                     handleError();
                 } else if (response instanceof ResponseMailSent){
                     int mailID = ((ResponseMailSent) response).getMailID();
@@ -102,6 +103,8 @@ public class UIEditorController implements Initializable {
             // set the response to error internal_error
             } finally {
                 s.close();
+                Database d = new Database(false);
+                d.dbStatus();
             }
         }
     }

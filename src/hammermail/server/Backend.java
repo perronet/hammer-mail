@@ -213,14 +213,19 @@ class Task implements Runnable {
         Database db = new Database(false);
         //note: checkPassword return false on not-existing user
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
+                System.out.println("mail adding: ");
 
             if (request.IsMailWellFormed()) {
-                String rec = (request.getMail().getReceiver()).replaceAll("\\s+","").substring(1);
+                String rec = (request.getMail().getReceiver()).replaceAll("\\s+","");
                 String [] receivers = rec.split(";");  
                 
                 if (receivers.length == 1){
                     if (!db.isUser(receivers[0]))
                         return new ResponseError(SENDING_TO_UNEXISTING_USER);
+                    else {
+                            int mailID =  db.addMail(request.getMail());              
+                            return new ResponseMailSent(mailID);
+                    }
                 }
                 
                 rec = "";
@@ -232,7 +237,7 @@ class Task implements Runnable {
                     else 
                         refused = refused + ";" + receivers[i];
                 }
-                request.getMail().setReceiver(rec);
+                request.getMail().setReceiver(rec.substring(1));
                 int mailID =  db.addMail(request.getMail());              
                 //TODO servers things?
                 return new ResponseMailSent(mailID);
