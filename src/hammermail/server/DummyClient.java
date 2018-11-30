@@ -39,73 +39,76 @@ public final class DummyClient {
 
     public DummyClient() throws InterruptedException {
         
-//        Database db1 = new Database(false);
-//        db1.addUser("marco", "psw");
-//        db1.addUser("omar", "psw");
-//        db1.addUser("tano", "psw");
-//        db1.addUser("andrea", "psw");
+        Database db1 = new Database(true);
+        db1.addUser("marco", "psw");
+        db1.addUser("omar", "psw");
+        db1.addUser("tano", "psw");
+        db1.addUser("andrea", "psw");
 //                
-//        // id, sender, receiver, title, text, date
-//        Timestamp t = new Timestamp(System.currentTimeMillis());
-//        Mail m1 = new Mail(1, "marco", "andrea", "titolo", "text", t);
-//        Thread.sleep((long) 4);
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m2 = new Mail(2, "omar", "marco", "titolo", "text", t);
-//        Thread.sleep((long) 4);
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m3 = new Mail(3, "tano", "omar", "titolo", "tano invia", t);
-//        Thread.sleep((long) 4);
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
-//
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m5 = new Mail(4, "omar", "tano", "titolo", "tano riceve", t);
-//
-//
-//        db1.addMail(m1);
-//        db1.addMail(m2);
-//        db1.addMail(m3);
-//        db1.addMail(m4);
-//        db1.addMail(m5);
-//        db1.removeMail(m1.getId(), "marco");
-////
-//        
-//        db1.dbStatus();
+        // id, sender, receiver, title, text, date
+        Timestamp t = new Timestamp(System.currentTimeMillis());
+        Mail m1 = new Mail(1, "marco", "tano", "titolo", "text", t);
+        Thread.sleep((long) 4);
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m2 = new Mail(2, "omar", "tano", "titolo", "text", t);
+        Thread.sleep((long) 4);
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m3 = new Mail(3, "tano", "tano", "titolo", "tano invia", t);
+        Thread.sleep((long) 4);
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
+
+        t = new Timestamp(System.currentTimeMillis());
+        Mail m5 = new Mail(4, "omar", "tano", "titolo", "tano riceve", t);
+
+
+        db1.addMail(m1);
+        db1.addMail(m2);
+        db1.addMail(m3);
+        db1.addMail(m4);
+        db1.addMail(m5);
+        db1.removeMail(m1.getId(), "marco");
+        db1.removeMail(m1.getId(), "tano");
+
+        
+        db1.dbStatus();
 
 
 
         try {
-//            //Testing Signup
-//            logAction("Testing invalid...");
-//            RequestSignUp errorReq = new RequestSignUp();
-//            errorReq.SetAuthentication("hello", null);//password is not valid
-//            testRequest(errorReq);
-//
-//            logAction("Testing signup...");
-//            RequestSignUp signupReq = new RequestSignUp();
-//            signupReq.SetAuthentication("hello", "world");
-//            testRequest(signupReq);
-//
-//
+            //Testing Signup
+            logAction("Testing invalid...");
+            RequestSignUp errorReq = new RequestSignUp();
+            errorReq.SetAuthentication("ta no", null);//password is not valid
+            testRequest(errorReq);
+
+            logAction("Testing signup...");
+            RequestSignUp signupReq = new RequestSignUp();
+            signupReq.SetAuthentication("tano", "psw");
+            testRequest(signupReq);
+
+
             logAction("Testing mails...");
             RequestGetMails mailsReq = new RequestGetMails();
-            mailsReq.SetAuthentication("marco", "psw");
+            mailsReq.SetAuthentication("tano", "psw");
             testRequest(mailsReq);
-//            
-//            
-//            logAction("Testing new mail sent...");
-//            Mail newMail = new Mail(Integer.SIZE, "hello", "hello", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis()));
-//            RequestSendMail sendMailReq = new RequestSendMail(newMail);
-//            sendMailReq.SetAuthentication("hello", "world");
-//            testRequest(sendMailReq);
-//
-//            logAction("Testing delete mail...");
-//            ArrayList mailsToDelete = new ArrayList();
-//            mailsToDelete.add(newMail);
-//            RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
-//            deleteMailsReq.SetAuthentication("hello", "world");
-//            testRequest(deleteMailsReq);
-//
+            
+            
+            logAction("Testing new mail sent...");
+            Mail newMail = new Mail(Integer.SIZE, "marco", "tano", "is it true?", "Are nails tasty?", new Timestamp(System.currentTimeMillis()));
+            RequestSendMail sendMailReq = new RequestSendMail(newMail);
+            sendMailReq.SetAuthentication("hello", "world");
+            testRequest(sendMailReq);
+
+            logAction("Testing delete mail...");
+            ArrayList mailsToDelete = new ArrayList();
+            mailsToDelete.add(newMail);
+            RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
+            deleteMailsReq.SetAuthentication("tano", "psw");
+            testRequest(deleteMailsReq);
+            deleteMailsReq.SetAuthentication("marco", "psw");
+            testRequest(deleteMailsReq);
+
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -121,6 +124,7 @@ public final class DummyClient {
         logAction("Got a response! The type is : " + ((Object) response).getClass());
         
         if (response instanceof ResponseMails){
+            System.out.println( "Test mails in the ResponseMail");
             System.out.println( "response received: " + ((ResponseMails)response).getReceivedMails());
             System.out.println("response sent: " + ((ResponseMails)response).getSentMails());
         }

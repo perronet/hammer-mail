@@ -76,7 +76,7 @@ public class Database {
                 + " title VARCHAR(255),\n"
                 + " email_text TEXT NOT NULL, \n"
                 + " time TIMETSAMP NOT NULL,\n"
-                + " deleted VARCHAR(1023) DEFAULT ' ', \n"
+                + " deleted VARCHAR(1023) DEFAULT ';', \n"
                 + " FOREIGN KEY (sender) REFERENCES users(username) "
                 + " ON UPDATE CASCADE \n"
                 + " ON DELETE CASCADE \n"
@@ -303,11 +303,9 @@ public class Database {
         ResultSet rs = null;
         
         try {
-//            
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "UPDATE email SET deleted = deleted || ? WHERE email_id = ?";
+            String sql = "UPDATE email SET deleted = deleted || ? || ';' WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
-            //String replaceDel = "'" + deleted + toRemove + "'";
             String replaceID = Integer.toString(mailID);
             pstmt.setString(1, toRemove);
             pstmt.setString(2, replaceID);
@@ -319,7 +317,6 @@ public class Database {
 
         } finally {
             try {
-                //rs.close();
                 pstmt.close();
                 conn.close();
             } catch (SQLException ex) {
@@ -330,6 +327,7 @@ public class Database {
     }
    
     protected ArrayList<Mail> getReceivedMails(String userN) {
+        System.out.println("1DB " + "get mails of " +  userN);
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -337,11 +335,18 @@ public class Database {
 
         try {
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE receiver LIKE ? "
-                + "AND deleted NOT LIKE ? ORDER BY time DESC";
+            String sql = "SELECT * FROM email "
+                    + "WHERE receiver = ? "
+                    + "OR receiver LIKE ? "
+                    + "OR receiver LIKE ? "
+                    + "OR receiver LIKE ? "
+                    + " AND deleted NOT LIKE ? ORDER BY time DESC";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "%" + userN + "%");
-            pstmt.setString(2, "%" + userN + "%");
+            pstmt.setString(1, userN);
+            pstmt.setString(2, "%;" + userN + ";%");
+            pstmt.setString(3, "%" + userN + ";%");
+            pstmt.setString(4, "%;" + userN + "%");
+            pstmt.setString(5, "%;" + userN + ";%");
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -385,7 +390,7 @@ public class Database {
                 + "AND deleted NOT LIKE ? ORDER BY time DESC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
-            pstmt.setString(2, "%" + userN + "%");
+            pstmt.setString(2, "%;" + userN + ";%");
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -416,7 +421,8 @@ public class Database {
             }
         }
     }
-
+    
+    //Don't use this, will be deleted
     protected ArrayList<Mail> getMails(String userN) {
         ArrayList<Mail> mailList = new ArrayList<>();
         Connection conn = null;

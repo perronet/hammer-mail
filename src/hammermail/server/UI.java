@@ -65,16 +65,16 @@ public class UI extends Application {
     void testServer() {
         System.out.println("Testing Server!");
         Thread t = new Thread(() -> {
-            try {
-                System.out.println("Testing in 3 seconds!");
-                Thread.sleep(1000);
-                System.out.println("Testing in 2 seconds!");
-                Thread.sleep(1000);
-                System.out.println("Testing in 1 second!");
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                System.out.println("Testing in 3 seconds!");
+//                Thread.sleep(1000);
+//                System.out.println("Testing in 2 seconds!");
+//                Thread.sleep(1000);
+//                System.out.println("Testing in 1 second!");
+//                Thread.sleep(1000);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+//            }
             try {
                 DummyClient c = new DummyClient();
             } catch (InterruptedException ex) {

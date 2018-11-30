@@ -215,8 +215,7 @@ class Task implements Runnable {
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
 
             if (request.IsMailWellFormed()) {
-                String msg = "";
-                String rec = (request.getMail().getReceiver()).replaceAll("\\s+","");
+                String rec = (request.getMail().getReceiver()).replaceAll("\\s+","").substring(1);
                 String [] receivers = rec.split(";");  
                 
                 if (receivers.length == 1){
@@ -225,13 +224,14 @@ class Task implements Runnable {
                 }
                 
                 rec = "";
+                String refused = "";
+
                 for(int i = 0; i < receivers.length; i++){
                     if (db.isUser(receivers[i]))
                         rec = rec + ";" + receivers[i];
                     else 
-                        msg += receivers[i] + ";";
+                        refused = refused + ";" + receivers[i];
                 }
-                rec = rec.substring(1);
                 request.getMail().setReceiver(rec);
                 int mailID =  db.addMail(request.getMail());              
                 //TODO servers things?
