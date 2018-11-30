@@ -31,6 +31,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXMLLoader;
@@ -63,48 +65,19 @@ public class UILoginController implements Initializable {
         
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
-                spawnLogin(event);
+                spawnLogin();
             else {
-                //the RequestGetMail will be called with the Date argument from JSON
-                RequestGetMails requestGetMail = new RequestGetMails();
-                requestGetMail.SetAuthentication(username.getText(), password.getText());
-                ResponseBase response = sendRequest(requestGetMail);
+                ResponseBase response = composeAndSendGetMail();
 
                 if (response instanceof ResponseError){
                     loginfailure.setFill(Color.rgb(255,0,0));
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
-                    Model.getModel().setCurrentUser(requestGetMail.getUsername(), requestGetMail.getPassword());
-                    List<Mail> received = ((ResponseMails) response).getReceivedMails();
-                    List<Mail> sent = ((ResponseMails) response).getSentMails();
-                    
-                    //insert the mails list to client local JSON file
-                    //received = received + JSON received
-                    //sent = sent + JSON sent 
-                    
-                    //Update Model
-                    //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
-                    Model.getModel().getListInbox().setAll(received);
-                    Model.getModel().getListSent().setAll(sent);
-                    
-                    //spawn the stage with the primary view
-                    FXMLLoader uiLoader = new FXMLLoader();
-                    uiLoader.setLocation(getClass().getResource("UI.fxml"));
-                    Parent root = uiLoader.load();  
-                    UIController uiController = uiLoader.getController();
-                    
-                    s.close(); //close login view
-                    Stage newstage = new Stage();
-                    newstage.setTitle("HammerMail - Home");
-                    newstage.setScene(new Scene(root));
-                    newstage.show();
-
+                    updateModelReqMail(response);
+                    spawnHome();
                 } 
             }
-        } catch (UnknownHostException ex){
-            System.out.println(ex.getMessage());
-            // set the response to error internal_error
         } catch (ClassNotFoundException | IOException ex){
             System.out.println(ex.getMessage());
             // set the response to error internal_error
@@ -118,7 +91,7 @@ public class UILoginController implements Initializable {
         
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
-                spawnLogin(event);
+                spawnLogin();
         
             else {
                 //Compose request and send
@@ -133,46 +106,16 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Username taken");
 
                 } else if (response instanceof ResponseSuccess){
-                    //Is User, so set Model
-                    Model.getModel().setCurrentUser(requestSignUp.getUsername(), requestSignUp.getPassword());
-                    
-                    //Compose request to get mail, With time take from JSON
-                    RequestGetMails requestGetMail = new RequestGetMails();
-                    requestGetMail.SetAuthentication(username.getText(), password.getText());
-                    response = sendRequest(requestGetMail);
+                    response = composeAndSendGetMail();
 
                     if (response instanceof ResponseError)
-                        //WARNING, we hope this not happen!!!
-                        spawnLogin(event);
+                        spawnLogin();
 
                     else if (response instanceof ResponseMails){
-                        loginfailure.setFill(Color.rgb(0,230,0));
-                        loginfailure.setText("Logging in ...");
-                        s.close();
-                        
-                        List<Mail> received = ((ResponseMails) response).getReceivedMails();
-                        List<Mail> sent = ((ResponseMails) response).getSentMails();
-
-                        //insert the mails list to client local JSON file
-                        //received = received + JSON received
-                        //sent = sent + JSON sent 
-
-                        //Update Model
-                        //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
-                        Model.getModel().getListInbox().setAll(received);
-                        Model.getModel().getListSent().setAll(sent);
-                    
-                        //spawn a new stage
-                        try {
-                            Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
-                            Stage newstage = new Stage();
-                            newstage.setTitle("HammerMail - Home");
-                            newstage.setScene(new Scene(root));
-                            newstage.show();
-                        } catch (IOException e){
-                            //TODO
-                        }
+                        updateModelReqMail(response);
+                        spawnHome();
                     }
+                    
                 }
             }
         } catch (ClassNotFoundException classEx){
@@ -185,13 +128,28 @@ public class UILoginController implements Initializable {
     }
      
     
+    private void updateModelReqMail(ResponseBase response){
+        Model.getModel().setCurrentUser(username.getText(), password.getText());
+        List<Mail> received = ((ResponseMails) response).getReceivedMails();
+        List<Mail> sent = ((ResponseMails) response).getSentMails();
+
+        //insert the mails list to client local JSON file
+        //received = received + JSON received
+        //sent = sent + JSON sent 
+
+        //Update Model
+        //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
+        Model.getModel().getListInbox().setAll(received);
+        Model.getModel().getListSent().setAll(sent);
+    }
+    
     //maybe event argument will be eliminated..
     /**
     * Method to spawn a new Login view.
     * @author Gaetano
     * @param event:
     */
-    private void spawnLogin(ActionEvent event){
+    private void spawnLogin(){
          //spawn a new login view
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -210,13 +168,35 @@ public class UILoginController implements Initializable {
          }
     }
     
+    private void spawnHome(){
+        try {
+            FXMLLoader uiLoader = new FXMLLoader();
+            uiLoader.setLocation(getClass().getResource("UI.fxml"));
+            Parent root;  
+            root = uiLoader.load();
+            UIController uiController = uiLoader.getController();
+            s.close(); //close login view
+            Stage newstage = new Stage();
+            newstage.setTitle("HammerMail - Home");
+            newstage.setScene(new Scene(root));
+            newstage.show();
+        } catch (IOException ex) {
+            spawnLogin();
+        }
+    }
     
+    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
+        //the RequestGetMail will be called with the Date argument from JSON    
+        RequestGetMails requestGetMail = new RequestGetMails();
+        requestGetMail.SetAuthentication(username.getText(), password.getText());
+        return sendRequest(requestGetMail);
+    }
     
     /**
     * Method to send request to the server
     * @author
     */
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
+    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException,  IOException{
             Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
