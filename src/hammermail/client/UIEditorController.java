@@ -103,6 +103,7 @@ public class UIEditorController implements Initializable {
             // set the response to error internal_error
             } finally {
                 s.close();
+                //Only for testing
                 Database d = new Database(false);
                 d.dbStatus();
             }

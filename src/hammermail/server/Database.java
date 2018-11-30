@@ -349,14 +349,19 @@ public class Database {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Mail m = new Mail(1, 
-                        /*rs.getInt("user_id"), */
+                Mail m = new Mail( 
+                        rs.getInt("email_id"),
                         rs.getString("sender"), 
                         rs.getString("receiver"),
                         rs.getString("title"), 
                         rs.getString("email_text"), 
                         rs.getTimestamp("time"));
-                mailList.add(m);
+                if (!rs.getString("deleted").contains(userN)){
+                    //If i don't fix the "deleted NOT LIKE" bug we use this
+                    System.out.println("deleted: " + rs.getString("deleted"));
+                    mailList.add(m);
+                }
+                System.out.println(m.getId() + ", " + m.getSender() + ", " + m.getReceiver() + ", " + m.getTitle() + ", " + m.getDate());
             }
 
         } catch (SQLException ex) {
