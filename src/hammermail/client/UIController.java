@@ -16,6 +16,7 @@
  */
 package hammermail.client;
 
+import hammermail.core.Globals;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.io.IOException;
@@ -30,7 +31,22 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import hammermail.net.requests.RequestBase;
+import hammermail.net.requests.RequestDeleteMails;
+import hammermail.net.responses.ResponseBase;
+import hammermail.net.responses.ResponseError;
+import hammermail.net.responses.ResponseSuccess;
+import hammermail.server.Database;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -75,13 +91,50 @@ public class UIController implements Initializable {
         
     }  
 
+    private List<Mail> composeDeletingRequest(){
+        List<Mail> mailsToDelete = new ArrayList<>();
+        
+        //Here we add to mailsToDelete a Multiple Selection of mails from sentTab
+        mailsToDelete.add(currentMail());
+        RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
+        request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
+        ResponseBase response = null;
+        try { response = sendRequest(request);} 
+        catch (ClassNotFoundException | IOException ex) {
+               //TODO
+        } finally {
+            if (response != null){
+                System.out.println("response non null");
+                if (response instanceof ResponseSuccess){
+                    //TEMP
+                    System.out.println("Temp: Mails removed");
+                    Database db = new Database(false);
+                    db.dbStatus();
+                    return mailsToDelete;
+                } else if (response instanceof ResponseError){                     
+                    ResponseError.ErrorType err = ((ResponseError)response).getErrorType();
+                    System.out.println("Tipo di errore: " + err);
+                }
+                    
+            } 
+        }
+        return null;
+    }
+    
+    
+    
+    
     @FXML //TODO: find a way to remove from different tabs
     private void handleDelete(ActionEvent event){
        if(senttab.isSelected()){
-           Model.getModel().removeMail();
+           List<Mail> mailsToDelete = composeDeletingRequest();
+           Model.getModel().getListSent().removeAll(mailsToDelete);
+       
        }else if(drafttab.isSelected()){
            Model.getModel().removeDraft();
+       
        }else if(inboxtab.isSelected()){
+           List<Mail> mailsToDelete = composeDeletingRequest();
            Model.getModel().removeReceivedMail();
        }
     }
@@ -134,12 +187,13 @@ public class UIController implements Initializable {
         listsent.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
 
         listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
-            System.out.println("New mail selected from list");
             int newindex = (int)newValue;
-            if(!listsent.getSelectionModel().isEmpty()){ 
+            if(!listsent.getSelectionModel().isEmpty()){
+                System.out.println("New mail selected from list");
                 bottombox.getChildren().clear();
                 sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getMailByIndex(newindex));
+
             }
         });     
            
@@ -327,6 +381,17 @@ public class UIController implements Initializable {
         bottombox.getChildren().add(replyAllButton);
         
     }
+    
+    //we need to find a common location for this method!!!
+    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
+        Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+        out.writeObject(request);
+        return (ResponseBase)in.readObject();
+    }
+
+    
 }
 
 class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show a Mail object in different ways

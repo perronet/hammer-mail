@@ -39,13 +39,13 @@ public final class DummyClient {
 
     public DummyClient() throws InterruptedException {
         
-        Database db1 = new Database(true);
-//        db1.addUser("marco", "psw");
-//        db1.addUser("omar", "psw");
-//        db1.addUser("tano", "psw");
-//        db1.addUser("andrea", "psw");
-////                
-//        // id, sender, receiver, title, text, date
+        Database db1 = new Database(false);
+        db1.addUser("marco", "psw");
+        db1.addUser("omar", "psw");
+        db1.addUser("tano", "psw");
+        db1.addUser("andrea", "psw");
+//                
+        // id, sender, receiver, title, text, date
 //        Timestamp t = new Timestamp(System.currentTimeMillis());
 //        Mail m1 = new Mail(1, "marco", "tano", "titolo", "text", t);
 //        Thread.sleep((long) 4);

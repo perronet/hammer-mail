@@ -251,7 +251,7 @@ class Task implements Runnable {
 
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
-
+        
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
             return new ResponseMails(db.getReceivedMails(request.getUsername()),
                                                     db.getSentMails(request.getUsername()));
@@ -261,7 +261,10 @@ class Task implements Runnable {
     }
 
     private ResponseBase handleDeleteMails(RequestDeleteMails requestDeleteMails) {
-        //#TODO DB CALLS
+        Database db = new Database(false);
+        for(Integer mailID : requestDeleteMails.getMailsIDsToDelete()){
+            db.removeMail(mailID, requestDeleteMails.getUsername());
+        }
         return new ResponseSuccess();
     }
 
