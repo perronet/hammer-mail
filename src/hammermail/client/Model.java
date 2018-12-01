@@ -16,9 +16,25 @@
  */
 package hammermail.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import hammermail.core.User;
 import hammermail.core.Mail;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -69,7 +85,9 @@ public class Model {
     }
     
     public void addReceivedMail(String sender, String title, String text){
-        listInbox.add(new Mail(idCounter, sender, null, title, text, new Timestamp(System.currentTimeMillis()))); //Receiver needs to be null
+        Mail mail = new Mail(idCounter, sender, currentUser.getUsername(), title, text, new Timestamp(System.currentTimeMillis()));
+        listInbox.add(mail); //Receiver needs to be null
+        storeMail(mail);
         idCounter++;
     }
 
@@ -88,7 +106,9 @@ public class Model {
     
     //we can bypass this, look UIEditorController, row 89, handleSend 
     public void addMail(String receiver, String title, String text){
-        listSent.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
+        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, new Timestamp(System.currentTimeMillis()));
+        listSent.add(mail);
+        storeMail(mail);
         idCounter++;
     }
 
@@ -107,7 +127,9 @@ public class Model {
     }
     
     public void saveDraft(String receiver, String title, String text){
-        listDraft.add(new Mail(idCounter, "marco", receiver, title, text, new Timestamp(System.currentTimeMillis())));
+        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, null /*new Timestamp(System.currentTimeMillis())*/);
+        listDraft.add(mail);
+        storeMail(mail);
         idCounter++;
     }
     
@@ -125,5 +147,66 @@ public class Model {
      
     public void setCurrentUser(String username, String password){
          this.currentUser = new User(username, password);
+    }
+    
+    //TO BE CHECKED!!
+    public void dispatchMail(String filename){
+        Gson gson = new Gson();
+        String user = this.currentUser.getUsername();
+        JsonReader reader;
+        //check if file exist - if not create it with create Json (maybe else-if??) 
+        try {
+            reader = new JsonReader(new FileReader(filename));
+            Type mailList = new TypeToken<List<Mail>>(){}.getType();
+            List<Mail> mails = gson.fromJson(reader, Mail.class); 
+            for(Mail m : mails){
+                if(m.getDate() == null){
+                    listDraft.add(m);
+                }else if(m.getSender().equals(user) && m.getReceiver().contains(user)){
+                    listSent.add(m);
+                    listInbox.add(m);
+                }else if(m.getReceiver().contains(user)){
+                    listInbox.add(m);
+                }else{
+                    listSent.add(m);
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    //Store mails into .json
+    public void storeMail(Mail mailToStore){
+        //String json = "{\"Mail\":[{\"Sender\":\"value\",\"Receiver\":\"value\" }, { \"lat\":\"value\", \"lon\":\"value\"}]}";
+        Gson gson = new GsonBuilder().serializeNulls().create();
+	String user = this.currentUser.getUsername();
+	String filepath = user + "mails" + "\\" + user  + ".json";
+
+        try {
+            FileWriter writer = new FileWriter(filepath, true);
+            writer.append(gson.toJson(mailToStore));
+            writer.append("\n");
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+	
+    }
+    
+    public void createJson(String username){
+        Gson file = new Gson();
+        String namedir = username + "mails";
+        String filepath = namedir + "\\" + username + ".json";
+        File dir = new File(namedir);
+        dir.mkdir();
+        try{
+            JsonWriter writer = new JsonWriter(new FileWriter(filepath));
+            System.out.println(filepath);
+
+        }catch (IOException ex) {
+            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

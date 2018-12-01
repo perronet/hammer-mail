@@ -16,11 +16,15 @@
  */
 package hammermail.client;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
 import hammermail.core.Globals;
 import hammermail.core.Mail;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import static hammermail.net.responses.ResponseError.ErrorType.INTERNAL_ERROR;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -69,7 +73,6 @@ public class UILoginController implements Initializable {
                 spawnLogin();
             else {
                 ResponseBase response = composeAndSendGetMail();
-
                 if (response instanceof ResponseError){
                     loginfailure.setFill(Color.rgb(255,0,0));
                     loginfailure.setText("Incorrect Authentication");
@@ -100,8 +103,9 @@ public class UILoginController implements Initializable {
         
             else {
                 //Compose request and send
+                String user = username.getText();
                 RequestSignUp requestSignUp = new RequestSignUp();
-                requestSignUp.SetAuthentication(username.getText(), password.getText());
+                requestSignUp.SetAuthentication(user, password.getText());
                 ResponseBase response = sendRequest(requestSignUp);
 
                 
@@ -112,7 +116,7 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess){
                     response = composeAndSendGetMail();
-
+                    Model.getModel().createJson(user);
                     if (response instanceof ResponseError)
                         spawnLogin();
 
@@ -250,6 +254,8 @@ public class UILoginController implements Initializable {
             }
         }
     }
+    
+    
 
     
     @Override

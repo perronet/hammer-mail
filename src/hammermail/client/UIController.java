@@ -70,7 +70,7 @@ public class UIController implements Initializable {
     @FXML
     private HBox bottombox;
     
-    private String currentUser = "Dummy";
+    private String currentUser = Model.getModel().getCurrentUser().getUsername();
     
     @FXML
     private void handleCreate(ActionEvent event){
@@ -90,17 +90,17 @@ public class UIController implements Initializable {
        }
     }
     
-
+    
     @FXML
     private void handleReceive(ActionEvent event){ //just for testing
         Model.getModel().addReceivedMail("marco", "titolo", "testo");
-    }  
+    } 
     
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
 //        m = new Model();
-            
+        //Model.getModel().dispatchMail(this.currentUser);
         inboxTabInitialize();
         
         //Current mail listener
@@ -286,33 +286,30 @@ public class UIController implements Initializable {
         bottombox.getChildren().add(modifyButton);
     }
     
-    //TO ADD: reply all
     private void inboxTabInitialize(){
         Button forwardButton = new Button("Forward");
         forwardButton.setOnAction((ActionEvent e) -> {
-            //add a "get receiver" to not open the editor
             openEditor("", mailtitle.getText(), "Forwarded by: " + mailfromto.getText() + " -- " +mailcontent.getText(), false);
-            // m.addMail(m.getReceivedMailByIndex(0).getSender(), m.getReceivedMailByIndex(0).getTitle(), m.getReceivedMailByIndex(0).getText());
         });
         bottombox.getChildren().add(forwardButton);
         Button replyButton = new Button("Reply");
         replyButton.setOnAction((ActionEvent e) -> {
-            String fromTo = mailfromto.getText();
+            String fromTo = mailtofrom.getText();
             openEditor(fromTo, "", "", false);
         });
         bottombox.getChildren().add(replyButton);
         //TODO: add unmodifiable field "your mail" in the editor and set it with "currentuser"
         Button replyAllButton = new Button("Reply All");
         replyAllButton.setOnAction((ActionEvent e) -> {
-            String toFrom = "Dummy, Ao, We"; //get from field "receivers"
-            StringTokenizer st = new StringTokenizer(toFrom, ",");
+            String toFrom = mailfromto.getText(); //get from field "receivers"
+            StringTokenizer st = new StringTokenizer(toFrom, ";");
             String newFromTo = "";
             String test = ""; //to improve
-            String sender = mailfromto.getText();
+            String sender = mailtofrom.getText();
             while(st.hasMoreTokens()){
                 test = st.nextToken();
                 if(!(test.equals(currentUser))){ //use currentuser instead
-                    newFromTo = newFromTo + test + ",";
+                    newFromTo = newFromTo + test + ";";
                 }
             }
             newFromTo = newFromTo + sender;
