@@ -127,7 +127,7 @@ public class Model {
     }
     
     public void saveDraft(String receiver, String title, String text){
-        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, null /*new Timestamp(System.currentTimeMillis())*/);
+        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, null); /*new Timestamp(System.currentTimeMillis())*/
         listDraft.add(mail);
         storeMail(mail);
         idCounter++;

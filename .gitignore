@@ -1,4 +1,9 @@
 /nbproject/private/
 /build/
 /dist/
+
+#Ignore database
 src/hammermail/server/hammer\.db
+
+#Ignored extensions
+*.json

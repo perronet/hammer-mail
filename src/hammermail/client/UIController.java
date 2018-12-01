@@ -44,10 +44,6 @@ import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
 
-//    private Model m;
-    
-    //TODO maybe add a Stage attribute
-    
     @FXML
     private Label user;
 
@@ -70,7 +66,7 @@ public class UIController implements Initializable {
     @FXML
     private HBox bottombox;
     
-    private String currentUser = Model.getModel().getCurrentUser().getUsername();
+    private final String currentUser = Model.getModel().getCurrentUser().getUsername();
     
     @FXML
     private void handleCreate(ActionEvent event){
@@ -99,13 +95,12 @@ public class UIController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
-//        m = new Model();
         //Model.getModel().dispatchMail(this.currentUser);
         inboxTabInitialize();
         
         //Current mail listener
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
-            if(newValue.isReceived()){ //This mail was received
+            if(newValue.getReceiver().equals(currentUser)){ //This mail was received
                 mailfromto.setText(newValue.getSender());
                 mailtofrom.setText(newValue.getReceiver());
                 fromto.setText("From");
@@ -116,7 +111,13 @@ public class UIController implements Initializable {
                 fromto.setText("To");
                 tofrom.setText("From");
             }
-            maildate.setText(newValue.getDate().toString()); //TODO this should handle null values like in drafts, needs testing
+            
+            if(newValue.isDraft()){ //This handles null dates from drafts
+                maildate.clear(); //TODO hide maildate textarea, don't just clear it
+            }else{
+                maildate.setText(newValue.getDate().toString()); 
+            }
+            
             mailtitle.setText(newValue.getTitle());    
             mailcontent.setText(newValue.getText());    
         });
@@ -180,7 +181,9 @@ public class UIController implements Initializable {
         tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
             clearAllSelections();
             bottombox.getChildren().clear();
-            if((int) newValue == 1){
+            
+            //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
+            if((int) newValue == 1){ 
                 sentTabInitialize();
             }else if((int) newValue == 2){
                 draftTabInitialize();
@@ -329,7 +332,7 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
         if (empty || item == null || item.getId() == null) {
             setText(null);
         } else {
-            if(item.isReceived()){ //Mail was received
+            if(item.getReceiver().equals(Model.getModel().getCurrentUser().getUsername())){ //Mail was received
                 setText(item.getSender() + " - " + item.getTitle());
             }else{
                 if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)

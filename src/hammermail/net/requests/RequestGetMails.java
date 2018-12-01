@@ -16,6 +16,7 @@
  */
 package hammermail.net.requests;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -24,9 +25,7 @@ import java.util.Date;
  */
 public class RequestGetMails extends RequestBase {
     
-    //Date lastMailDate;
-    
-    //#TODO implement mail list diff system
+    private Timestamp lastMailDate;
     
     /**
      * Create a Request

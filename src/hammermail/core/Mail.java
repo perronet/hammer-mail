@@ -46,9 +46,9 @@ public class Mail implements Serializable {
         return this.date == null;
     }
     
-    public boolean isReceived(){
-        return this.receiver == null && !isDraft();
-    }
+//    public boolean isReceived(){
+//        return this.receiver.equals(Model.getModel().getCurrentUser().getUsername()) && !isDraft(); //WARNING: Importing the model here is probably not good, will change ASAP
+//    }
     
     //Getter and setters
     public Integer getId() {
