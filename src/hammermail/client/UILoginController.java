@@ -243,6 +243,8 @@ public class UILoginController implements Initializable {
                             Model.getModel().getListInbox().addAll(0, received);
                         if (sent.size() > 0)
                             Model.getModel().getListSent().addAll(0, sent);
+                        
+                        //Write on JSON
                             
                     }
             } catch (InterruptedException ex) {

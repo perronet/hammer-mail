@@ -114,6 +114,10 @@ public class UIEditorController implements Initializable {
                 && isNullOrWhiteSpace(body) && (event instanceof WindowEvent)){
             s.close();
         }else{
+            //Scommentare se si decide di usare la versione Model.saveDraft con un solo parametro
+//            String sender = Model.getModel().getCurrentUser().getUsername();
+//            Mail m = new Mail (-1, sender, receiver, mailsub, body, null);
+//            Model.getModel().saveDraft(m);
             Model.getModel().saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
             s.close();

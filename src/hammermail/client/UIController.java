@@ -328,6 +328,9 @@ public class UIController implements Initializable {
     }
     
     private void draftTabInitialize(){
+        //Qui c'è un errore, le mail vengono spostate all'interno della view ma non avviene nulla
+        //a livello di DB. nel ramo else ci andrà lo stesso codice (o quasi) dell'handle send dell'editor controller
+        
         Button sendButton = new Button("Send");
         sendButton.setOnAction((ActionEvent e) -> {
             if(currentMail().getReceiver().isEmpty()){

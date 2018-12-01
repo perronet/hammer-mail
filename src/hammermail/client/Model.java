@@ -53,6 +53,7 @@ public class Model {
     
     private User currentUser;
 
+    //sarebbe arrivato il momento di eliminare
     private int idCounter = 3; 
     
     private Model() { //TODO load mails and user from file
@@ -70,36 +71,17 @@ public class Model {
     public static Model getModel() {
         return model;
     }
-   
-    
+  
     
     public final Mail getCurrentMail(){ return currentMail.get(); }
     
     public final void setCurrentMail(Mail m){ currentMail.set(m); }
     
     public SimpleObjectProperty<Mail> currentMailProperty() { return currentMail; }
-    
-    //Remove from any list
-    //TODO do it
-    
+        
     //Inbox
     public ObservableList<Mail> getListInbox(){ 
         return listInbox;
-    }
-    
-    public void addReceivedMail(String sender, String title, String text){
-        Mail mail = new Mail(idCounter, sender, currentUser.getUsername(), title, text, new Timestamp(System.currentTimeMillis()));
-        listInbox.add(mail); //Receiver needs to be null
-        storeMail(mail);
-        idCounter++;
-    }
-
-    public void removeReceivedMail(){ //TODO remove specified element 
-        listInbox.remove(listInbox.size()-1);
-    }
-    
-    public Mail getReceivedMailByIndex(int i){
-        return listInbox.get(i);
     }
     
     //Sent
@@ -107,41 +89,9 @@ public class Model {
         return listSent;
     }
     
-    //we can bypass this, look UIEditorController, row 89, handleSend 
-    public void addMail(String receiver, String title, String text){
-        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, new Timestamp(System.currentTimeMillis()));
-        listSent.add(mail);
-        storeMail(mail);
-        idCounter++;
-    }
-
-    public void removeMail(){ //TODO remove specified element 
-        listSent.remove(listSent.size()-1);
-    }
-    
-    public Mail getMailByIndex(int i){
-        return listSent.get(i);
-    }
-    
     //Drafts  
-
     public ObservableList<Mail> getListDraft(){ 
         return listDraft;
-    }
-    
-    public void saveDraft(String receiver, String title, String text){
-        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, null); /*new Timestamp(System.currentTimeMillis())*/
-        listDraft.add(mail);
-        storeMail(mail);
-        idCounter++;
-    }
-    
-    public void removeDraft(){//OutOfBound exception when list is empty
-        listDraft.remove(listDraft.size()-1);
-    }
-    
-     public Mail getDraftByIndex(int i){
-        return listDraft.get(i);
     }
     
     public User getCurrentUser() {
@@ -152,6 +102,8 @@ public class Model {
          this.currentUser = new User(username, password);
     }
     
+    
+    //Forse si potrebbero mettere le funzioni di scrittura in un'altra classe
     //TO BE CHECKED!!
     public void dispatchMail(String filename){
         Gson gson = new Gson();
@@ -212,4 +164,90 @@ public class Model {
             Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+
+    
+    
+    
+    public void saveDraft(String receiver, String title, String text){
+        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, null); /*new Timestamp(System.currentTimeMillis())*/
+        listDraft.add(mail);
+        storeMail(mail);
+        idCounter++;
+    }
+//  più pulito, meno soggetto ad errori 
+//  il save draft lo si fa solo nell'editor controller, ho già predisposto la modifica (handle save)
+//    public void saveDraft(Mail mail){
+//        listDraft.add(mail);
+//        storeMail(mail);
+//    }
+ 
+    public void removeDraft(){//OutOfBound exception when list is empty
+        listDraft.remove(listDraft.size()-1);
+    }
+ 
+//  sarebbe più corretto
+//    public void removeDraft(){
+//        listDraft.remove(getCurrentMail());
+//    }
+
+    
+ // si può usare direttamente la getListSent().add oppure remove, come fatto in handleSend riga 90 circa
+ // e come bisognerà fare per send delle bozze (bisogna usare lo stesso handle send in pratica)
+ // lo store mail viene già fatto nella handle send (manca ancora nel send delle bozze)
+    public void addMail(String receiver, String title, String text){
+        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, new Timestamp(System.currentTimeMillis()));
+        listSent.add(mail);
+        storeMail(mail);
+        idCounter++;
+    }
+   
+    
+    public void removeMail(){ //TODO remove specified element 
+        listSent.remove(listSent.size()-1);
+    }
+    
+//    public void removeMail(){ //TODO remove specified element 
+//        listSent.remove(getCurrentMail());
+//    }
+//    
+
+    public Mail getDraftByIndex(int i){
+        return listDraft.get(i);
+    }
+    
+    public Mail getMailByIndex(int i){
+        return listSent.get(i);
+    }
+
+    public Mail getReceivedMailByIndex(int i){
+        return listInbox.get(i);
+    }
+
+    //Questo lavoro lo farà il demone, scaricherà le mail nuove e in seguito le aggiunge alla lista inbox
+    //nel login controller (che fa una get mail request) avviene la scrittura su json
+    //è già tutto predisposto e commentato nel Login Controller
+    //la request get mail viene fatta solo nel login controller e dal demone
+    public void addReceivedMail(String sender, String title, String text){
+        Mail mail = new Mail(idCounter, sender, currentUser.getUsername(), title, text, new Timestamp(System.currentTimeMillis()));
+        listInbox.add(mail); //Receiver needs to be null
+        storeMail(mail);
+        idCounter++;
+    }
+
+    
+    public void removeReceivedMail(){ //TODO remove specified element 
+        listInbox.remove(listInbox.size()-1);
+    }
+    
+//    public void removeReceivedMail(){ //TODO remove specified element 
+//        listInbox.remove(getCurrentMail());
+//    }
+//    
+    
+    //sarebbe inoltre meglio dare nomi più significativi alle remove
+    //removeSent()
+    //removeDraft()
+    //removeInbox
+
 }
