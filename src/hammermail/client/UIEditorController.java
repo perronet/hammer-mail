@@ -163,7 +163,7 @@ public class UIEditorController implements Initializable {
     }
        
     
-    //this method should be place in a separate file
+    //this method should be placed in a separate file
     private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
             Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());

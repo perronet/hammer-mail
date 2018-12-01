@@ -48,7 +48,7 @@ public class UIController implements Initializable {
     private Label user;
 
     @FXML
-    private Label fromto, subject, tofrom;
+    private Label fromto, subject, tofrom, loggedas;
     
     @FXML
     private ListView<Mail> listinbox, listsent, listdraft; 
@@ -95,11 +95,17 @@ public class UIController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
-        //Model.getModel().dispatchMail(this.currentUser);
+        //GENERIC SETUPS
         
-        //Current mail listener
+        //Model.getModel().dispatchMail(this.currentUser);
+        loggedas.setText("Logged as: " + currentUser);
+        fromto.setAlignment(Pos.CENTER);
+        subject.setAlignment(Pos.CENTER);
+        
+        //SETUP CURRENT MAIL LISTENER
+        
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
-            if(newValue.getReceiver().equals(currentUser)){ //This mail was received
+            if(newValue.getReceiver().contains(currentUser)){ //This mail was received //Fix in case of multiple users
                 mailfromto.setText(newValue.getSender());
                 mailtofrom.setText(newValue.getReceiver());
                 fromto.setText("From");
@@ -121,7 +127,7 @@ public class UIController implements Initializable {
             mailcontent.setText(newValue.getText());    
         });
    
-        //SETUP SENT LIST
+        //SENT LIST
         
         listsent.setItems(Model.getModel().getListSent()); //the ListView will automatically refresh the view to represent the items in the ObservableList
 
@@ -139,7 +145,7 @@ public class UIController implements Initializable {
            
         listsent.setCellFactory(param -> new MailCell()); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
         
-        //SETUP DRAFT LIST
+        //DRAFT LIST
         
         listdraft.setItems(Model.getModel().getListDraft()); 
 
@@ -157,7 +163,7 @@ public class UIController implements Initializable {
             
         listdraft.setCellFactory(param -> new MailCell());
         
-        //SETUP INBOX LIST
+        //INBOX LIST
         
         listinbox.setItems(Model.getModel().getListInbox());
 
@@ -174,15 +180,10 @@ public class UIController implements Initializable {
         });     
   
         listinbox.setCellFactory(param -> new MailCell());
-        
-        //OTHER SETUPS
-        
-        fromto.setAlignment(Pos.CENTER);
-        subject.setAlignment(Pos.CENTER);
-        
+    
+        //TABS 
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE); //can't close tabs
         
-        //TABS LISTENER
         tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
             bottombox.getChildren().clear();
             clearAllSelections();
@@ -204,7 +205,11 @@ public class UIController implements Initializable {
 //        });
         
     }
-
+    
+    private Mail currentMail(){ //Use this to make the code cleaner
+        return Model.getModel().getCurrentMail();
+    }
+    
     private void clearAllSelections(){
         listinbox.getSelectionModel().clearSelection();
         listsent.getSelectionModel().clearSelection();
@@ -263,8 +268,7 @@ public class UIController implements Initializable {
     private void sentTabInitialize(){
         Button forwardButton = new Button("Forward");
         forwardButton.setOnAction((ActionEvent e) -> {
-            openEditor("", mailtitle.getText(), "Forwarded by: " + mailfromto.getText() + " -- " +mailcontent.getText(), false);
-            //m.addMail(m.getMailByIndex(0).getSender(), m.getMailByIndex(0).getTitle(), m.getMailByIndex(0).getText());
+            openEditor("", currentMail().getTitle(), currentMail().getText(), false);
         });
         bottombox.getChildren().add(forwardButton);
     }
@@ -272,10 +276,10 @@ public class UIController implements Initializable {
     private void draftTabInitialize(){
         Button sendButton = new Button("Send");
         sendButton.setOnAction((ActionEvent e) -> {
-            if(mailfromto.getText().equals("")){
+            if(currentMail().getReceiver().isEmpty()){
                 handleError();
             }else{
-                Model.getModel().addMail(mailfromto.getText(), mailtitle.getText(), mailcontent.getText());
+                Model.getModel().addMail(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
                 Model.getModel().removeDraft();
             }
         });
@@ -283,10 +287,7 @@ public class UIController implements Initializable {
                 
         Button modifyButton = new Button("Modify");
         modifyButton.setOnAction((ActionEvent e) -> {
-            String cont = mailcontent.getText();
-            String fromTo = mailfromto.getText();
-            String title = mailtitle.getText();
-            openEditor(fromTo, title, cont, true);
+            openEditor(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText(), true);
             Model.getModel().removeDraft();
             //remove current draft and replace if saved, delete if sent
         });
@@ -295,36 +296,37 @@ public class UIController implements Initializable {
     
     private void inboxTabInitialize(){
         Button forwardButton = new Button("Forward");
-        forwardButton.setOnAction((ActionEvent e) -> {
-            openEditor("", mailtitle.getText(), "Forwarded by: " + mailfromto.getText() + " -- " +mailcontent.getText(), false);
+        forwardButton.setOnAction((ActionEvent e) -> { 
+            openEditor("", currentMail().getTitle(), "Forwarded from: " + currentMail().getSender() + " -- " + currentMail().getText(), false);
         });
         bottombox.getChildren().add(forwardButton);
+        
         Button replyButton = new Button("Reply");
         replyButton.setOnAction((ActionEvent e) -> {
-            String fromTo = mailtofrom.getText();
-            openEditor(fromTo, "", "", false);
+            openEditor(currentMail().getSender() , "", "", false);
         });
         bottombox.getChildren().add(replyButton);
+        
         //TODO: add unmodifiable field "your mail" in the editor and set it with "currentuser"
         Button replyAllButton = new Button("Reply All");
-        replyAllButton.setOnAction((ActionEvent e) -> {
-            String toFrom = mailfromto.getText(); //get from field "receivers"
-            StringTokenizer st = new StringTokenizer(toFrom, ";");
-            String newFromTo = "";
-            String test = ""; //to improve
-            String sender = mailtofrom.getText();
+        replyAllButton.setOnAction((ActionEvent e) -> { //TODO use currentMail()
+            String receiver = currentMail().getReceiver(); 
+            StringTokenizer st = new StringTokenizer(receiver, ";");
+            String newReceiver = new String();
+            String test = new String();
+            String sender = currentMail().getSender();
             while(st.hasMoreTokens()){
                 test = st.nextToken();
-                if(!(test.equals(currentUser))){ //use currentuser instead
-                    newFromTo = newFromTo + test + ";";
+                if(!(test.equals(currentUser))){
+                    newReceiver = newReceiver + test + ";";
                 }
             }
-            newFromTo = newFromTo + sender;
-            openEditor(newFromTo, "", "", false);
+            newReceiver = newReceiver + sender;
+            openEditor(newReceiver, "", "", false);
         });
         bottombox.getChildren().add(replyAllButton);
+        
     }
-    
 }
 
 class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show a Mail object in different ways
@@ -336,7 +338,7 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
         if (empty || item == null || item.getId() == null) {
             setText(null);
         } else {
-            if(item.getReceiver().equals(Model.getModel().getCurrentUser().getUsername())){ //Mail was received
+            if(item.getReceiver().contains(Model.getModel().getCurrentUser().getUsername())){ //Mail was received
                 setText(item.getSender() + " - " + item.getTitle());
             }else{
                 if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)

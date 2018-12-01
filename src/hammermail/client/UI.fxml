@@ -74,7 +74,7 @@
         <AnchorPane id="BottomAnchorPane">
           <children>
             <HBox prefHeight="40.0" prefWidth="200.0" spacing="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-              <Label text="Logged as: " />
+              <Label fx:id="loggedas" />
             </HBox>
             <HBox fx:id="bottombox" prefHeight="40.0" prefWidth="500.0" spacing="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             </HBox>
