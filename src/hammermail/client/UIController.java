@@ -96,7 +96,6 @@ public class UIController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
         //Model.getModel().dispatchMail(this.currentUser);
-        inboxTabInitialize();
         
         //Current mail listener
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
@@ -132,6 +131,8 @@ public class UIController implements Initializable {
             System.out.println("New mail selected from list");
             int newindex = (int)newValue;
             if(!listsent.getSelectionModel().isEmpty()){ 
+                bottombox.getChildren().clear();
+                sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getMailByIndex(newindex));
             }
         });     
@@ -148,6 +149,8 @@ public class UIController implements Initializable {
             System.out.println("New draft selected from list");
             int newindex = (int)newValue;
             if(!listdraft.getSelectionModel().isEmpty()){
+                bottombox.getChildren().clear();
+                draftTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getDraftByIndex(newindex));
             }
         });     
@@ -164,6 +167,8 @@ public class UIController implements Initializable {
             System.out.println("New received mail selected from list");
             int newindex = (int)newValue;
             if(!listinbox.getSelectionModel().isEmpty()){
+                bottombox.getChildren().clear();
+                inboxTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getReceivedMailByIndex(newindex));
             }
         });     
@@ -179,16 +184,15 @@ public class UIController implements Initializable {
         
         //TABS LISTENER
         tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
-            clearAllSelections();
             bottombox.getChildren().clear();
+            clearAllSelections();
             
-            //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
             if((int) newValue == 1){ 
-                sentTabInitialize();
+//                sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
             }else if((int) newValue == 2){
-                draftTabInitialize();
+//                draftTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
             }else if((int) newValue == 0){
-                inboxTabInitialize();
+//                inboxTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
             }
         });
         

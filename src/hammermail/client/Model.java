@@ -79,6 +79,9 @@ public class Model {
     
     public SimpleObjectProperty<Mail> currentMailProperty() { return currentMail; }
     
+    //Remove from any list
+    //TODO do it
+    
     //Inbox
     public ObservableList<Mail> getListInbox(){ 
         return listInbox;
