@@ -77,24 +77,40 @@ public class UIController implements Initializable {
     private TabPane tabs;
     
     @FXML
-    private Tab inboxtab, senttab, drafttab; //use those to handle delete...
+    private Tab inboxtab, senttab, drafttab; 
     
     @FXML
     private HBox bottombox;
     
     private final String currentUser = Model.getModel().getCurrentUser().getUsername();
     
+    
+    //BUTTON HANDLES
+    
     @FXML
     private void handleCreate(ActionEvent event){
-    
         openEditor("","","", false);
-        
     }  
 
+    @FXML
+    private void handleReceive(ActionEvent event){ //just for testing
+        Model.getModel().addInbox("marco", "titolo", "testo");
+    } 
+
+    @FXML 
+    private void handleDelete(ActionEvent event){ //TODO FIX BUG you can't delete the last item from a list, but you can do it if you switch to another tab first
+        int tabId = tabs.getSelectionModel().getSelectedIndex();
+        List<Mail> mailsToDelete = composeDeletingRequest();
+        
+        if(!mailsToDelete.isEmpty()){
+            Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
+        }
+    }
+    
     private List<Mail> composeDeletingRequest(){
         List<Mail> mailsToDelete = new ArrayList<>();
         
-        //Here we add to mailsToDelete a Multiple Selection of mails from sentTab
+        //TODO Here add to mailsToDelete a Multiple Selection of mails from sentTab
         mailsToDelete.add(currentMail());
         RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
         request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
@@ -120,30 +136,8 @@ public class UIController implements Initializable {
         }
         return null;
     }
-    
-    
-    
-    
-    @FXML //TODO: find a way to remove from different tabs
-    private void handleDelete(ActionEvent event){
-       if(senttab.isSelected()){
-           List<Mail> mailsToDelete = composeDeletingRequest();
-           Model.getModel().getListSent().removeAll(mailsToDelete);
-       
-       }else if(drafttab.isSelected()){
-           Model.getModel().removeDraft();
-       
-       }else if(inboxtab.isSelected()){
-           List<Mail> mailsToDelete = composeDeletingRequest();
-           Model.getModel().removeReceivedMail();
-       }
-    }
-    
-    
-    @FXML
-    private void handleReceive(ActionEvent event){ //just for testing
-        Model.getModel().addReceivedMail("marco", "titolo", "testo");
-    } 
+
+    //INITIALIZATION
     
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
@@ -242,6 +236,7 @@ public class UIController implements Initializable {
             bottombox.getChildren().clear();
             clearAllSelections();
             
+            //These are commented because i moved them to the list listeners
             if((int) newValue == 1){ 
 //                sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
             }else if((int) newValue == 2){
@@ -259,6 +254,8 @@ public class UIController implements Initializable {
 //        });
         
     }
+    
+    //UTILS
     
     private Mail currentMail(){ //Use this to make the code cleaner
         return Model.getModel().getCurrentMail();
@@ -336,7 +333,7 @@ public class UIController implements Initializable {
             if(currentMail().getReceiver().isEmpty()){
                 handleError();
             }else{
-                Model.getModel().addMail(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
+                Model.getModel().addSent(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
                 Model.getModel().removeDraft();
             }
         });

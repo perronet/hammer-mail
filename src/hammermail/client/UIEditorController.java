@@ -63,7 +63,7 @@ public class UIEditorController implements Initializable {
     @FXML
     private TextArea receiversmail, mailsubject, bodyfield;
     
-   @FXML 
+    @FXML 
     private void handleSend(ActionEvent event){
         //TODO read receiver to each comma and verify it is an existent person
         String receiver = receiversmail.getText();
@@ -105,7 +105,7 @@ public class UIEditorController implements Initializable {
     }
     
     
-      @FXML 
+    @FXML 
     public void handleSave(Event event){
         String receiver = receiversmail.getText();
         String mailsub = mailsubject.getText();
@@ -144,11 +144,7 @@ public class UIEditorController implements Initializable {
      */
     
     //"Constructor"
-    public void init(/*Model model, */Stage stage){ //to add parameter "current user" to set sender
-//        if(this.m != null){
-//            throw new IllegalStateException("Only one initialization per model.");
-//        }
-//        this.m = model; 
+    public void init(Stage stage){ //to add parameter "current user" to set sender
         this.s = stage;
     }
     
