@@ -67,7 +67,7 @@ public class UILoginController implements Initializable {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        
+        //TODO: LOAD FILE IF EXISTS, CREATE IT AND FILL IT IF IT DOESN'T EXISTS
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
                 spawnLogin();

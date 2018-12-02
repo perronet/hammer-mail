@@ -32,6 +32,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,12 +53,17 @@ public class Model {
     private final SimpleObjectProperty<Mail> currentMail;
     
     private User currentUser;
+    
+    private List<Mail> toStore;
+    
+    private Timestamp lastMailStored;
 
     private int idCounter = 0; 
     
     private Model() { //TODO load mails and user from file
         currentMail = new SimpleObjectProperty<>(); 
-        Timestamp ts = new Timestamp(System.currentTimeMillis());     
+        Timestamp ts = new Timestamp(System.currentTimeMillis()); 
+        toStore = new ArrayList<>();
     }
 
     public static Model getModel() {
@@ -162,47 +168,68 @@ public class Model {
     
     //Forse si potrebbero mettere le funzioni di scrittura in un'altra classe
     //TO BE CHECKED!!
+        //TODO: clean this dirty code, add check if mail is already in the list
     public void dispatchMail(String filename){
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         String user = this.currentUser.getUsername();
         JsonReader reader;
+        String filepath = user + "mails" + "//" + user + ".json";
         //check if file exist - if not create it with create Json (maybe else-if??) 
         try {
-            reader = new JsonReader(new FileReader(filename));
+            reader = new JsonReader(new FileReader(filepath));
             Type mailList = new TypeToken<List<Mail>>(){}.getType();
-            List<Mail> mails = gson.fromJson(reader, Mail.class); 
-            for(Mail m : mails){
-                if(m.getDate() == null){
-                    listDraft.add(m);
-                }else if(m.getSender().equals(user) && m.getReceiver().contains(user)){
-                    listSent.add(m);
-                    listInbox.add(m);
-                }else if(m.getReceiver().contains(user)){
-                    listInbox.add(m);
-                }else{
-                    listSent.add(m);
+            List<Mail> mails = gson.fromJson(reader, mailList);
+            if(!(mails == null)){
+                for(Mail m : mails){
+                    if(m.getDate() == null){
+                        listDraft.add(0, m);
+                    }else if(m.getSender().equals(user) && m.getReceiver().contains(user)){
+                        listSent.add(0, m);
+                        listInbox.add(0, m);
+                    }else if(m.getReceiver().contains(user)){
+                        listInbox.add(0, m);
+                    }else{
+                        listSent.add(0, m);
+                    }
+                    lastMailStored = m.getDate();
                 }
             }
+            
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     //Store mails into .json
+    //Store mails into .json (each time read the file, append the new mail and write the file)
     public void storeMail(Mail mailToStore){
-        //String json = "{\"Mail\":[{\"Sender\":\"value\",\"Receiver\":\"value\" }, { \"lat\":\"value\", \"lon\":\"value\"}]}";
-        Gson gson = new GsonBuilder().serializeNulls().create();
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	String user = this.currentUser.getUsername();
 	String filepath = user + "mails" + "\\" + user  + ".json";
-
+        JsonReader reader;
         try {
-            FileWriter writer = new FileWriter(filepath, true);
-            writer.append(gson.toJson(mailToStore));
-            writer.append("\n");
+            reader = new JsonReader(new FileReader(filepath));
+            Type mailList = new TypeToken<ArrayList<Mail>>(){}.getType();
+            ArrayList<Mail> test = gson.fromJson(reader, mailList);
+            if(!(test == null)){
+                toStore = test;
+            } 
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        toStore.add(mailToStore);
+        
+        try {
+            FileWriter writer = new FileWriter(filepath);
+            String toWrite = gson.toJson(toStore);
+            writer.write(toWrite);
             writer.close();
+            lastMailStored = mailToStore.getDate();
         } catch (IOException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         
 	
     }
