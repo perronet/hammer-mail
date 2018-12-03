@@ -39,7 +39,7 @@ public final class DummyClient {
 
     public DummyClient() throws InterruptedException {
         
-        Database db1 = new Database(true);
+        Database db1 = new Database(false);
         db1.addUser("marco", "psw");
         db1.addUser("omar", "psw");
         db1.addUser("tano", "psw");
