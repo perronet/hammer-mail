@@ -32,14 +32,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import hammermail.core.User;
+import static hammermail.core.Utils.isNullOrWhiteSpace;
 import static hammermail.core.Utils.sendRequest;
-import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestDeleteMails;
-import hammermail.net.requests.RequestGetMails;
+import hammermail.net.requests.RequestSendMail;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
-import hammermail.net.responses.ResponseSuccess;
+import hammermail.net.responses.ResponseMailSent;
 import hammermail.server.Database;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -129,7 +131,7 @@ public class UIController implements Initializable {
         
         //GENERIC SETUPS
         
-        Model.getModel().dispatchMail(this.currentUser);
+//        Model.getModel().dispatchMail(this.currentUser);
         loggedas.setText("Logged as: " + currentUser);
         fromto.setAlignment(Pos.CENTER);
         subject.setAlignment(Pos.CENTER);
@@ -317,18 +319,14 @@ public class UIController implements Initializable {
         bottombox.getChildren().add(forwardButton);
     }
     
-    private void draftTabInitialize(){
-        //Qui c'è un errore, le mail vengono spostate all'interno della view ma non avviene nulla
-        //a livello di DB. nel ramo else ci andrà lo stesso codice (o quasi) dell'handle send dell'editor controller
-        
+    private void draftTabInitialize(){        
         Button sendButton = new Button("Send");
         sendButton.setOnAction((ActionEvent e) -> {
             if(currentMail().getReceiver().isEmpty()){
                 handleError();
             }else{
                 //TODO handle send with database here
-//                Model.getModel().addSent(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
-                Model.getModel().removeDraft();
+                sendDraft();
             }
         });
         bottombox.getChildren().add(sendButton);
@@ -375,6 +373,55 @@ public class UIController implements Initializable {
         bottombox.getChildren().add(replyAllButton);
         
     }
+    
+    
+       private void sendDraft(){
+        //TODO read receiver to each comma and verify it is an existent person
+        //ENSURE that the current mail is the draft
+        String receiver = currentMail().getReceiver();
+        if(isNullOrWhiteSpace(receiver)){
+            handleError(); 
+        }else{
+            Mail mail = composeMail(receiver);
+            RequestSendMail request = new RequestSendMail(mail);
+            User current = Model.getModel().getCurrentUser();
+            request.SetAuthentication(current.getUsername(), current.getPassword());
+            
+            try {
+                ResponseBase response = sendRequest(request);
+                if (response instanceof ResponseError){
+//                  TODO inspect the type of error
+                    ResponseError.ErrorType err = ((ResponseError)response).getErrorType();
+                    System.out.println(err);
+                    handleError();
+                } else if (response instanceof ResponseMailSent){
+                    mail.setId(((ResponseMailSent) response).getMailID());
+                    Model.getModel().addMail(mail);
+                    Model.getModel().storeMail(mail);
+                    Model.getModel().removeDraft();
+                }
+                
+
+            } catch (ClassNotFoundException | IOException classEx){
+                System.out.println("catch2");
+                handleError();
+                // set the response to error internal_error
+            } finally {
+                //Only for testing
+                Database d = new Database(false);
+                d.dbStatus();
+            }
+        }
+    }
+    
+       
+    private Mail composeMail(String receiver){
+        String sender = Model.getModel().getCurrentUser().getUsername();
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        return new Mail(-1, sender, receiver, currentMail().getTitle(), currentMail().getText(), ts);
+    }
+    
+    
  
 }
 
