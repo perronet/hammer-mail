@@ -213,7 +213,6 @@ class Task implements Runnable {
         Database db = new Database(false);
         //note: checkPassword return false on not-existing user
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
-                System.out.println("mail adding: ");
 
             if (request.IsMailWellFormed()) {
                 String rec = (request.getMail().getReceiver()).replaceAll("\\s+","");

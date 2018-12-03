@@ -34,6 +34,7 @@ import hammermail.core.Mail;
 import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestDeleteMails;
+import hammermail.net.requests.RequestGetMails;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseSuccess;
@@ -100,6 +101,7 @@ public class UIController implements Initializable {
         
         //TODO Here add to mailsToDelete a Multiple Selection of mails from sentTab
         mailsToDelete.add(currentMail());
+        System.out.println("Mail to delete: " + mailsToDelete);
         RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
         request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
         ResponseBase response = null;
@@ -108,10 +110,8 @@ public class UIController implements Initializable {
                //TODO
         } finally {
             if (response != null){
-                System.out.println("response non null");
                 if (response instanceof ResponseSuccess){
                     //TEMP
-                    System.out.println("Temp: Mails removed");
                     Database db = new Database(false);
                     db.dbStatus();
                     return mailsToDelete;
