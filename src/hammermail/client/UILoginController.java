@@ -19,32 +19,21 @@ package hammermail.client;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import hammermail.core.EmptyMail;
-import hammermail.core.Globals;
 import hammermail.core.Mail;
+import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
-import static hammermail.net.responses.ResponseError.ErrorType.INTERNAL_ERROR;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
-import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXMLLoader;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.control.TextField;
@@ -204,17 +193,6 @@ public class UILoginController implements Initializable {
         return sendRequest(requestGetMail);
     }
     
-    /**
-    * Method to send request to the server
-    * @author
-    */
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException,  IOException{
-            Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            out.writeObject(request);
-            return (ResponseBase)in.readObject();
-    }
     
     
     public void init(Stage stage){ 
