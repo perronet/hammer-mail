@@ -19,32 +19,21 @@ package hammermail.client;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import hammermail.core.EmptyMail;
-import hammermail.core.Globals;
 import hammermail.core.Mail;
+import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
-import static hammermail.net.responses.ResponseError.ErrorType.INTERNAL_ERROR;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
-import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXMLLoader;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.control.TextField;
@@ -54,7 +43,6 @@ import javafx.stage.Stage;
 public class UILoginController implements Initializable {
 
     private Stage s;
-    private Socket clientSocket;
         
     @FXML
     private TextField username;
@@ -78,14 +66,10 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
-                    File userFile = new File(username.getText() + "mails" + "\\" + username.getText() + ".json");
-                    if(!(userFile.exists())){
-                        Model.getModel().createJson(username.getText());
-                        //to fill with mails on the database
-                    }
                     updateModelReqMail(response);
                     spawnHome();
-                    Thread daemon = new Thread(new Task());
+                    //Move in the UI controller
+                    Thread daemon = new Thread(new DaemonTask());
                     daemon.setDaemon(true);
 //                    daemon.start();
                     
@@ -132,31 +116,33 @@ public class UILoginController implements Initializable {
                     
                 }
             }
-        } catch (ClassNotFoundException classEx){
+        } catch (ClassNotFoundException | IOException classEx){
             // set the response to error internal_error
-        } catch (UnknownHostException ex){
-            // set the response to error internal_error
-        } catch (IOException ioEx){
-            // set the response to error internal_error
-        } 
+        }       
+ 
     }
      
     //CONVERT INTO DIFF
     private void updateModelReqMail(ResponseBase response){
         Model.getModel().setCurrentUser(username.getText(), password.getText());
+        File userFile = new File(username.getText() + "mails" + "\\" + username.getText() + ".json");
+        if(!(userFile.exists())){
+            Model.getModel().createJson(username.getText());
+            //to fill with mails on the database
+        }
+        
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
         List<Mail> sent = ((ResponseMails) response).getSentMails();
 
-        //insert the mails list to client local JSON file
-        //received = received + JSON received
-        //sent = sent + JSON sent 
-
-        //Update Model
-        //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
-        //NO NEED FOR THESE; dispatchmail works fine.
-        //Model.getModel().getListInbox().setAll(received);
-        //Model.getModel().getListSent().setAll(sent);
+        for (Mail m : received)
+            Model.getModel().storeMail(m);
+        for (Mail m : sent)
+            Model.getModel().storeMail(m);
+        
+        Model.getModel().dispatchMail("serve?");
     }
+    
+    
     
     //maybe event argument will be eliminated..
     /**
@@ -207,17 +193,6 @@ public class UILoginController implements Initializable {
         return sendRequest(requestGetMail);
     }
     
-    /**
-    * Method to send request to the server
-    * @author
-    */
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException,  IOException{
-            Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            out.writeObject(request);
-            return (ResponseBase)in.readObject();
-    }
     
     
     public void init(Stage stage){ 
@@ -225,46 +200,6 @@ public class UILoginController implements Initializable {
         Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
     }                                                       //TODO move it to the updateModelReqMail
         
-    
-    class Task implements Runnable{
-
-        public Task(){
-            if (clientSocket == null)
-                clientSocket = new Socket();
-        }
-
-        @Override
-        public void run() {
-            try {
-                RequestGetMails requestGetMail = new RequestGetMails();
-                requestGetMail.SetAuthentication(username.getText(), password.getText());
-
-                    while (true){
-                        Thread.sleep(5000);
-                        System.out.println("Daemon polling");
-                        ResponseBase response = sendRequest(requestGetMail);
-                        
-                        List<Mail> received = ((ResponseMails) response).getReceivedMails();
-                        List<Mail> sent = ((ResponseMails) response).getSentMails();
-                        if (received.size() > 0)
-                            Model.getModel().addMultiple(received);
-                        if (sent.size() > 0)
-                            Model.getModel().addMultiple(sent);
-                        
-                        //Write on JSON
-                            
-                    }
-            } catch (InterruptedException ex) {
-                    //TODO
-            } catch (ClassNotFoundException ex) {
-                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-    
-    
 
     
     @Override
