@@ -18,6 +18,7 @@ package hammermail.client;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
+import hammermail.core.EmptyMail;
 import hammermail.core.Globals;
 import hammermail.core.Mail;
 import hammermail.net.requests.*;
@@ -221,7 +222,8 @@ public class UILoginController implements Initializable {
     
     public void init(Stage stage){ 
         this.s = stage;
-    }
+        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
+    }                                                       //TODO move it to the updateModelReqMail
         
     
     class Task implements Runnable{

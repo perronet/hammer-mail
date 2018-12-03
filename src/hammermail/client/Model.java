@@ -25,6 +25,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import hammermail.core.User;
 import hammermail.core.Mail;
+import hammermail.core.EmptyMail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -90,7 +91,7 @@ public class Model {
         return listDraft.get(i);
     }
     
-    public Mail getMailByIndex(int i){
+    public Mail getSentMailByIndex(int i){
         return listSent.get(i);
     }
 
@@ -150,9 +151,11 @@ public class Model {
     //REMOVE MAIL
     
     public void removeMultiple(List<Mail> mailsToDelete, int listId){ //Tab IDs and list IDs are the same
+        
         for(Mail m : mailsToDelete){
             removeFromStorage(m);
         }
+        setCurrentMail(new EmptyMail());
         switch(listId){
             case 0:
                 Model.getModel().getListInbox().removeAll(mailsToDelete);
@@ -160,19 +163,12 @@ public class Model {
                 Model.getModel().getListSent().removeAll(mailsToDelete);
             case 2:
                 Model.getModel().getListDraft().removeAll(mailsToDelete);    
-        }
-    }
-    
-    public void removeSent(){ 
-        listSent.remove(getCurrentMail());
-    }
-    
-    public void removeInbox(){
-        listInbox.remove(getCurrentMail());
+        } 
     }
 
     public void removeDraft(){
         listDraft.remove(getCurrentMail());
+        setCurrentMail(new EmptyMail());
     }
 
     //JSON MANIPULATION
