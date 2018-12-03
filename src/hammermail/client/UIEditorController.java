@@ -16,22 +16,16 @@
  */
 package hammermail.client;
 
-import hammermail.core.Globals;
+import static hammermail.core.Utils.*;
 import hammermail.core.Mail;
 import hammermail.core.User;
 import static hammermail.core.Utils.isNullOrWhiteSpace;
-import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestSendMail;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
 import hammermail.server.Database;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 
 import java.io.IOException;
@@ -63,7 +57,7 @@ public class UIEditorController implements Initializable {
     @FXML
     private TextArea receiversmail, mailsubject, bodyfield;
     
-   @FXML 
+    @FXML 
     private void handleSend(ActionEvent event){
         //TODO read receiver to each comma and verify it is an existent person
         String receiver = receiversmail.getText();
@@ -84,8 +78,8 @@ public class UIEditorController implements Initializable {
                     handleError();
                 } else if (response instanceof ResponseMailSent){
                     mail.setId(((ResponseMailSent) response).getMailID());
-                    Model.getModel().getListSent().add(mail);
-                    Model.getModel().storeMail(mail);
+                    Model.getModel().addMail(mail);
+//                    Model.getModel().storeMail(mail);
 
                     //WRITE ID-MAIL ON JSON
                 }
@@ -105,7 +99,7 @@ public class UIEditorController implements Initializable {
     }
     
     
-      @FXML 
+    @FXML 
     public void handleSave(Event event){
         String receiver = receiversmail.getText();
         String mailsub = mailsubject.getText();
@@ -114,10 +108,6 @@ public class UIEditorController implements Initializable {
                 && isNullOrWhiteSpace(body) && (event instanceof WindowEvent)){
             s.close();
         }else{
-            //Scommentare se si decide di usare la versione Model.saveDraft con un solo parametro
-//            String sender = Model.getModel().getCurrentUser().getUsername();
-//            Mail m = new Mail (-1, sender, receiver, mailsub, body, null);
-//            Model.getModel().saveDraft(m);
             Model.getModel().saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
             s.close();
@@ -144,11 +134,7 @@ public class UIEditorController implements Initializable {
      */
     
     //"Constructor"
-    public void init(/*Model model, */Stage stage){ //to add parameter "current user" to set sender
-//        if(this.m != null){
-//            throw new IllegalStateException("Only one initialization per model.");
-//        }
-//        this.m = model; 
+    public void init(Stage stage){ //to add parameter "current user" to set sender
         this.s = stage;
     }
     
@@ -165,16 +151,7 @@ public class UIEditorController implements Initializable {
         
         
     }
-       
-    
-    //this method should be placed in a separate file
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
-            Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            out.writeObject(request);
-            return (ResponseBase)in.readObject();
-    }
+
     
      private Mail composeMail(String receiver){
             String sender = Model.getModel().getCurrentUser().getUsername();

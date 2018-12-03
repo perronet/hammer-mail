@@ -16,6 +16,7 @@
  */
 package hammermail.client;
 
+import hammermail.core.EmptyMail;
 import hammermail.core.Globals;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -31,23 +32,17 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestDeleteMails;
+import hammermail.net.requests.RequestGetMails;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseSuccess;
 import hammermail.server.Database;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -77,80 +72,64 @@ public class UIController implements Initializable {
     private TabPane tabs;
     
     @FXML
-    private Tab inboxtab, senttab, drafttab; //use those to handle delete...
+    private Tab inboxtab, senttab, drafttab; 
     
     @FXML
     private HBox bottombox;
     
     private final String currentUser = Model.getModel().getCurrentUser().getUsername();
     
+    
+    //BUTTON HANDLES
+    
     @FXML
     private void handleCreate(ActionEvent event){
-    
         openEditor("","","", false);
-        
     }  
 
+    @FXML 
+    private void handleDelete(ActionEvent event){ 
+        if(!(currentMail() instanceof EmptyMail)){
+            int tabId = tabs.getSelectionModel().getSelectedIndex();
+            List<Mail> mailsToDelete = composeDeletingRequest();
+
+            if(!mailsToDelete.isEmpty()){
+                Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
+            }        
+        }
+    }
+    
     private List<Mail> composeDeletingRequest(){
         List<Mail> mailsToDelete = new ArrayList<>();
-        
-        //Here we add to mailsToDelete a Multiple Selection of mails from sentTab
+        //TODO Here add to mailsToDelete a Multiple Selection of mails from sentTab (not urgent)
         mailsToDelete.add(currentMail());
-        RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
-        request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
-        ResponseBase response = null;
-        try { response = sendRequest(request);} 
-        catch (ClassNotFoundException | IOException ex) {
-               //TODO
-        } finally {
-            if (response != null){
-                System.out.println("response non null");
-                if (response instanceof ResponseSuccess){
+        if(!(currentMail().getDate() == null)){ //We don't need to send drafts to the database
+            RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
+            request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
+            ResponseBase response = null;
+            try { response = sendRequest(request);} 
+            catch (ClassNotFoundException | IOException ex) {
+                   //TODO
+            } finally {
+                if (response != null){
+                    System.out.println("response non null");
                     //TEMP
-                    System.out.println("Temp: Mails removed");
                     Database db = new Database(false);
                     db.dbStatus();
-                    return mailsToDelete;
-                } else if (response instanceof ResponseError){                     
-                    ResponseError.ErrorType err = ((ResponseError)response).getErrorType();
-                    System.out.println("Tipo di errore: " + err);
                 }
-                    
-            } 
+            }
         }
-        return null;
+        return mailsToDelete;
     }
-    
-    
-    
-    
-    @FXML //TODO: find a way to remove from different tabs
-    private void handleDelete(ActionEvent event){
-       if(senttab.isSelected()){
-           List<Mail> mailsToDelete = composeDeletingRequest();
-           Model.getModel().getListSent().removeAll(mailsToDelete);
-       
-       }else if(drafttab.isSelected()){
-           Model.getModel().removeDraft();
-       
-       }else if(inboxtab.isSelected()){
-           List<Mail> mailsToDelete = composeDeletingRequest();
-           Model.getModel().removeReceivedMail();
-       }
-    }
-    
-    
-    @FXML
-    private void handleReceive(ActionEvent event){ //just for testing
-        Model.getModel().addReceivedMail("marco", "titolo", "testo");
-    } 
+
+    //INITIALIZATION
     
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
         //GENERIC SETUPS
         
-        //Model.getModel().dispatchMail(this.currentUser);
+        Model.getModel().dispatchMail(this.currentUser);
         loggedas.setText("Logged as: " + currentUser);
         fromto.setAlignment(Pos.CENTER);
         subject.setAlignment(Pos.CENTER);
@@ -158,26 +137,32 @@ public class UIController implements Initializable {
         //SETUP CURRENT MAIL LISTENER
         
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
-            if(newValue.getReceiver().contains(currentUser)){ //This mail was received //Fix in case of multiple users
-                mailfromto.setText(newValue.getSender());
-                mailtofrom.setText(newValue.getReceiver());
-                fromto.setText("From");
-                tofrom.setText("To");
-            }else{ //This mail was sent or is draft
-                mailfromto.setText(newValue.getReceiver());
-                mailtofrom.setText(newValue.getSender());
-                fromto.setText("To");
-                tofrom.setText("From");
-            }
-            
-            if(newValue.isDraft()){ //This handles null dates from drafts
-                maildate.clear(); //TODO hide maildate textarea, don't just clear it
+            if(!(currentMail() instanceof EmptyMail)){
+                if(newValue.getReceiver().contains(currentUser)){ //This mail was received //Fix in case of multiple users
+                    mailfromto.setText(newValue.getSender());
+                    mailtofrom.setText(newValue.getReceiver());
+                    fromto.setText("From");
+                    tofrom.setText("To");
+                }else{ //This mail was sent or is draft
+                    mailfromto.setText(newValue.getReceiver());
+                    mailtofrom.setText(newValue.getSender());
+                    fromto.setText("To");
+                    tofrom.setText("From");
+                }
+
+                if(newValue.isDraft()){ //This handles null dates from drafts
+                    maildate.clear(); //TODO hide maildate textarea, don't just clear it
+                }else{
+                    maildate.setText(newValue.getDate().toString()); 
+                }
+
+                mailtitle.setText(newValue.getTitle());    
+                mailcontent.setText(newValue.getText());
             }else{
-                maildate.setText(newValue.getDate().toString()); 
+                clearAllSelections();
+                clearAllText();
+                bottombox.getChildren().clear(); //TODO hide, don't clear
             }
-            
-            mailtitle.setText(newValue.getTitle());    
-            mailcontent.setText(newValue.getText());    
         });
    
         //SENT LIST
@@ -192,7 +177,7 @@ public class UIController implements Initializable {
                 System.out.println("New mail selected from list");
                 bottombox.getChildren().clear();
                 sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
-                Model.getModel().setCurrentMail(Model.getModel().getMailByIndex(newindex));
+                Model.getModel().setCurrentMail(Model.getModel().getSentMailByIndex(newindex));
 
             }
         });     
@@ -241,7 +226,9 @@ public class UIController implements Initializable {
         tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
             bottombox.getChildren().clear();
             clearAllSelections();
+            System.out.println("Tab number " + newValue + " selected, list selections cleared");
             
+            //These are commented because i moved them to the list listeners
             if((int) newValue == 1){ 
 //                sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
             }else if((int) newValue == 2){
@@ -259,6 +246,8 @@ public class UIController implements Initializable {
 //        });
         
     }
+    
+    //UTILS
     
     private Mail currentMail(){ //Use this to make the code cleaner
         return Model.getModel().getCurrentMail();
@@ -279,28 +268,29 @@ public class UIController implements Initializable {
     }
     
     private void openEditor(String sndrcv, String title, String body, boolean modifiable){
-        try{    
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root, 350, 450);
-            Stage stage = new Stage();
-            UIEditorController editorController = fxmlLoader.getController();
-            editorController.init(stage);
-            editorController.setTextAreas(sndrcv, title, body, modifiable);
-            stage.setTitle("Write a mail...");
-            stage.setScene(scene);
-            stage.show();
-            
-            // Handler to save drafts when closing the window
-            stage.setOnCloseRequest(e -> {
-                editorController.handleSave(e);
-                System.out.println("Stage is closing");
-            });
-            
-        }catch(IOException e){
-            System.out.println (e.toString());
-        }
+            try{    
+                clearAllSelections(); //So that when you close the editor you have nothing selected
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
+                Parent root = fxmlLoader.load();
+                Scene scene = new Scene(root, 350, 450);
+                Stage stage = new Stage();
+                UIEditorController editorController = fxmlLoader.getController();
+                editorController.init(stage);
+                editorController.setTextAreas(sndrcv, title, body, modifiable);
+                stage.setTitle("Write a mail...");
+                stage.setScene(scene);
+                stage.show();
+
+                // Handler to save drafts when closing the window
+                stage.setOnCloseRequest(e -> {
+                    editorController.handleSave(e);
+                    System.out.println("Stage is closing");
+                });
+
+            }catch(IOException e){
+                System.out.println (e.toString());
+            }
     }
     
     //Duplicate. To move.
@@ -336,7 +326,8 @@ public class UIController implements Initializable {
             if(currentMail().getReceiver().isEmpty()){
                 handleError();
             }else{
-                Model.getModel().addMail(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
+                //TODO handle send with database here
+//                Model.getModel().addSent(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
                 Model.getModel().removeDraft();
             }
         });
@@ -384,17 +375,7 @@ public class UIController implements Initializable {
         bottombox.getChildren().add(replyAllButton);
         
     }
-    
-    //we need to find a common location for this method!!!
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
-        Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-        out.writeObject(request);
-        return (ResponseBase)in.readObject();
-    }
-
-    
+ 
 }
 
 class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show a Mail object in different ways

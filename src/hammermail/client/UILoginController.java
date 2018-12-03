@@ -18,6 +18,7 @@ package hammermail.client;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
+import hammermail.core.EmptyMail;
 import hammermail.core.Globals;
 import hammermail.core.Mail;
 import hammermail.net.requests.*;
@@ -32,7 +33,6 @@ import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -67,7 +67,7 @@ public class UILoginController implements Initializable {
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        
+        //TODO: LOAD FILE IF EXISTS, CREATE IT AND FILL IT IF IT DOESN'T EXISTS
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
                 spawnLogin();
@@ -78,6 +78,11 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
+                    File userFile = new File(username.getText() + "mails" + "\\" + username.getText() + ".json");
+                    if(!(userFile.exists())){
+                        Model.getModel().createJson(username.getText());
+                        //to fill with mails on the database
+                    }
                     updateModelReqMail(response);
                     spawnHome();
                     Thread daemon = new Thread(new Task());
@@ -116,7 +121,7 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess){
                     response = composeAndSendGetMail();
-                    Model.getModel().createJson(user);
+//                    Model.getModel().createJson(user);
                     if (response instanceof ResponseError)
                         spawnLogin();
 
@@ -136,7 +141,7 @@ public class UILoginController implements Initializable {
         } 
     }
      
-    
+    //CONVERT INTO DIFF
     private void updateModelReqMail(ResponseBase response){
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
@@ -148,8 +153,9 @@ public class UILoginController implements Initializable {
 
         //Update Model
         //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
-        Model.getModel().getListInbox().setAll(received);
-        Model.getModel().getListSent().setAll(sent);
+        //NO NEED FOR THESE; dispatchmail works fine.
+        //Model.getModel().getListInbox().setAll(received);
+        //Model.getModel().getListSent().setAll(sent);
     }
     
     //maybe event argument will be eliminated..
@@ -216,7 +222,8 @@ public class UILoginController implements Initializable {
     
     public void init(Stage stage){ 
         this.s = stage;
-    }
+        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
+    }                                                       //TODO move it to the updateModelReqMail
         
     
     class Task implements Runnable{
@@ -240,9 +247,9 @@ public class UILoginController implements Initializable {
                         List<Mail> received = ((ResponseMails) response).getReceivedMails();
                         List<Mail> sent = ((ResponseMails) response).getSentMails();
                         if (received.size() > 0)
-                            Model.getModel().getListInbox().addAll(0, received);
+                            Model.getModel().addMultiple(received);
                         if (sent.size() > 0)
-                            Model.getModel().getListSent().addAll(0, sent);
+                            Model.getModel().addMultiple(sent);
                         
                         //Write on JSON
                             
