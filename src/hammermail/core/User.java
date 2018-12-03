@@ -33,6 +33,10 @@ public class User implements Serializable { //Users will be static, no need to u
         return username;
     }
     
+    public String getUserFileFolder(){
+        return this.username + "mails" + "\\" + this.username + ".json";
+    }
+    
     public String getUsername() {
         return username;
     }
