@@ -18,6 +18,7 @@ package hammermail.core;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class Mail implements Serializable {
 
@@ -42,6 +43,30 @@ public class Mail implements Serializable {
         return getId() + ", " + getSender() + ", " + getReceiver() + ", " + getTitle() + ", " + getDate();
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 79 * hash + Objects.hashCode(this.sender);
+        hash = 79 * hash + Objects.hashCode(this.receiver);
+        hash = 79 * hash + Objects.hashCode(this.title);
+        hash = 79 * hash + Objects.hashCode(this.text);
+        hash = 79 * hash + Objects.hashCode(this.date);
+        return hash;
+    }
+    
+    
+    
+    public boolean equals(Object m){
+        if (m == null) return false;
+        if (!(m instanceof Mail)) return false;
+        Mail test = (Mail) m;
+        if(this.hashCode() == m.hashCode()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
     public boolean isDraft(){
         return this.date == null;
     }
