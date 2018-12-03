@@ -64,6 +64,9 @@ public class UIController implements Initializable {
     private Label fromto, subject, tofrom, loggedas;
     
     @FXML
+    private Button sendButton, modifyButton, forwardButton, replyButton, replyAllButton;
+    
+    @FXML
     private ListView<Mail> listinbox, listsent, listdraft; 
     //renamed, Gaetano
     
@@ -137,7 +140,7 @@ public class UIController implements Initializable {
         subject.setAlignment(Pos.CENTER);
         
         //SETUP CURRENT MAIL LISTENER
-        
+        tabInitialize();
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
             if(!(currentMail() instanceof EmptyMail)){
                 if(newValue.getReceiver().contains(currentUser)){ //This mail was received //Fix in case of multiple users
@@ -163,7 +166,7 @@ public class UIController implements Initializable {
             }else{
                 clearAllSelections();
                 clearAllText();
-                bottombox.getChildren().clear(); //TODO hide, don't clear
+                //bottombox.getChildren().clear(); //TODO hide, don't clear
             }
         });
    
@@ -177,8 +180,8 @@ public class UIController implements Initializable {
             int newindex = (int)newValue;
             if(!listsent.getSelectionModel().isEmpty()){
                 System.out.println("New mail selected from list");
-                bottombox.getChildren().clear();
-                sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
+                //bottombox.getChildren().clear();
+                sentTabShow(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getSentMailByIndex(newindex));
 
             }
@@ -196,8 +199,8 @@ public class UIController implements Initializable {
             System.out.println("New draft selected from list");
             int newindex = (int)newValue;
             if(!listdraft.getSelectionModel().isEmpty()){
-                bottombox.getChildren().clear();
-                draftTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
+                //bottombox.getChildren().clear();
+                draftTabShow(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getDraftByIndex(newindex));
             }
         });     
@@ -214,8 +217,8 @@ public class UIController implements Initializable {
             System.out.println("New received mail selected from list");
             int newindex = (int)newValue;
             if(!listinbox.getSelectionModel().isEmpty()){
-                bottombox.getChildren().clear();
-                inboxTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
+                //bottombox.getChildren().clear();
+                inboxTabShow(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
                 Model.getModel().setCurrentMail(Model.getModel().getReceivedMailByIndex(newindex));
             }
         });     
@@ -231,21 +234,21 @@ public class UIController implements Initializable {
             System.out.println("Tab number " + newValue + " selected, list selections cleared");
             
             //These are commented because i moved them to the list listeners
-            if((int) newValue == 1){ 
+//          if((int) newValue == 1){ 
 //                sentTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
-            }else if((int) newValue == 2){
+//          }else if((int) newValue == 2){
 //                draftTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
-            }else if((int) newValue == 0){
+//          }else if((int) newValue == 0){
 //                inboxTabInitialize(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
-            }
-        });
+//          }
+//      });
         
         //Listener that shows the right buttons in the view for each tab
         //TODOs: forward the selected mail; Remove the selected mail; Send the selected draft and notify errors
         //TODO: If you are replying or forwarding a mail, you shouldn't be able to save as draft e then modify it.
 //        tabs.getSelectionModel().selectedItemProperty().addListener((ob, oldtab, newtab) -> {
 //            
-//        });
+          });
         
     }
     
@@ -311,51 +314,48 @@ public class UIController implements Initializable {
             }
     }
     
-    private void sentTabInitialize(){
-        Button forwardButton = new Button("Forward");
-        forwardButton.setOnAction((ActionEvent e) -> {
-            openEditor("", currentMail().getTitle(), currentMail().getText(), false);
-        });
+    private void inboxTabShow(){
+        bottombox.getChildren().add(forwardButton);
+        bottombox.getChildren().add(replyButton);
+        bottombox.getChildren().add(replyAllButton);
+    }
+    
+    private void sentTabShow(){
         bottombox.getChildren().add(forwardButton);
     }
     
-    private void draftTabInitialize(){        
-        Button sendButton = new Button("Send");
+    private void draftTabShow(){
+        bottombox.getChildren().add(sendButton);
+        bottombox.getChildren().add(modifyButton);
+    }
+    
+    private void tabInitialize(){
+       
+        sendButton = new Button("Send");
         sendButton.setOnAction((ActionEvent e) -> {
             if(currentMail().getReceiver().isEmpty()){
                 handleError();
             }else{
-                //TODO handle send with database here
                 sendDraft();
             }
-        });
-        bottombox.getChildren().add(sendButton);
-                
-        Button modifyButton = new Button("Modify");
+        });       
+        modifyButton = new Button("Modify");
         modifyButton.setOnAction((ActionEvent e) -> {
             openEditor(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText(), true);
             Model.getModel().removeDraft();
-            //remove current draft and replace if saved, delete if sent
         });
-        bottombox.getChildren().add(modifyButton);
-    }
-    
-    private void inboxTabInitialize(){
-        Button forwardButton = new Button("Forward");
+        forwardButton = new Button("Forward");
         forwardButton.setOnAction((ActionEvent e) -> { 
             openEditor("", currentMail().getTitle(), "Forwarded from: " + currentMail().getSender() + " -- " + currentMail().getText(), false);
         });
         bottombox.getChildren().add(forwardButton);
-        
-        Button replyButton = new Button("Reply");
+        replyButton = new Button("Reply");
         replyButton.setOnAction((ActionEvent e) -> {
             openEditor(currentMail().getSender() , "", "", false);
         });
         bottombox.getChildren().add(replyButton);
-        
-        //TODO: add unmodifiable field "your mail" in the editor and set it with "currentuser"
-        Button replyAllButton = new Button("Reply All");
-        replyAllButton.setOnAction((ActionEvent e) -> { //TODO use currentMail()
+        replyAllButton = new Button("Reply All");
+        replyAllButton.setOnAction((ActionEvent e) -> { 
             String receiver = currentMail().getReceiver(); 
             StringTokenizer st = new StringTokenizer(receiver, ";");
             String newReceiver = new String();
