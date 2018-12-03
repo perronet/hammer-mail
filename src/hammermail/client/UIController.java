@@ -132,7 +132,7 @@ public class UIController implements Initializable {
         
         //GENERIC SETUPS
         
-//        Model.getModel().dispatchMail(this.currentUser);
+        Model.getModel().dispatchMail(this.currentUser);
         loggedas.setText("Logged as: " + currentUser);
         fromto.setAlignment(Pos.CENTER);
         subject.setAlignment(Pos.CENTER);

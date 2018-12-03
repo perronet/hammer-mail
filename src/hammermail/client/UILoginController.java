@@ -77,6 +77,11 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
+                    File userFile = new File(username.getText() + "mails" + "\\" + username.getText() + ".json");
+                    if(!(userFile.exists())){
+                        Model.getModel().createJson(username.getText());
+                        //to fill with mails on the database
+                    }
                     updateModelReqMail(response);
                     spawnHome();
                     Thread daemon = new Thread(new Task());
@@ -135,7 +140,7 @@ public class UILoginController implements Initializable {
         } 
     }
      
-    
+    //CONVERT INTO DIFF
     private void updateModelReqMail(ResponseBase response){
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
@@ -147,9 +152,9 @@ public class UILoginController implements Initializable {
 
         //Update Model
         //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
-        //here we will use dispatchMail
-        Model.getModel().getListInbox().setAll(received);
-        Model.getModel().getListSent().setAll(sent);
+        //NO NEED FOR THESE; dispatchmail works fine.
+        //Model.getModel().getListInbox().setAll(received);
+        //Model.getModel().getListSent().setAll(sent);
     }
     
     //maybe event argument will be eliminated..

@@ -150,6 +150,9 @@ public class Model {
     //REMOVE MAIL
     
     public void removeMultiple(List<Mail> mailsToDelete, int listId){ //Tab IDs and list IDs are the same
+        for(Mail m : mailsToDelete){
+            removeFromStorage(m);
+        }
         switch(listId){
             case 0:
                 Model.getModel().getListInbox().removeAll(mailsToDelete);
@@ -181,7 +184,7 @@ public class Model {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         String user = this.currentUser.getUsername();
         JsonReader reader;
-        String filepath = user + "mails" + "//" + user + ".json";
+        String filepath = user + "mails" + "\\" + user + ".json";
         //check if file exist - if not create it with create Json (maybe else-if??) 
         try {
             reader = new JsonReader(new FileReader(filepath));
@@ -220,7 +223,9 @@ public class Model {
             Type mailList = new TypeToken<ArrayList<Mail>>(){}.getType();
             ArrayList<Mail> test = gson.fromJson(reader, mailList);
             if(!(test == null)){
-                toStore = test;
+                if(!(test.contains(mailToStore))){
+                    toStore = test;
+                }
             } 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
@@ -240,6 +245,33 @@ public class Model {
         
         
 	
+    }
+    
+    public void removeFromStorage(Mail mailToDelete){
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+	String user = this.currentUser.getUsername();
+	String filepath = user + "mails" + "\\" + user  + ".json";
+        ArrayList<Mail> test = new ArrayList<>();
+        JsonReader reader;
+        try {
+            reader = new JsonReader(new FileReader(filepath));
+            Type mailList = new TypeToken<ArrayList<Mail>>(){}.getType();
+            test = gson.fromJson(reader, mailList);
+            if(!(test == null)){
+                test.remove(mailToDelete);
+            } 
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            FileWriter writer = new FileWriter(filepath);
+            String toWrite = gson.toJson(test);
+            writer.write(toWrite);
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void createJson(String username){
