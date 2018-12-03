@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -38,28 +39,43 @@ public class UI extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("Hello World!");
-        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("UI.fxml"))));
 
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        primaryStage.setX(primaryScreenBounds.getMinX() + primaryScreenBounds.getWidth() - 400);
-        primaryStage.setY(primaryScreenBounds.getMinY() + primaryScreenBounds.getHeight() - 300);
-        primaryStage.setWidth(300);
-        primaryStage.setHeight(200);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UI.fxml"));
+        primaryStage.setScene(new Scene(loader.load()));
+
+        UIController uiController = loader.getController();
+        UIModel model = new UIModel();
+        uiController.initModel(model);
 
         primaryStage.show();
 
-        startServer();
+        Backend backend = startServer();
+        backend.logProperty().addListener((value, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                model.setLog(newValue);
+            });
+        });
         
-        for(int i = 0; i < 1; i++)//Up to 200 working on my machine
+        //primaryStage.onCloseRequestProperty().addListener((val)->{ backend.stopServer();});
+
+         primaryStage.setOnCloseRequest(e -> {
+                backend.stopServer();
+            });
+         
+        //#TODO CREATE CONDITIONAL 
+        for (int i = 0; i < 0; i++)//Up to 200 working on my machine
+        {
             testServer();
+        }
     }
 
-    void startServer() {
+    Backend startServer() {
+        Backend backend = new Backend();
         Thread t = new Thread(() -> {
-            Backend backend = new Backend();
             backend.startServer();
         });
         t.start();
+        return backend;
     }
 
     void testServer() {

@@ -101,7 +101,7 @@ public final class DummyClient {
             testRequest(sendMailReq);
 
             logAction("Testing delete mail...");
-            ArrayList mailsToDelete = new ArrayList();
+            ArrayList<Mail> mailsToDelete = new ArrayList<>();
             mailsToDelete.add(newMail);
             RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
             deleteMailsReq.SetAuthentication("tano", "psw");

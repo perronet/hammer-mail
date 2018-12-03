@@ -14,35 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package hammermail.core;
+package hammermail.server;
+
+import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
  * @author 00mar
  */
-public class Utils {
+public class UIModel {
 
-    public static boolean isNullOrWhiteSpace(String s) {
-        return s == null || s.isEmpty() || s.trim().isEmpty();
+    private final SimpleStringProperty log = new SimpleStringProperty();
+
+    SimpleStringProperty logProperty() {
+        return this.log;
+    }
+    
+    public String getLog() {
+        return log.get();
     }
 
-    public static int countLines(String str) {
-        if (str == null || str.length() == 0) {
-            return 0;
-        }
-        int lines = 1;
-        int len = str.length();
-        for (int pos = 0; pos < len; pos++) {
-            char c = str.charAt(pos);
-            if (c == '\r') {
-                lines++;
-                if (pos + 1 < len && str.charAt(pos + 1) == '\n') {
-                    pos++;
-                }
-            } else if (c == '\n') {
-                lines++;
-            }
-        }
-        return lines;
+    public void setLog(String text) {
+        log.set(text);
     }
 }

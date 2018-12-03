@@ -26,5 +26,7 @@ public class Globals {
 
     public static final int HAMMERMAIL_SERVER_PORT_NUMBER = 11123;
     public static final int HAMMERMAIL_SERVER_NUM_THREAD = 5;
+    
+    public static final int HAMMERMAIL_SERVER_MAX_LOG_LINES = 300;
 
 }

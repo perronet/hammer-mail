@@ -24,8 +24,8 @@ import java.io.Serializable;
  * @author 00mar
  */
 public abstract class RequestBase implements Serializable {
-    String username;
-    String password;
+    protected String username;
+    protected String password;
 
     /**
     * Set username and password for this request. 

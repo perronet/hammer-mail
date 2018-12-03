@@ -17,13 +17,12 @@
 package hammermail.server;
 
 import hammermail.core.Globals;
+import hammermail.core.Utils;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static hammermail.net.responses.ResponseError.ErrorType.*;
+import javafx.beans.property.SimpleStringProperty;
 //import static hammermail.net.responses.ResponseError.ErrorType.INCORRECT_AUTHENTICATION;
 //import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
 //import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
@@ -45,23 +45,22 @@ import static hammermail.net.responses.ResponseError.ErrorType.*;
  */
 public class Backend {
 
-    ExecutorService exec;
-    ServerSocket serverSocket;
+    private ExecutorService exec;
+    private ServerSocket serverSocket;
+    private final SimpleStringProperty logText = new SimpleStringProperty("");
 
     @SuppressWarnings("empty-statement")
     public void startServer() {
         try {
-            System.out.println("Creating sockets...");
+            logAction("Creating sockets...");
             serverSocket = new ServerSocket(Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-            System.out.println("Creating Thread pool...");
+            logAction("Creating Thread pool...");
             exec = Executors.newFixedThreadPool(Globals.HAMMERMAIL_SERVER_NUM_THREAD);
-            System.out.println("Sockets and Threads created. Server starting...");
+            logAction("Sockets and Threads created. Server starting...");
 
             while (serverLoop());//#TODO fill this while with proper logging
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            stopServer();
         }
     }
 
@@ -76,7 +75,8 @@ public class Backend {
             logAction("Received request! Starting new task...");
             handleNewRequest(incoming);
         } catch (IOException ex) {
-            Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
+            //No error: it can get here whene the backed is shut down
+            //Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
 
@@ -84,7 +84,7 @@ public class Backend {
     }
 
     void handleNewRequest(Socket clientSocket) {
-        Task task = new Task(clientSocket);
+        Task task = new Task(clientSocket, this);
         exec.execute(task);
     }
 
@@ -97,7 +97,7 @@ public class Backend {
         //Stopping threads
         exec.shutdown();
         try {
-            exec.awaitTermination(3, TimeUnit.SECONDS);
+            exec.awaitTermination(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             logAction(e.getMessage());
         }
@@ -112,8 +112,23 @@ public class Backend {
         }
     }
 
-    public void logAction(String log) {
-        System.out.println("°°°° BACKEND °°°° " + log);
+    public synchronized void logAction(String log) {
+
+        String oldLog = logText.get() + log + "\n";
+        if (Utils.countLines(log) > Globals.HAMMERMAIL_SERVER_MAX_LOG_LINES) {
+            oldLog = oldLog.substring(oldLog.indexOf('\n'));
+        }
+        
+        logText.set(oldLog);
+        //System.out.println("°°°° BACKEND °°°° " + log);
+    }
+
+    public String GetLog() {
+        return logText.get();
+    }
+
+    public SimpleStringProperty logProperty() {
+        return logText;
     }
 }
 
@@ -124,10 +139,12 @@ public class Backend {
  */
 class Task implements Runnable {
 
-    Socket clientSocket;
+    private final Socket clientSocket;
+    private final Backend backend;
 
-    public Task(Socket clientSocket) {
+    public Task(Socket clientSocket, Backend backend) {
         this.clientSocket = clientSocket;
+        this.backend = backend;
     }
 
     @Override
@@ -213,37 +230,37 @@ class Task implements Runnable {
         Database db = new Database(false);
         //note: checkPassword return false on not-existing user
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
-                System.out.println("mail adding: ");
-
             if (request.IsMailWellFormed()) {
-                String rec = (request.getMail().getReceiver()).replaceAll("\\s+","");
-                String [] receivers = rec.split(";");  
-                
-                if (receivers.length == 1){
-                    if (!db.isUser(receivers[0]))
+                String rec = (request.getMail().getReceiver()).replaceAll("\\s+", "");
+                String[] receivers = rec.split(";");
+
+                if (receivers.length == 1) {
+                    if (!db.isUser(receivers[0])) {
                         return new ResponseError(SENDING_TO_UNEXISTING_USER);
-                    else {
-                            int mailID =  db.addMail(request.getMail());              
-                            return new ResponseMailSent(mailID);
+                    } else {
+                        int mailID = db.addMail(request.getMail());
+                        return new ResponseMailSent(mailID);
                     }
                 }
-                
+
                 rec = "";
                 String refused = "";
 
-                for(int i = 0; i < receivers.length; i++){
-                    if (db.isUser(receivers[i]))
+                for (int i = 0; i < receivers.length; i++) {
+                    if (db.isUser(receivers[i])) {
                         rec = rec + ";" + receivers[i];
-                    else 
+                    } else {
                         refused = refused + ";" + receivers[i];
+                    }
                 }
                 request.getMail().setReceiver(rec.substring(1));
-                int mailID =  db.addMail(request.getMail());              
+                int mailID = db.addMail(request.getMail());
                 //TODO servers things?
                 return new ResponseMailSent(mailID);
-            } else 
+            } else {
                 return new ResponseError(SENDING_INVALID_MAIL);
-            
+            }
+
         } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }
@@ -251,10 +268,10 @@ class Task implements Runnable {
 
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
-        
+
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
             return new ResponseMails(db.getReceivedMails(request.getUsername()),
-                                                    db.getSentMails(request.getUsername()));
+                    db.getSentMails(request.getUsername()));
         } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }
@@ -262,13 +279,14 @@ class Task implements Runnable {
 
     private ResponseBase handleDeleteMails(RequestDeleteMails requestDeleteMails) {
         Database db = new Database(false);
-        for(Integer mailID : requestDeleteMails.getMailsIDsToDelete()){
+        for (Integer mailID : requestDeleteMails.getMailsIDsToDelete()) {
             db.removeMail(mailID, requestDeleteMails.getUsername());
         }
         return new ResponseSuccess();
     }
 
-    public void logAction(String log) {
-        System.out.println("**** SERVER **** " + log);
+    public synchronized void logAction(String log) {
+        //System.out.println("**** SERVER **** " + log);
+        backend.logAction(log);
     }
 }
