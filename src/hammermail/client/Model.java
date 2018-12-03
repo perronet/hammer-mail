@@ -58,7 +58,7 @@ public class Model {
     
     private Timestamp lastMailStored;
 
-    private int idCounter = 0; 
+    private int draftCounter = 0; 
     
     private Model() { //TODO load mails and user from file
         currentMail = new SimpleObjectProperty<>(); 
@@ -113,30 +113,38 @@ public class Model {
     }
     
     //ADD MAIL
-
-    public void addSent(String receiver, String title, String text){
-        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, new Timestamp(System.currentTimeMillis()));
-        listSent.add(mail);
-        storeMail(mail);
-        idCounter++;
+    
+    public void addMultiple(List<Mail> mailsToAdd){
+        String user = currentUser.getUsername();
+        for(Mail m : mailsToAdd){
+            if(m.getSender().equals(user) && m.getReceiver().contains(user)){
+                listSent.add(0, m);
+                listInbox.add(0, m);
+            }else if(m.getReceiver().contains(user)){
+                listInbox.add(0, m);
+            }else{
+                listSent.add(0, m);
+            }    
+        }
     }
-
-    //Questo lavoro lo farà il demone, scaricherà le mail nuove e in seguito le aggiunge alla lista inbox
-    //nel login controller (che fa una get mail request) avviene la scrittura su json
-    //è già tutto predisposto e commentato nel Login Controller
-    //la request get mail viene fatta solo nel login controller e dal demone
-    public void addInbox(String sender, String title, String text){
-        Mail mail = new Mail(idCounter, sender, currentUser.getUsername(), title, text, new Timestamp(System.currentTimeMillis()));
-        listInbox.add(mail); 
-        storeMail(mail);
-        idCounter++;
+    
+    public void addMail(Mail m){
+        String user = currentUser.getUsername();
+        if(m.getSender().equals(user) && m.getReceiver().contains(user)){
+            listSent.add(0, m);
+            listInbox.add(0, m);
+        }else if(m.getReceiver().contains(user)){
+            listInbox.add(0, m);
+        }else{
+            listSent.add(0, m);
+        }
     }
-
+       
     public void saveDraft(String receiver, String title, String text){
-        Mail mail = new Mail(idCounter, currentUser.getUsername(), receiver, title, text, null); /*new Timestamp(System.currentTimeMillis())*/
-        listDraft.add(mail);
+        Mail mail = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null); 
+        listDraft.add(0, mail);
         storeMail(mail);
-        idCounter++;
+        draftCounter++;
     }    
     
     //REMOVE MAIL

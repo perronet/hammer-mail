@@ -92,11 +92,6 @@ public class UIController implements Initializable {
         openEditor("","","", false);
     }  
 
-    @FXML
-    private void handleReceive(ActionEvent event){ //just for testing
-        Model.getModel().addInbox("marco", "titolo", "testo");
-    } 
-
     @FXML 
     private void handleDelete(ActionEvent event){ //TODO FIX BUG you can't delete the last item from a list, but you can do it if you switch to another tab first
         int tabId = tabs.getSelectionModel().getSelectedIndex();
@@ -333,7 +328,8 @@ public class UIController implements Initializable {
             if(currentMail().getReceiver().isEmpty()){
                 handleError();
             }else{
-                Model.getModel().addSent(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
+                //TODO handle send with database here
+//                Model.getModel().addSent(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText());
                 Model.getModel().removeDraft();
             }
         });

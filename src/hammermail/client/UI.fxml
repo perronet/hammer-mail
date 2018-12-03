@@ -19,7 +19,6 @@
               <Label fx:id="user" text="topbar" />
               <Button onAction="#handleCreate" text="generate new mail" />
               <Button onAction="#handleDelete" text="remove mail" />
-              <Button onAction="#handleReceive" text="receive mail" />
             </HBox>
           </children>
         </AnchorPane>
