@@ -55,7 +55,7 @@ public class Model {
     
     private User currentUser;
     
-    private List<Mail> toStore;
+    private ArrayList<Mail> toStore;
     
     private Timestamp lastMailStored;
 
@@ -176,12 +176,11 @@ public class Model {
     //Forse si potrebbero mettere le funzioni di scrittura in un'altra classe
     //TO BE CHECKED!!
         //TODO: clean this dirty code, add check if mail is already in the list
-    public void dispatchMail(String filename){
+    public void dispatchMail(){
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         String user = this.currentUser.getUsername();
         JsonReader reader;
         String filepath = user + "mails" + "\\" + user + ".json";
-        //check if file exist - if not create it with create Json (maybe else-if??) 
         try {
             reader = new JsonReader(new FileReader(filepath));
             Type mailList = new TypeToken<List<Mail>>(){}.getType();
@@ -211,8 +210,7 @@ public class Model {
     //Store mails into .json (each time read the file, append the new mail and write the file)
     public void storeMail(Mail mailToStore){
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-	String user = this.currentUser.getUsername();
-	String filepath = user + "mails" + "\\" + user  + ".json";
+	String filepath = this.currentUser.getUserFileFolder();
         JsonReader reader;
         try {
             reader = new JsonReader(new FileReader(filepath));
@@ -226,17 +224,10 @@ public class Model {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         toStore.add(mailToStore);
-        
-        try {
-            FileWriter writer = new FileWriter(filepath);
-            String toWrite = gson.toJson(toStore);
-            writer.write(toWrite);
-            writer.close();
-            lastMailStored = mailToStore.getDate();
-        } catch (IOException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        writeJson(filepath, toStore);
+        if(!(mailToStore.getDate() == null)){
+                lastMailStored = mailToStore.getDate();
         }
         
         
@@ -245,8 +236,7 @@ public class Model {
     
     public void removeFromStorage(Mail mailToDelete){
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-	String user = this.currentUser.getUsername();
-	String filepath = user + "mails" + "\\" + user  + ".json";
+	String filepath = this.currentUser.getUserFileFolder();
         ArrayList<Mail> test = new ArrayList<>();
         JsonReader reader;
         try {
@@ -259,29 +249,36 @@ public class Model {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+        writeJson(filepath, test);      
+    }
+    
+    private void writeJson(String filename, ArrayList<Mail> mails){
+	Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         try {
-            FileWriter writer = new FileWriter(filepath);
-            String toWrite = gson.toJson(test);
+            FileWriter writer = new FileWriter(filename);
+            String toWrite = gson.toJson(mails);
             writer.write(toWrite);
             writer.close();
+            
         } catch (IOException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+}
     
     public void createJson(String username){
-        Gson file = new Gson();
-        String namedir = username + "mails";
-        String filepath = namedir + "\\" + username + ".json";
-        File dir = new File(namedir);
-        dir.mkdir();
-        try{
-            JsonWriter writer = new JsonWriter(new FileWriter(filepath));
-            System.out.println(filepath);
+        File userFile = new File(this.currentUser.getUserFileFolder());
+        if(!(userFile.exists())){
+            Gson file = new Gson();
+            String filepath = this.currentUser.getUserFileFolder();
+            File dir = new File(this.currentUser.getUsername() + "mails");
+            dir.mkdir();
+            try{
+                JsonWriter writer = new JsonWriter(new FileWriter(filepath));
+                System.out.println(filepath);
 
-        }catch (IOException ex) {
-            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            }catch (IOException ex) {
+                Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 

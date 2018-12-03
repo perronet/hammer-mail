@@ -125,21 +125,18 @@ public class UILoginController implements Initializable {
     //CONVERT INTO DIFF
     private void updateModelReqMail(ResponseBase response){
         Model.getModel().setCurrentUser(username.getText(), password.getText());
-        File userFile = new File(username.getText() + "mails" + "\\" + username.getText() + ".json");
-        if(!(userFile.exists())){
-            Model.getModel().createJson(username.getText());
-            //to fill with mails on the database
-        }
+        Model.getModel().createJson(username.getText());
+        //to fill with mails on the database
         
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
         List<Mail> sent = ((ResponseMails) response).getSentMails();
-
+        //this way drafts will be overridden
         for (Mail m : received)
             Model.getModel().storeMail(m);
         for (Mail m : sent)
             Model.getModel().storeMail(m);
         
-        Model.getModel().dispatchMail("serve?");
+        Model.getModel().dispatchMail();
     }
     
     
