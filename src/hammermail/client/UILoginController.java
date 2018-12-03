@@ -32,7 +32,6 @@ import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -116,7 +115,7 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess){
                     response = composeAndSendGetMail();
-                    Model.getModel().createJson(user);
+//                    Model.getModel().createJson(user);
                     if (response instanceof ResponseError)
                         spawnLogin();
 
@@ -148,6 +147,7 @@ public class UILoginController implements Initializable {
 
         //Update Model
         //TEMPORARY ONLY FROM SERVE, we will add also the JSON mail
+        //here we will use dispatchMail
         Model.getModel().getListInbox().setAll(received);
         Model.getModel().getListSent().setAll(sent);
     }
@@ -240,9 +240,9 @@ public class UILoginController implements Initializable {
                         List<Mail> received = ((ResponseMails) response).getReceivedMails();
                         List<Mail> sent = ((ResponseMails) response).getSentMails();
                         if (received.size() > 0)
-                            Model.getModel().getListInbox().addAll(0, received);
+                            Model.getModel().addMultiple(received);
                         if (sent.size() > 0)
-                            Model.getModel().getListSent().addAll(0, sent);
+                            Model.getModel().addMultiple(sent);
                         
                         //Write on JSON
                             

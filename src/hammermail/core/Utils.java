@@ -16,6 +16,15 @@
  */
 package hammermail.core;
 
+import hammermail.net.requests.RequestBase;
+import hammermail.net.responses.ResponseBase;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 /**
  *
  * @author 00mar
@@ -24,4 +33,13 @@ public class Utils {
     public static boolean isNullOrWhiteSpace(String s) {
         return s == null || s.isEmpty() || s.trim().isEmpty();
     }
+    
+    public static ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
+        Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+        out.writeObject(request);
+        return (ResponseBase)in.readObject();
+    }
+
 }

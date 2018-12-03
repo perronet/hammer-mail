@@ -16,22 +16,16 @@
  */
 package hammermail.client;
 
-import hammermail.core.Globals;
+import static hammermail.core.Utils.*;
 import hammermail.core.Mail;
 import hammermail.core.User;
 import static hammermail.core.Utils.isNullOrWhiteSpace;
-import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestSendMail;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
 import hammermail.server.Database;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 
 import java.io.IOException;
@@ -84,8 +78,8 @@ public class UIEditorController implements Initializable {
                     handleError();
                 } else if (response instanceof ResponseMailSent){
                     mail.setId(((ResponseMailSent) response).getMailID());
-                    Model.getModel().getListSent().add(mail);
-                    Model.getModel().storeMail(mail);
+                    Model.getModel().addMail(mail);
+//                    Model.getModel().storeMail(mail);
 
                     //WRITE ID-MAIL ON JSON
                 }
@@ -161,16 +155,7 @@ public class UIEditorController implements Initializable {
         
         
     }
-       
-    
-    //this method should be placed in a separate file
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
-            Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            out.writeObject(request);
-            return (ResponseBase)in.readObject();
-    }
+
     
      private Mail composeMail(String receiver){
             String sender = Model.getModel().getCurrentUser().getUsername();

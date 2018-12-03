@@ -31,23 +31,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
+import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.RequestBase;
 import hammermail.net.requests.RequestDeleteMails;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseSuccess;
 import hammermail.server.Database;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -139,7 +132,7 @@ public class UIController implements Initializable {
         
         //GENERIC SETUPS
         
-        Model.getModel().dispatchMail(this.currentUser);
+//        Model.getModel().dispatchMail(this.currentUser);
         loggedas.setText("Logged as: " + currentUser);
         fromto.setAlignment(Pos.CENTER);
         subject.setAlignment(Pos.CENTER);
@@ -377,17 +370,7 @@ public class UIController implements Initializable {
         bottombox.getChildren().add(replyAllButton);
         
     }
-    
-    //we need to find a common location for this method!!!
-    private ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
-        Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
-        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-        out.writeObject(request);
-        return (ResponseBase)in.readObject();
-    }
-
-    
+ 
 }
 
 class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show a Mail object in different ways
