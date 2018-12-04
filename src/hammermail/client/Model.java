@@ -18,14 +18,13 @@ package hammermail.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import hammermail.core.User;
 import hammermail.core.Mail;
 import hammermail.core.EmptyMail;
+import static hammermail.core.Utils.containsUser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -57,7 +56,7 @@ public class Model {
     
     private ArrayList<Mail> toStore;
     
-    private Timestamp lastMailStored;
+    private Timestamp lastMailStored = new Timestamp(0);
 
     private int draftCounter = 0; 
     
@@ -118,10 +117,10 @@ public class Model {
     public void addMultiple(List<Mail> mailsToAdd){
         String user = currentUser.getUsername();
         for(Mail m : mailsToAdd){
-            if(m.getSender().equals(user) && m.getReceiver().contains(user)){
+            if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
                 listSent.add(0, m);
                 listInbox.add(0, m);
-            }else if(m.getReceiver().contains(user)){
+            }else if(containsUser(m.getReceiver(),user)){
                 listInbox.add(0, m);
             }else{
                 listSent.add(0, m);
@@ -131,10 +130,10 @@ public class Model {
     
     public void addMail(Mail m){
         String user = currentUser.getUsername();
-        if(m.getSender().equals(user) && m.getReceiver().contains(user)){
+        if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
             listSent.add(0, m);
             listInbox.add(0, m);
-        }else if(m.getReceiver().contains(user)){
+        }else if(containsUser(m.getReceiver(),user)){
             listInbox.add(0, m);
         }else{
             listSent.add(0, m);
@@ -186,19 +185,7 @@ public class Model {
             Type mailList = new TypeToken<List<Mail>>(){}.getType();
             List<Mail> mails = gson.fromJson(reader, mailList);
             if(!(mails == null)){
-                for(Mail m : mails){
-                    if(m.getDate() == null){
-                        listDraft.add(0, m);
-                    }else if(m.getSender().equals(user) && m.getReceiver().contains(user)){
-                        listSent.add(0, m);
-                        listInbox.add(0, m);
-                    }else if(m.getReceiver().contains(user)){
-                        listInbox.add(0, m);
-                    }else{
-                        listSent.add(0, m);
-                    }
-                    lastMailStored = m.getDate();
-                }
+                addMultiple(mails);
             }
             
         } catch (FileNotFoundException ex) {
@@ -280,6 +267,28 @@ public class Model {
                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    public Timestamp calculateLastMailStored(){
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+	List<Mail> test = new ArrayList<>();
+        JsonReader reader;
+        try {
+            reader = new JsonReader(new FileReader(this.currentUser.getUserFileFolder()));
+            Type mailList = new TypeToken<ArrayList<Mail>>(){}.getType();
+            test = gson.fromJson(reader, mailList);
+            if(!(test == null)){
+                for(Mail m : test){
+                    if(!(m.getDate() == null)){
+			lastMailStored = m.getDate();
+                    }
+                }
+            } 
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+	return lastMailStored;
+	
     }
 
     

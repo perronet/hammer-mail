@@ -33,6 +33,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 import hammermail.core.Mail;
 import hammermail.core.User;
+import static hammermail.core.Utils.containsUser;
 import static hammermail.core.Utils.isNullOrWhiteSpace;
 import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.RequestDeleteMails;
@@ -144,7 +145,7 @@ public class UIController implements Initializable {
         
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
             if(!(currentMail() instanceof EmptyMail)){
-                if(newValue.getReceiver().contains(currentUser)){ //This mail was received //Fix in case of multiple users
+                if(containsUser(newValue.getReceiver(), currentUser)){ //This mail was received //Fix in case of multiple users
                     mailfromto.setText(newValue.getSender());
                     mailtofrom.setText(newValue.getReceiver());
                     fromto.setText("From");
@@ -433,7 +434,7 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
         if (empty || item == null || item.getId() == null) {
             setText(null);
         } else {
-            if(item.getReceiver().contains(Model.getModel().getCurrentUser().getUsername())){ //Mail was received
+            if(containsUser(item.getReceiver(),Model.getModel().getCurrentUser().getUsername())){ //Mail was received
                 setText(item.getSender() + " - " + item.getTitle());
             }else{
                 if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)

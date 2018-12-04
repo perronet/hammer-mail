@@ -126,13 +126,14 @@ public class UILoginController implements Initializable {
         Model.getModel().createJson(username.getText());
         //to fill with mails on the database
         
+        //I don't know where to put this...
+        Timestamp ts = Model.getModel().calculateLastMailStored();
+        
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
         List<Mail> sent = ((ResponseMails) response).getSentMails();
         //this way drafts will be overridden
-        for (Mail m : received)
-            Model.getModel().storeMail(m);
-        for (Mail m : sent)
-            Model.getModel().storeMail(m);
+        received.forEach(Model.getModel()::storeMail);
+        sent.forEach(Model.getModel()::storeMail);
         
         Model.getModel().dispatchMail();
     }
