@@ -132,8 +132,8 @@ public class UILoginController implements Initializable {
         
         //I don't know where to put this...
         //We will check if it is possible to substitute the log file with this function
-        //Timestamp ts = Model.getModel().calculateLastMailStored();
-
+        Timestamp ts = Model.getModel().calculateLastMailStored();
+        System.out.println(ts);
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
         List<Mail> sent = ((ResponseMails) response).getSentMails();
 

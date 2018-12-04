@@ -56,7 +56,7 @@ public class Model {
     
     private ArrayList<Mail> toStore;
     
-    private Timestamp lastMailStored = new Timestamp(0);
+    private Timestamp lastMailStored;
 
     private int draftCounter = 0; 
     
@@ -127,7 +127,9 @@ public class Model {
     public void addMultiple(List<Mail> mailsToAdd){
         String user = currentUser.getUsername();
         for(Mail m : mailsToAdd){
-            if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
+            if(m.getDate() == null){
+                listDraft.add(0, m);
+            }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
                 listSent.add(0, m);
                 listInbox.add(0, m);
             }else if(containsUser(m.getReceiver(),user)){
@@ -189,7 +191,7 @@ public class Model {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         String user = this.currentUser.getUsername();
         JsonReader reader;
-        String filepath = user + "mails" + "/" + user + ".json";
+        String filepath = this.currentUser.getUserFileFolder();
         try {
             reader = new JsonReader(new FileReader(filepath));
             Type mailList = new TypeToken<List<Mail>>(){}.getType();
@@ -209,22 +211,30 @@ public class Model {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	String filepath = this.currentUser.getUserFileFolder();
         JsonReader reader;
+        boolean isPresent = false;
         try {
             reader = new JsonReader(new FileReader(filepath));
             Type mailList = new TypeToken<ArrayList<Mail>>(){}.getType();
             ArrayList<Mail> test = gson.fromJson(reader, mailList);
             if(!(test == null)){
-                if(!(test.contains(mailToStore))){
-                    toStore = test;
+                toStore = test;
+                for(Mail m : test){
+                    if(m.hashCode() == mailToStore.hashCode()){
+                        isPresent = true;
+                    }
                 }
             } 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        toStore.add(mailToStore);
-        writeJson(filepath, toStore);
-        if(!(mailToStore.getDate() == null)){
+        if(!isPresent){ //if the mail isn't stored yet, save it.
+            if(mailToStore.getDate() == null){
+                lastMailStored = new Timestamp(0);
+            }else{
                 lastMailStored = mailToStore.getDate();
+            } 
+            toStore.add(mailToStore);
+            writeJson(filepath, toStore);
         }
         
         
@@ -293,10 +303,14 @@ public class Model {
 			lastMailStored = m.getDate();
                     }
                 }
+            }else{
+                lastMailStored = new Timestamp(0);
             } 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if(lastMailStored == null)
+            lastMailStored = new Timestamp(0);
 	return lastMailStored;
 	
     }
