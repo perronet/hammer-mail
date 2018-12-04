@@ -89,7 +89,7 @@ public final class DummyClient {
 
 
             logAction("Testing mails...");
-            RequestGetMails mailsReq = new RequestGetMails();
+            RequestGetMails mailsReq = new RequestGetMails(new Timestamp(0));
             mailsReq.SetAuthentication("tano", "psw");
             testRequest(mailsReq);
             

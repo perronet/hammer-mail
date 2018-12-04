@@ -249,6 +249,10 @@ public class UIController implements Initializable {
 //        tabs.getSelectionModel().selectedItemProperty().addListener((ob, oldtab, newtab) -> {
 //            
           });
+        Thread daemon = new Thread(new DaemonTask());
+        daemon.setDaemon(true);
+//      daemon.start();
+
         
     }
     

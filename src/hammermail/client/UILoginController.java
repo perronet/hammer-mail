@@ -26,6 +26,7 @@ import hammermail.net.responses.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -69,9 +70,6 @@ public class UILoginController implements Initializable {
                     updateModelReqMail(response);
                     spawnHome();
                     //Move in the UI controller
-                    Thread daemon = new Thread(new DaemonTask());
-                    daemon.setDaemon(true);
-//                    daemon.start();
                     
                 } 
             }
@@ -185,7 +183,14 @@ public class UILoginController implements Initializable {
     
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
         //the RequestGetMail will be called with the Date argument from JSON    
-        RequestGetMails requestGetMail = new RequestGetMails();
+        Timestamp lastMail = Model.getModel().getLastMailStored();
+        RequestGetMails requestGetMail = null;
+        if (lastMail == null){
+            requestGetMail = new RequestGetMails(new Timestamp(0));
+            Model.getModel().setLastMailStored(new Timestamp(System.currentTimeMillis()));
+        }
+        else
+            requestGetMail = new RequestGetMails(lastMail);
         requestGetMail.SetAuthentication(username.getText(), password.getText());
         return sendRequest(requestGetMail);
     }

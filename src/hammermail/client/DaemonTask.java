@@ -1,4 +1,4 @@
-/*
+  /*
  * Copyright (C) 2018 sai
  *
  * This program is free software: you can redistribute it and/or modify
@@ -45,7 +45,8 @@ public class DaemonTask implements Runnable{
         @Override
         public void run() {
             try {
-                RequestGetMails requestGetMail = new RequestGetMails();
+                System.out.println("Demone polling: " + Model.getModel().getLastMailStored());
+                RequestGetMails requestGetMail = new RequestGetMails(Model.getModel().getLastMailStored());
                 requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
 
                     while (true){
@@ -55,17 +56,20 @@ public class DaemonTask implements Runnable{
                         try {
                             response = sendRequest(requestGetMail);
                             List<Mail> received = ((ResponseMails) response).getReceivedMails();
+                            System.out.println("°°°°°°°°°° Daemon Task: List " + received);
                             List<Mail> sent = ((ResponseMails) response).getSentMails();
+                            System.out.println("°°°°°°°°°° Daemon Task: List " + sent);
                            if (received.size() > 0){
-                            Model.getModel().addMultiple(received);
+                                Model.getModel().addMultiple(received);
                         
-                        	for (Mail m : received)
-                            	Model.getModel().storeMail(m);
+                            for (Mail m : received)
+                                    Model.getModel().storeMail(m);
                             }
                         
                             if (sent.size() > 0){
                                 Model.getModel().addMultiple(sent);
-                                    for (Mail m : received)
+                                
+                                for (Mail m : received)
                                     Model.getModel().storeMail(m);
                             }
 
@@ -83,3 +87,6 @@ public class DaemonTask implements Runnable{
             }
         }
 }
+
+    
+    

@@ -32,9 +32,18 @@ public class RequestGetMails extends RequestBase {
      * @param lastMailDate the last mail Date. The server will respond with only more recent mails.
      * If you want all mails, just set this to null.
      */
-    /*public RequestGetMails (Date lastMailDate)
-    {
+    public RequestGetMails (Timestamp lastMailDate){
         this.lastMailDate = lastMailDate;
     }
-    */
+
+    public Timestamp getLastMailDate() {
+        return lastMailDate;
+    }
+
+    public void setLastMailDate(Timestamp lastMailDate) {
+        this.lastMailDate = lastMailDate;
+    }
+    
+    
+    
 }

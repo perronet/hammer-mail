@@ -32,6 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static hammermail.net.responses.ResponseError.ErrorType.*;
+import java.sql.Timestamp;
 import javafx.beans.property.SimpleStringProperty;
 //import static hammermail.net.responses.ResponseError.ErrorType.INCORRECT_AUTHENTICATION;
 //import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
@@ -268,10 +269,11 @@ class Task implements Runnable {
 
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
+        Timestamp time = request.getLastMailDate();
 
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
-            return new ResponseMails(db.getReceivedMails(request.getUsername()),
-                    db.getSentMails(request.getUsername()));
+            return new ResponseMails(db.getReceivedMails(request.getUsername(), time),
+                    db.getSentMails(request.getUsername(), time));
         } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }

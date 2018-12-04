@@ -282,4 +282,12 @@ public class Model {
         }
     }
 
+    
+    public Timestamp getLastMailStored() {
+        return lastMailStored;
+    }    
+
+    public void setLastMailStored(Timestamp lastMailStored) {
+        this.lastMailStored = lastMailStored;
+    }
 }

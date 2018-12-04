@@ -326,7 +326,7 @@ public class Database {
         }
     }
    
-    protected ArrayList<Mail> getReceivedMails(String userN) {
+  protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) {
         ArrayList<Mail> mailList = new ArrayList<>();;
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -339,13 +339,16 @@ public class Database {
                     + "OR receiver LIKE ? "
                     + "OR receiver LIKE ? "
                     + "OR receiver LIKE ? "
-                    + " AND deleted NOT LIKE ? ORDER BY time DESC";
+                    + "AND deleted NOT LIKE ? "
+                    + "AND time > ?"
+                    + "ORDER BY time ASC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             pstmt.setString(2, "%;" + userN + ";%");
             pstmt.setString(3, "%" + userN + ";%");
             pstmt.setString(4, "%;" + userN + "%");
             pstmt.setString(5, "%;" + userN + ";%");
+            pstmt.setTimestamp(6, time);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -356,7 +359,7 @@ public class Database {
                         rs.getString("title"), 
                         rs.getString("email_text"), 
                         rs.getTimestamp("time"));
-                if (!rs.getString("deleted").contains(userN)){
+                if (!rs.getString("deleted").contains(userN) /*&& m.getDate().compareTo(time) > 0*/){
                     //If i don't fix the "deleted NOT LIKE" bug we use this
                     System.out.println("deleted: " + rs.getString("deleted"));
                     mailList.add(m);
@@ -382,7 +385,7 @@ public class Database {
         }
     }
 
-    protected ArrayList<Mail> getSentMails(String userN) {
+    protected ArrayList<Mail> getSentMails(String userN, Timestamp time) {
         ArrayList<Mail> mailList = new ArrayList<>();
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -390,11 +393,15 @@ public class Database {
 
         try {
             conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE sender = ? "
-                + "AND deleted NOT LIKE ? ORDER BY time DESC";
+            String sql = "SELECT * FROM email "
+                        + "WHERE sender = ? "
+                        + "AND deleted NOT LIKE ? "
+                        + "AND time > ? "
+                        + "ORDER BY time ASC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
             pstmt.setString(2, "%;" + userN + ";%");
+            pstmt.setTimestamp(3, time);
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
