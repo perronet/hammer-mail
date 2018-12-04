@@ -77,12 +77,22 @@ public class Model {
     public final void setCurrentMail(Mail m){ currentMail.set(m); }
     
     public SimpleObjectProperty<Mail> currentMailProperty() { return currentMail; }
-
+    
     //CURRENT USER
     
     public User getCurrentUser() { return currentUser; }     
      
     public void setCurrentUser(String username, String password){ this.currentUser = new User(username, password); }
+    
+    //LAST MAIL
+    
+    public Timestamp getLastMailStored() {
+        return lastMailStored;
+    }    
+
+    public void setLastMailStored(Timestamp lastMailStored) {
+        this.lastMailStored = lastMailStored;
+    }
     
     //MAIL GETTERS
     
@@ -292,11 +302,6 @@ public class Model {
     }
 
     
-    public Timestamp getLastMailStored() {
-        return lastMailStored;
-    }    
+    
 
-    public void setLastMailStored(Timestamp lastMailStored) {
-        this.lastMailStored = lastMailStored;
-    }
 }

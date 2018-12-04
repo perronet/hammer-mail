@@ -176,6 +176,7 @@ public class UILoginController implements Initializable {
             Stage newstage = new Stage();
             newstage.setTitle("HammerMail - Home");
             newstage.setScene(new Scene(root));
+            uiController.init(newstage);
             newstage.show();
         } catch (IOException ex) {
             spawnLogin();

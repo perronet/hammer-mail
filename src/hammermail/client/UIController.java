@@ -53,11 +53,13 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.WindowEvent;
 
 public class UIController implements Initializable {
 
+    private Stage s;
+    
+    private final String currentUser = Model.getModel().getCurrentUser().getUsername();
+    
     @FXML
     private Label user;
 
@@ -69,7 +71,6 @@ public class UIController implements Initializable {
     
     @FXML
     private ListView<Mail> listinbox, listsent, listdraft; 
-    //renamed, Gaetano
     
     @FXML
     private TextArea mailfromto, mailtitle, maildate, mailcontent, mailtofrom;
@@ -82,9 +83,6 @@ public class UIController implements Initializable {
     
     @FXML
     private HBox bottombox;
-    
-    private final String currentUser = Model.getModel().getCurrentUser().getUsername();
-    
     
     //BUTTON HANDLES
     
@@ -130,6 +128,10 @@ public class UIController implements Initializable {
 
     //INITIALIZATION
     
+    public void init(Stage s){
+        this.s = s;
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         
@@ -158,7 +160,7 @@ public class UIController implements Initializable {
                 }
 
                 if(newValue.isDraft()){ //This handles null dates from drafts
-                    maildate.clear(); //TODO hide maildate textarea, don't just clear it
+                    maildate.clear(); 
                 }else{
                     maildate.setText(newValue.getDate().toString()); 
                 }
@@ -200,7 +202,7 @@ public class UIController implements Initializable {
             int newindex = (int)newValue;
             if(!listdraft.getSelectionModel().isEmpty()){
                 //bottombox.getChildren().clear();
-                draftTabShow(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
+                draftTabShow(); 
                 Model.getModel().setCurrentMail(Model.getModel().getDraftByIndex(newindex));
             }
         });     
@@ -218,7 +220,7 @@ public class UIController implements Initializable {
             int newindex = (int)newValue;
             if(!listinbox.getSelectionModel().isEmpty()){
                 //bottombox.getChildren().clear();
-                inboxTabShow(); //TODO fix this! you should only hide and show buttons, not create new buttons every time you switch tab
+                inboxTabShow(); 
                 Model.getModel().setCurrentMail(Model.getModel().getReceivedMailByIndex(newindex));
             }
         });     
@@ -241,7 +243,8 @@ public class UIController implements Initializable {
         
         Thread daemon = new Thread(new DaemonTask());
         daemon.setDaemon(true);
-//      daemon.start();
+//        Thread daemon = new Thread(new DaemonTask(s));
+        daemon.start();
   
     }
     
@@ -379,9 +382,8 @@ public class UIController implements Initializable {
     }
 
     private Mail composeMail(String receiver){
-        String sender = Model.getModel().getCurrentUser().getUsername();
         Timestamp ts = new Timestamp(System.currentTimeMillis());
-        return new Mail(-1, sender, receiver, currentMail().getTitle(), currentMail().getText(), ts);
+        return new Mail(-1, currentUser, receiver, currentMail().getTitle(), currentMail().getText(), ts);
     }
     
     private void sendDraft(){
@@ -422,7 +424,7 @@ public class UIController implements Initializable {
             }
         }
     }
-
+ 
 }
 
 class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show a Mail object in different ways
@@ -435,7 +437,7 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
             setText(null);
         } else {
             if(containsUser(item.getReceiver(),Model.getModel().getCurrentUser().getUsername())){ //Mail was received
-                setText(item.getSender() + " - " + item.getTitle());
+//                setText(item.getSender() + " - " + item.getTitle()); //URGENT FIX Daemon gives an error here
             }else{
                 if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)
                     setText("(No subject)");
