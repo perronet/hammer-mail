@@ -327,7 +327,7 @@ public class Database {
     }
    
   protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) {
-        ArrayList<Mail> mailList = new ArrayList<>();;
+        ArrayList<Mail> mailList = new ArrayList<>();
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -335,22 +335,22 @@ public class Database {
         try {
             conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
-                    + "WHERE receiver = ? "
+                    + "WHERE time > ?"
+                    + "AND receiver = ? "
                     + "OR receiver LIKE ? "
                     + "OR receiver LIKE ? "
                     + "OR receiver LIKE ? "
                     + "AND deleted NOT LIKE ? "
-                    + "AND time > ?"
                     + "ORDER BY time ASC";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
-            pstmt.setString(2, "%;" + userN + ";%");
-            pstmt.setString(3, "%" + userN + ";%");
-            pstmt.setString(4, "%;" + userN + "%");
-            pstmt.setString(5, "%;" + userN + ";%");
-            pstmt.setTimestamp(6, time);
+            pstmt.setTimestamp(1, time);
+            pstmt.setString(2, userN);
+            pstmt.setString(3, "%;" + userN + ";%");
+            pstmt.setString(4, "%" + userN + ";%");
+            pstmt.setString(5, "%;" + userN + "%");
+            pstmt.setString(6, "%;" + userN + ";%");
             rs = pstmt.executeQuery();
-
+            
             while (rs.next()) {
                 Mail m = new Mail( 
                         rs.getInt("email_id"),
@@ -359,12 +359,11 @@ public class Database {
                         rs.getString("title"), 
                         rs.getString("email_text"), 
                         rs.getTimestamp("time"));
-                if (!rs.getString("deleted").contains(userN) /*&& m.getDate().compareTo(time) > 0*/){
-                    //If i don't fix the "deleted NOT LIKE" bug we use this
-                    System.out.println("deleted: " + rs.getString("deleted"));
+                                                //ENSURE THAT FIX
+                if (!(rs.getString("deleted").contains(";"+userN+";"))){
                     mailList.add(m);
                 }
-                System.out.println(m.getId() + ", " + m.getSender() + ", " + m.getReceiver() + ", " + m.getTitle() + ", " + m.getDate());
+                
             }
 
         } catch (SQLException ex) {
@@ -403,16 +402,18 @@ public class Database {
             pstmt.setString(2, "%;" + userN + ";%");
             pstmt.setTimestamp(3, time);
             rs = pstmt.executeQuery();
-
+            
             while (rs.next()) {
                 Mail m = new Mail(1,
-                        /*rs.getInt("user_id"), */
                         rs.getString("sender"),
                         rs.getString("receiver"),
                         rs.getString("title"),
                         rs.getString("email_text"),
                         rs.getTimestamp("time"));
-                mailList.add(m);
+                
+                if (!(rs.getString("deleted").contains(";"+userN+";"))){
+                    mailList.add(m);
+                }
             }
 
         } catch (SQLException ex) {
@@ -431,8 +432,7 @@ public class Database {
                 return mailList;
             }
         }
-    }
-    
+    }    
     //Don't use this, will be deleted
     protected ArrayList<Mail> getMails(String userN) {
         ArrayList<Mail> mailList = new ArrayList<>();

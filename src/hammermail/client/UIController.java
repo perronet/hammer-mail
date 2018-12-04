@@ -244,7 +244,7 @@ public class UIController implements Initializable {
         Thread daemon = new Thread(new DaemonTask());
         daemon.setDaemon(true);
 //        Thread daemon = new Thread(new DaemonTask(s));
-        daemon.start();
+//        daemon.start();
   
     }
     
@@ -437,7 +437,7 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
             setText(null);
         } else {
             if(containsUser(item.getReceiver(),Model.getModel().getCurrentUser().getUsername())){ //Mail was received
-//                setText(item.getSender() + " - " + item.getTitle()); //URGENT FIX Daemon gives an error here
+                setText(item.getSender() + " - " + item.getTitle()); //URGENT FIX Daemon gives an error here
             }else{
                 if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)
                     setText("(No subject)");

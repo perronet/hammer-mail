@@ -189,7 +189,7 @@ public class Model {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         String user = this.currentUser.getUsername();
         JsonReader reader;
-        String filepath = user + "mails" + "\\" + user + ".json";
+        String filepath = user + "mails" + "/" + user + ".json";
         try {
             reader = new JsonReader(new FileReader(filepath));
             Type mailList = new TypeToken<List<Mail>>(){}.getType();

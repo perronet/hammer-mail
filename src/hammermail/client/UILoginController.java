@@ -20,7 +20,9 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import hammermail.core.EmptyMail;
 import hammermail.core.Mail;
+import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
+import static hammermail.core.Utils.viewLog;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import java.io.File;
@@ -57,6 +59,7 @@ public class UILoginController implements Initializable {
     @FXML
     private void handleLogin(ActionEvent event) {
         //TODO: LOAD FILE IF EXISTS, CREATE IT AND FILL IT IF IT DOESN'T EXISTS
+        
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
                 spawnLogin();
@@ -67,10 +70,10 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
+                    clientServerLog(new Timestamp(System.currentTimeMillis()));
+
                     updateModelReqMail(response);
                     spawnHome();
-                    //Move in the UI controller
-                    
                 } 
             }
         } catch (ClassNotFoundException | IOException ex){
@@ -103,11 +106,12 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess){
                     response = composeAndSendGetMail();
-//                    Model.getModel().createJson(user);
                     if (response instanceof ResponseError)
                         spawnLogin();
 
                     else if (response instanceof ResponseMails){
+                        clientServerLog(new Timestamp(System.currentTimeMillis()));
+                        
                         updateModelReqMail(response);
                         spawnHome();
                     }
@@ -127,11 +131,13 @@ public class UILoginController implements Initializable {
         //to fill with mails on the database
         
         //I don't know where to put this...
-        Timestamp ts = Model.getModel().calculateLastMailStored();
-        
+        //We will check if it is possible to substitute the log file with this function
+        //Timestamp ts = Model.getModel().calculateLastMailStored();
+
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
         List<Mail> sent = ((ResponseMails) response).getSentMails();
-        //this way drafts will be overridden
+
+        //this way drafts will be overridden REMINDER!!
         received.forEach(Model.getModel()::storeMail);
         sent.forEach(Model.getModel()::storeMail);
         
@@ -184,15 +190,8 @@ public class UILoginController implements Initializable {
     }
     
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
-        //the RequestGetMail will be called with the Date argument from JSON    
-        Timestamp lastMail = Model.getModel().getLastMailStored();
-        RequestGetMails requestGetMail = null;
-        if (lastMail == null){
-            requestGetMail = new RequestGetMails(new Timestamp(0));
-            Model.getModel().setLastMailStored(new Timestamp(System.currentTimeMillis()));
-        }
-        else
-            requestGetMail = new RequestGetMails(lastMail);
+        Timestamp lastMail = viewLog();
+        RequestGetMails requestGetMail = new RequestGetMails(lastMail);
         requestGetMail.SetAuthentication(username.getText(), password.getText());
         return sendRequest(requestGetMail);
     }
@@ -208,8 +207,17 @@ public class UILoginController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+        File userFile = new File("log.txt");
+        if(!(userFile.exists())){
+            try {
+                clientServerLog(new Timestamp(0));                
+                System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog());
 
-    
+            } catch (IOException ex) {
+                //Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog() );        
+        }
+    }      
 }

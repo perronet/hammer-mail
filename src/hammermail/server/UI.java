@@ -20,6 +20,9 @@ package hammermail.server;
 import hammermail.core.Mail;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -103,8 +106,43 @@ public class UI extends Application {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        launch(args);
+    public static void main(String[] args) throws ParseException {
+//        Database d = new Database(true);
+//        d.addUser("tano", "a");
+//        d.addUser("marco", "a");
+//        
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        Date parsedDate = dateFormat.parse("1970-01-01 01:00:00.000");
+//        Timestamp t0 = new Timestamp(parsedDate.getTime());
+//        
+//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.100");
+//        Timestamp t1 = new Timestamp(parsedDate.getTime());
+//        
+//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.200");
+//        Timestamp t2 = new Timestamp(parsedDate.getTime());
+//        
+//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.300");
+//        Timestamp t3 = new Timestamp(parsedDate.getTime());
+//        
+//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.400");
+//        Timestamp t4 = new Timestamp(parsedDate.getTime());
+//
+//        
+//
+//        Mail m = new Mail(0, "tano", "marco", "titolo1", "text1", t1);
+//        d.addMail(m);
+//        m = new Mail(1, "tano", "marco", "titolo2", "text2", t2);
+//        d.addMail(m);
+//        m = new Mail(2, "marco", "tano", "titolo3", "text3", t3);
+//        d.addMail(m);
+//        m = new Mail(3, "marco", "tano", "titolo4", "text4", t4);
+//        d.addMail(m);
+//        
+        launch(args);    
     }
 
 }
