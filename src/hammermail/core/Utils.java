@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -33,6 +34,19 @@ public class Utils {
 
     public static boolean isNullOrWhiteSpace(String s) {
         return s == null || s.isEmpty() || s.trim().isEmpty();
+    }
+    
+    public static boolean containsUser(String container, String sub){
+        StringTokenizer st = new StringTokenizer(container, ";");
+        Boolean isContained = false;
+        String test;
+        while(st.hasMoreTokens() && !isContained){
+            test = st.nextToken();
+            if(test.equals(sub)){
+                isContained = true;
+            }
+        }
+        return isContained;
     }
 
     public static int countLines(String str) {
