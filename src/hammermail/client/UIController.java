@@ -244,7 +244,7 @@ public class UIController implements Initializable {
         Thread daemon = new Thread(new DaemonTask());
         daemon.setDaemon(true);
 //        Thread daemon = new Thread(new DaemonTask(s));
-//        daemon.start();
+        daemon.start();
   
     }
     

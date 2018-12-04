@@ -18,12 +18,15 @@ package hammermail.client;
 
 import hammermail.core.Mail;
 import hammermail.core.User;
+import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
+import static hammermail.core.Utils.viewLog;
 import hammermail.net.requests.RequestGetMails;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseMails;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,20 +48,19 @@ public class DaemonTask implements Runnable{
         @Override
         public void run() {
             try {
-                System.out.println("Demone polling: " + Model.getModel().getLastMailStored());
-                RequestGetMails requestGetMail = new RequestGetMails(Model.getModel().getLastMailStored());
-                requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
-
                     while (true){
-                        Thread.sleep(5000);
+                        System.out.println("Daemon polling: " + viewLog());
+                        RequestGetMails requestGetMail = new RequestGetMails(viewLog());
+                        requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
+                
+                        Thread.sleep(2000);
                         System.out.println("Daemon polling");
                         ResponseBase response;
                         try {
                             response = sendRequest(requestGetMail);
+                            clientServerLog(new Timestamp(System.currentTimeMillis()));
                             List<Mail> received = ((ResponseMails) response).getReceivedMails();
-                            System.out.println("°°°°°°°°°° Daemon Task: List " + received);
-                            List<Mail> sent = ((ResponseMails) response).getSentMails();
-                            System.out.println("°°°°°°°°°° Daemon Task: List " + sent);
+//                            List<Mail> sent = ((ResponseMails) response).getSentMails();
                            if (received.size() > 0){
                                 Model.getModel().addMultiple(received);
                         
@@ -66,12 +68,12 @@ public class DaemonTask implements Runnable{
                                     Model.getModel().storeMail(m);
                             }
                         
-                            if (sent.size() > 0){
-                                Model.getModel().addMultiple(sent);
-                                
-                                for (Mail m : received)
-                                    Model.getModel().storeMail(m);
-                            }
+//                            if (sent.size() > 0){
+//                                Model.getModel().addMultiple(sent);
+//                                
+//                                for (Mail m : received)
+//                                    Model.getModel().storeMail(m);
+//                            }
 
                         } catch (IOException ex) {
                             Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);

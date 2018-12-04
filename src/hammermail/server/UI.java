@@ -141,7 +141,7 @@ public class UI extends Application {
 //        d.addMail(m);
 //        m = new Mail(3, "marco", "tano", "titolo4", "text4", t4);
 //        d.addMail(m);
-//        
+        
         launch(args);    
     }
 
