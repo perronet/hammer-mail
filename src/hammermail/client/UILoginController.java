@@ -129,8 +129,6 @@ public class UILoginController implements Initializable {
         List<Mail> received = response.getReceivedMails();
         List<Mail> sent = response.getSentMails();
 
-        //this way drafts will be overridden REMINDER!! //Marco P: Are you sure?
-        //we all say that is not true!! 
         Model.getModel().dispatchMail(received, sent);
     }
     

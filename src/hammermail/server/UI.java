@@ -107,7 +107,7 @@ public class UI extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws ParseException {
-        Database d = new Database(true);
+        Database d = new Database(false);
         d.addUser("tano", "a");
         d.addUser("marco", "a");
         d.addUser("omar", "a");
