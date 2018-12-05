@@ -408,7 +408,7 @@ public class UIController implements Initializable {
                     handleError();
                 } else if (response instanceof ResponseMailSent){
                     mail.setId(((ResponseMailSent) response).getMailID());
-                    Model.getModel().addMail(mail);
+//                    Model.getModel().addMail(mail);
                     Model.getModel().removeDraft();
                 }
                 

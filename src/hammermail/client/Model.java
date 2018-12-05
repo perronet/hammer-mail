@@ -147,21 +147,21 @@ public class Model {
         }
     }
     
-    public void addMail(Mail m){ //This method is here for compatibility
-        String user = currentUser.getUsername();
-        
-        storeMail(m);
-        if(m.getDate() == null){
-            listDraft.add(0, m);
-        }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
-            listSent.add(0, m);
-            listInbox.add(0, m);
-        }else if(containsUser(m.getReceiver(),user)){
-            listInbox.add(0, m);
-        }else{
-            listSent.add(0, m);
-        }    
-    }
+//    public void addMail(Mail m){ //This method is here for compatibility
+//        String user = currentUser.getUsername();
+//        
+//        storeMail(m);
+//        if(m.getDate() == null){
+//            listDraft.add(0, m);
+//        }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
+//            listSent.add(0, m);
+//            listInbox.add(0, m);
+//        }else if(containsUser(m.getReceiver(),user)){
+//            listInbox.add(0, m);
+//        }else{
+//            listSent.add(0, m);
+//        }    
+//    }
        
     public void saveDraft(String receiver, String title, String text){
         Mail m = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null); 

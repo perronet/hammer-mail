@@ -72,7 +72,7 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseMails){
                     clientServerLog(new Timestamp(System.currentTimeMillis()));
 
-                    updateModelReqMail(response);
+                    updateModelReqMail((ResponseMails)response);
                     spawnHome();
                 } 
             }
@@ -112,7 +112,7 @@ public class UILoginController implements Initializable {
                     else if (response instanceof ResponseMails){
                         clientServerLog(new Timestamp(System.currentTimeMillis()));
                         
-                        updateModelReqMail(response);
+                        updateModelReqMail((ResponseMails)response);
                         spawnHome();
                     }
                     
@@ -125,7 +125,7 @@ public class UILoginController implements Initializable {
     }
      
     //CONVERT INTO DIFF
-    private void updateModelReqMail(ResponseBase response){
+    private void updateModelReqMail(ResponseMails response){
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         Model.getModel().createJson(username.getText());
         //to fill with mails on the database
@@ -134,8 +134,8 @@ public class UILoginController implements Initializable {
         //We will check if it is possible to substitute the log file with this function
         Timestamp ts = Model.getModel().calculateLastMailStored();
         System.out.println(ts);
-        List<Mail> received = ((ResponseMails) response).getReceivedMails();
-        List<Mail> sent = ((ResponseMails) response).getSentMails();
+        List<Mail> received = response.getReceivedMails();
+        List<Mail> sent = response.getSentMails();
 
         //this way drafts will be overridden REMINDER!! //Marco P: Are you sure?
         Model.getModel().dispatchMail(received, sent);
