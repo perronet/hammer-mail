@@ -137,11 +137,8 @@ public class UILoginController implements Initializable {
         List<Mail> received = ((ResponseMails) response).getReceivedMails();
         List<Mail> sent = ((ResponseMails) response).getSentMails();
 
-        //this way drafts will be overridden REMINDER!!
-        received.forEach(Model.getModel()::storeMail);
-        sent.forEach(Model.getModel()::storeMail);
-        
-        Model.getModel().dispatchMail();
+        //this way drafts will be overridden REMINDER!! //Marco P: Are you sure?
+        Model.getModel().dispatchMail(received, sent);
     }
     
     
@@ -190,8 +187,8 @@ public class UILoginController implements Initializable {
     }
     
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
-        Timestamp lastMail = viewLog();
-        RequestGetMails requestGetMail = new RequestGetMails(lastMail);
+        Timestamp lastUpdate = viewLog();
+        RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
         requestGetMail.SetAuthentication(username.getText(), password.getText());
         return sendRequest(requestGetMail);
     }
@@ -201,7 +198,7 @@ public class UILoginController implements Initializable {
     public void init(Stage stage){ 
         this.s = stage;
         Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
-    }                                                       //TODO move it to the updateModelReqMail
+    }
         
 
     

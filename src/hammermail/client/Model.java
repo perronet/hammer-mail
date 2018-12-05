@@ -125,8 +125,15 @@ public class Model {
     //ADD MAIL
     
     public void addMultiple(List<Mail> mailsToAdd){
+        /*
+        TODO some errors are generated in these list.add when you receive mails, if you fix it you need to also copy the code into:
+        addMail()
+        addMultipleNoStore()
+        */
         String user = currentUser.getUsername();
+        
         for(Mail m : mailsToAdd){
+            storeMail(m);
             if(m.getDate() == null){
                 listDraft.add(0, m);
             }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
@@ -140,33 +147,35 @@ public class Model {
         }
     }
     
-    public void addMail(Mail m){
+    public void addMail(Mail m){ //This method is here for compatibility
         String user = currentUser.getUsername();
-        if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
+        
+        storeMail(m);
+        if(m.getDate() == null){
+            listDraft.add(0, m);
+        }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
             listSent.add(0, m);
             listInbox.add(0, m);
         }else if(containsUser(m.getReceiver(),user)){
             listInbox.add(0, m);
         }else{
             listSent.add(0, m);
-        }
+        }    
     }
        
     public void saveDraft(String receiver, String title, String text){
-        Mail mail = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null); 
-        listDraft.add(0, mail);
-        storeMail(mail);
+        Mail m = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null); 
+        storeMail(m);
+        listDraft.add(0, m);
         draftCounter++;
     }    
     
     //REMOVE MAIL
     
     public void removeMultiple(List<Mail> mailsToDelete, int listId){ //Tab IDs and list IDs are the same
-        
         for(Mail m : mailsToDelete){
             removeFromStorage(m);
         }
-        setCurrentMail(new EmptyMail());
         switch(listId){
             case 0:
                 Model.getModel().getListInbox().removeAll(mailsToDelete);
@@ -175,39 +184,22 @@ public class Model {
             case 2:
                 Model.getModel().getListDraft().removeAll(mailsToDelete);    
         } 
+        setCurrentMail(new EmptyMail());
     }
 
     public void removeDraft(){
+        removeFromStorage(getCurrentMail());
         listDraft.remove(getCurrentMail());
         setCurrentMail(new EmptyMail());
     }
 
     //JSON MANIPULATION
     
-    //Forse si potrebbero mettere le funzioni di scrittura in un'altra classe
-    //TO BE CHECKED!!
-        //TODO: clean this dirty code, add check if mail is already in the list
-    public void dispatchMail(){
-        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-        String user = this.currentUser.getUsername();
-        JsonReader reader;
-        String filepath = this.currentUser.getUserFileFolder();
-        try {
-            reader = new JsonReader(new FileReader(filepath));
-            Type mailList = new TypeToken<List<Mail>>(){}.getType();
-            List<Mail> mails = gson.fromJson(reader, mailList);
-            if(!(mails == null)){
-                addMultiple(mails);
-            }
-            
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    //JSON PRIVATE METHODS
     
     //Store mails into .json
     //Store mails into .json (each time read the file, append the new mail and write the file)
-    public void storeMail(Mail mailToStore){
+    private void storeMail(Mail mailToStore){
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	String filepath = this.currentUser.getUserFileFolder();
         JsonReader reader;
@@ -241,7 +233,7 @@ public class Model {
 	
     }
     
-    public void removeFromStorage(Mail mailToDelete){
+    private void removeFromStorage(Mail mailToDelete){
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	String filepath = this.currentUser.getUserFileFolder();
         ArrayList<Mail> test = new ArrayList<>();
@@ -270,7 +262,54 @@ public class Model {
         } catch (IOException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-}
+    }
+
+    private void addMultipleNoStore(List<Mail> mailsToAdd){ //This is only used in the model, using it outside would be very dangerous
+        String user = currentUser.getUsername();
+        
+        for(Mail m : mailsToAdd){
+            if(m.getDate() == null){
+                listDraft.add(0, m);
+            }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
+                listSent.add(0, m);
+                listInbox.add(0, m);
+            }else if(containsUser(m.getReceiver(),user)){
+                listInbox.add(0, m);
+            }else{
+                listSent.add(0, m);
+            }    
+        }
+    }
+    
+    //JSON PUBLIC METHODS
+
+    //Forse si potrebbero mettere le funzioni di scrittura in un'altra classe
+    //TO BE CHECKED!!
+        //TODO: clean this dirty code, add check if mail is already in the list
+    public void dispatchMail(List<Mail> newReceived, List<Mail> newSent){
+        
+        //STEP 1: Store and load into model new mails received from the server
+        addMultiple(newReceived);
+        addMultiple(newSent);
+
+        //STEP 2: Load already stored mails into the model
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+        String user = this.currentUser.getUsername();
+        JsonReader reader;
+        String filepath = this.currentUser.getUserFileFolder();
+        try {
+            reader = new JsonReader(new FileReader(filepath));
+            Type mailList = new TypeToken<List<Mail>>(){}.getType();
+            List<Mail> mails = gson.fromJson(reader, mailList);
+
+            if(!(mails == null)){ //Loads mails from json
+                addMultipleNoStore(mails);
+            }
+            
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     public void createJson(String username){
         File userFile = new File(this.currentUser.getUserFileFolder());
@@ -314,8 +353,5 @@ public class Model {
 	return lastMailStored;
 	
     }
-
-    
-    
 
 }

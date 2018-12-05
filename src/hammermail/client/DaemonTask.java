@@ -48,26 +48,25 @@ public class DaemonTask implements Runnable{
         @Override
         public void run() {
             try {
-                    while (true){
-                        System.out.println("Daemon polling: " + viewLog());
-                        RequestGetMails requestGetMail = new RequestGetMails(viewLog());
-                        requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
-                
-                        Thread.sleep(2000);
-                        System.out.println("Daemon polling");
-                        ResponseBase response;
-                        try {
-                            response = sendRequest(requestGetMail);
-                            clientServerLog(new Timestamp(System.currentTimeMillis()));
-                            List<Mail> received = ((ResponseMails) response).getReceivedMails();
+                while (true){
+                    System.out.println("Daemon polling: " + viewLog());
+                    RequestGetMails requestGetMail = new RequestGetMails(viewLog());
+                    requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
+
+                    Thread.sleep(2000);
+                    System.out.println("Daemon polling");
+                    ResponseBase response;
+                    try {
+                        response = sendRequest(requestGetMail);
+                        clientServerLog(new Timestamp(System.currentTimeMillis()));
+                        List<Mail> received = ((ResponseMails) response).getReceivedMails();
 //                            List<Mail> sent = ((ResponseMails) response).getSentMails();
-                           if (received.size() > 0){
-                                Model.getModel().addMultiple(received);
-                        
-                            for (Mail m : received)
-                                    Model.getModel().storeMail(m);
-                            }
-                        
+                        if (received.size() > 0){
+                            Model.getModel().addMultiple(received);
+                            
+                            //Popup notification here 
+                        }
+
 //                            if (sent.size() > 0){
 //                                Model.getModel().addMultiple(sent);
 //                                
@@ -75,19 +74,19 @@ public class DaemonTask implements Runnable{
 //                                    Model.getModel().storeMail(m);
 //                            }
 
-                        } catch (IOException ex) {
-                            Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                     
+                    } catch (IOException ex) {
+                        Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
                     }
+
+
+                }
                     
             } catch (InterruptedException ex) {
                     //TODO
             } catch (ClassNotFoundException ex) {
                  Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
+    }
 }
 
     

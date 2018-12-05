@@ -299,6 +299,7 @@ public class UIController implements Initializable {
                 handleError();
             }else{
                 sendDraft();
+                Model.getModel().removeDraft();
             }
         });       
         
@@ -408,7 +409,6 @@ public class UIController implements Initializable {
                 } else if (response instanceof ResponseMailSent){
                     mail.setId(((ResponseMailSent) response).getMailID());
                     Model.getModel().addMail(mail);
-                    Model.getModel().storeMail(mail);
                     Model.getModel().removeDraft();
                 }
                 

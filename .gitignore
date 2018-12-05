@@ -7,3 +7,4 @@ src/hammermail/server/hammer\.db
 
 #Ignored extensions
 *.json
+*.txt
