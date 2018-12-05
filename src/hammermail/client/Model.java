@@ -131,12 +131,13 @@ public class Model {
         addMultipleNoStore()
         */
         String user = currentUser.getUsername();
-        
         for(Mail m : mailsToAdd){
             storeMail(m);
             if(m.getDate() == null){
                 listDraft.add(0, m);
             }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
+                if (listInbox.contains(m) && listSent.contains(m))
+                    return;
                 listSent.add(0, m);
                 listInbox.add(0, m);
             }else if(containsUser(m.getReceiver(),user)){

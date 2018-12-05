@@ -77,7 +77,7 @@ public class UIEditorController implements Initializable {
                     System.out.println(err);
                     handleError();
                 } else if (response instanceof ResponseMailSent){
-                    mail.setId(((ResponseMailSent) response).getMailID());
+//                    mail.setId(((ResponseMailSent) response).getMailID());
 //                    Model.getModel().addMail(mail);
                 }
                 

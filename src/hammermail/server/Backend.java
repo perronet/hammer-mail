@@ -270,10 +270,14 @@ class Task implements Runnable {
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
         Timestamp time = request.getLastMailDate();
+//        System.out.println("--------BACKEND: risponde a " + request.getUsername() + "request con time " + time);
 
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
             ResponseMails response = new ResponseMails(db.getReceivedMails(request.getUsername(), time),
                     db.getSentMails(request.getUsername(), time));
+//        System.out.println("--------BACKEND: response rec " + response.getReceivedMails());   
+//        System.out.println("--------BACKEND: response sent " + response.getSentMails());   
+
             return response;
         } else {
             return new ResponseError(INCORRECT_AUTHENTICATION);

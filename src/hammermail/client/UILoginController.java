@@ -70,8 +70,6 @@ public class UILoginController implements Initializable {
                     loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails){
-                    clientServerLog(new Timestamp(System.currentTimeMillis()));
-
                     updateModelReqMail((ResponseMails)response);
                     spawnHome();
                 } 
@@ -98,7 +96,6 @@ public class UILoginController implements Initializable {
                 requestSignUp.SetAuthentication(user, password.getText());
                 ResponseBase response = sendRequest(requestSignUp);
 
-                
                 //Username taken
                 if (response instanceof ResponseError){
                     loginfailure.setFill(Color.rgb(255,0,0));
@@ -109,13 +106,10 @@ public class UILoginController implements Initializable {
                     if (response instanceof ResponseError)
                         spawnLogin();
 
-                    else if (response instanceof ResponseMails){
-                        clientServerLog(new Timestamp(System.currentTimeMillis()));
-                        
+                    else if (response instanceof ResponseMails){                        
                         updateModelReqMail((ResponseMails)response);
                         spawnHome();
                     }
-                    
                 }
             }
         } catch (ClassNotFoundException | IOException classEx){
@@ -128,22 +122,19 @@ public class UILoginController implements Initializable {
     private void updateModelReqMail(ResponseMails response){
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         Model.getModel().createJson(username.getText());
-        //to fill with mails on the database
         
-        //I don't know where to put this...
-        //We will check if it is possible to substitute the log file with this function
-        Timestamp ts = Model.getModel().calculateLastMailStored();
-        System.out.println(ts);
+//      We will check if it is possible to substitute the log file with this function
+//      Timestamp ts = Model.getModel().calculateLastMailStored();
+//      System.out.println(ts);
         List<Mail> received = response.getReceivedMails();
         List<Mail> sent = response.getSentMails();
 
         //this way drafts will be overridden REMINDER!! //Marco P: Are you sure?
+        //we all say that is not true!! 
         Model.getModel().dispatchMail(received, sent);
     }
     
     
-    
-    //maybe event argument will be eliminated..
     /**
     * Method to spawn a new Login view.
     * @author Gaetano
@@ -190,6 +181,7 @@ public class UILoginController implements Initializable {
         Timestamp lastUpdate = viewLog();
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
         requestGetMail.SetAuthentication(username.getText(), password.getText());
+        clientServerLog(new Timestamp(System.currentTimeMillis()));
         return sendRequest(requestGetMail);
     }
     

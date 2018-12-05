@@ -61,19 +61,15 @@ public class DaemonTask implements Runnable{
                         response = sendRequest(requestGetMail);
                         clientServerLog(new Timestamp(System.currentTimeMillis()));
                         List<Mail> received = ((ResponseMails) response).getReceivedMails();
-                            List<Mail> sent = ((ResponseMails) response).getSentMails();
+                        List<Mail> sent = ((ResponseMails) response).getSentMails();
                         if (received.size() > 0){
                             Platform.runLater(()->Model.getModel().addMultiple(received));
-                            
                             //Popup notification here 
                         }
 
-                            if (sent.size() > 0){
-                                Platform.runLater(()->Model.getModel().addMultiple(sent));
-                                
-//                                for (Mail m : received)
-//                                    Model.getModel().storeMail(m);
-                            }
+                        if (sent.size() > 0){
+                            Platform.runLater(()->Model.getModel().addMultiple(sent));
+                        }
 
                     } catch (IOException ex) {
                         Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
