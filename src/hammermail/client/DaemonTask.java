@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 
 /**
  *
@@ -60,19 +61,19 @@ public class DaemonTask implements Runnable{
                         response = sendRequest(requestGetMail);
                         clientServerLog(new Timestamp(System.currentTimeMillis()));
                         List<Mail> received = ((ResponseMails) response).getReceivedMails();
-//                            List<Mail> sent = ((ResponseMails) response).getSentMails();
+                            List<Mail> sent = ((ResponseMails) response).getSentMails();
                         if (received.size() > 0){
-                            Model.getModel().addMultiple(received);
+                            Platform.runLater(()->Model.getModel().addMultiple(received));
                             
                             //Popup notification here 
                         }
 
-//                            if (sent.size() > 0){
-//                                Model.getModel().addMultiple(sent);
-//                                
+                            if (sent.size() > 0){
+                                Platform.runLater(()->Model.getModel().addMultiple(sent));
+                                
 //                                for (Mail m : received)
 //                                    Model.getModel().storeMail(m);
-//                            }
+                            }
 
                     } catch (IOException ex) {
                         Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
