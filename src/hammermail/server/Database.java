@@ -336,11 +336,11 @@ public class Database {
             conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
                     + "WHERE time > ?"
-                    + "AND receiver = ? "
+                    + "AND (receiver = ? "
                     + "OR receiver LIKE ? "
                     + "OR receiver LIKE ? "
-                    + "OR receiver LIKE ? "
-                    + "AND deleted NOT LIKE ? "
+                    + "OR receiver LIKE ? )"
+                    + "AND (deleted NOT LIKE ? )"
                     + "ORDER BY time ASC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setTimestamp(1, time);
@@ -394,7 +394,7 @@ public class Database {
             conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
                         + "WHERE sender = ? "
-                        + "AND deleted NOT LIKE ? "
+                        + "AND (deleted NOT LIKE ? )"
                         + "AND time > ? "
                         + "ORDER BY time ASC";
             pstmt = conn.prepareStatement(sql);

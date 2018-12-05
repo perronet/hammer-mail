@@ -107,9 +107,11 @@ public class UI extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws ParseException {
-//        Database d = new Database(true);
-//        d.addUser("tano", "a");
-//        d.addUser("marco", "a");
+        Database d = new Database(true);
+        d.addUser("tano", "a");
+        d.addUser("marco", "a");
+        d.addUser("omar", "a");
+        d.addUser("andrea", "a");
 //        
 //        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 //        Date parsedDate = dateFormat.parse("1970-01-01 01:00:00.000");

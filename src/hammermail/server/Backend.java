@@ -270,6 +270,7 @@ class Task implements Runnable {
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
         Timestamp time = request.getLastMailDate();
+
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
             ResponseMails response = new ResponseMails(db.getReceivedMails(request.getUsername(), time),
                     db.getSentMails(request.getUsername(), time));
