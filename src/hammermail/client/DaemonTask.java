@@ -53,9 +53,6 @@ public class DaemonTask implements Runnable{
                 RequestGetMails requestGetMail = new RequestGetMails(time);
                 Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
                 requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
-
-
-                Thread.sleep(10000);
                 ResponseBase response;
                 try {
                     response = sendRequest(requestGetMail);
@@ -78,6 +75,7 @@ public class DaemonTask implements Runnable{
                     Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
+                Thread.sleep(10000);
 
             }
 
