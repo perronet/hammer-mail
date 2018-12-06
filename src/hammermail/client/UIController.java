@@ -133,12 +133,11 @@ public class UIController implements Initializable {
             catch (ClassNotFoundException | IOException ex) {
                    //TODO
             } finally {
-                if (response != null){
-                    System.out.println("response non null");
-                    //TEMP
-                    Database db = new Database(false);
-                    db.dbStatus();
-                }
+//                if (response != null){
+//                    System.out.println("response non null");
+//                    Database db = new Database(false);
+//                    db.dbStatus();
+//                }
             }
         }
         return mailsToDelete;
@@ -445,8 +444,8 @@ public class UIController implements Initializable {
                 // set the response to error internal_error
             } finally {
                 //Only for testing
-                Database d = new Database(false);
-                d.dbStatus();
+//                Database d = new Database(false);
+//                d.dbStatus();
             }
         }
     }
