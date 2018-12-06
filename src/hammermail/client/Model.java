@@ -51,6 +51,8 @@ public class Model {
     
     private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();
     
+    private final ObservableList<Mail> mailsToNotify = FXCollections.observableArrayList();
+    
     private final SimpleObjectProperty<Mail> currentMail;
     
     private User currentUser;
@@ -129,6 +131,10 @@ public class Model {
     public ObservableList<Mail> getListDraft(){ 
         return listDraft;
     }
+
+    public ObservableList<Mail> getMailsToNofity(){ 
+        return mailsToNotify;
+    }
     
     //ADD MAIL
     
@@ -156,6 +162,9 @@ public class Model {
         }
     }
     
+    public void addNotify(List<Mail> mails){
+        mailsToNotify.addAll(mails);
+    }
 //    public void addMail(Mail m){ //This method is here for compatibility
 //        String user = currentUser.getUsername();
 //        
@@ -200,6 +209,10 @@ public class Model {
         removeFromStorage(getCurrentMail());
         listDraft.remove(getCurrentMail());
         setCurrentMail(new EmptyMail());
+    }
+    
+    public void removeNotify(List<? extends Mail> m){
+        mailsToNotify.removeAll(m);
     }
 
     //JSON MANIPULATION

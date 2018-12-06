@@ -38,86 +38,52 @@ import javafx.application.Platform;
  */
 public class DaemonTask implements Runnable{
         
-        private Socket clientSocket;
-        private User user = Model.getModel().getCurrentUser();
+    private Socket clientSocket;
+    private final User user = Model.getModel().getCurrentUser();
 
-        public DaemonTask(){
-            if (clientSocket == null)
-                clientSocket = new Socket();
-        }
+    public DaemonTask(){
+    if (clientSocket == null)
+        clientSocket = new Socket();
+    }
 
-        @Override
-        public void run() {
-            try {
-                while (true){
-                    System.out.println("Daemon polling: " + viewLog());
-                    RequestGetMails requestGetMail = new RequestGetMails(viewLog());
-                    requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
+    @Override
+    public void run() {
+        try {
+            while (true){
+                System.out.println("Daemon polling: " + viewLog());
+                RequestGetMails requestGetMail = new RequestGetMails(viewLog());
+                requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
 
-                    Thread.sleep(2000);
-                    System.out.println("Daemon polling");
-                    ResponseBase response;
-                    try {
-                        response = sendRequest(requestGetMail);
-                        clientServerLog(new Timestamp(System.currentTimeMillis()));
-                        List<Mail> received = ((ResponseMails) response).getReceivedMails();
-                        List<Mail> sent = ((ResponseMails) response).getSentMails();
-                        if (received.size() > 0){
-                            Platform.runLater(()->Model.getModel().addMultiple(received));
-                            //Popup notification here 
-                        }
-
-                        if (sent.size() > 0){
-                            Platform.runLater(()->Model.getModel().addMultiple(sent));
-                        }
-
-                    } catch (IOException ex) {
-                        Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
+                Thread.sleep(2000);
+                System.out.println("Daemon polling");
+                ResponseBase response;
+                try {
+                    response = sendRequest(requestGetMail);
+                    clientServerLog(new Timestamp(System.currentTimeMillis()));
+                    List<Mail> received = ((ResponseMails) response).getReceivedMails();
+                    List<Mail> sent = ((ResponseMails) response).getSentMails();
+                    
+                    if (received.size() > 0){
+                        Platform.runLater(()->Model.getModel().addMultiple(received));
+                        Platform.runLater(()->Model.getModel().addNotify(received));
+                        System.out.println("You have " + received.size() + " new mails!");
                     }
 
+                    if (sent.size() > 0){
+                        Platform.runLater(()->Model.getModel().addMultiple(sent));
+                    }
 
+                } catch (IOException ex) {
+                    Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                    
-            } catch (InterruptedException ex) {
-                    //TODO
-            } catch (ClassNotFoundException ex) {
-                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+
+
             }
+
+        } catch (InterruptedException ex) {
+                //TODO
+        } catch (ClassNotFoundException ex) {
+             Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-}
-
-    
-//    private Socket clientSocket;
-//    private final User user = Model.getModel().getCurrentUser();
-//    private final Stage s; //used for notifications
-//
-//    public DaemonTask(Stage s){
-//        this.s = s;
-//        if (clientSocket == null)
-//            clientSocket = new Socket();
-//    }
-
-//    //POPUP NOTIFICATION 
-//
-//    private void inboxNotify(Mail mail) {
-//        final Popup popup = createPopup("You got mail from " + mail.getSender() + " " + mail.getTitle());
-//        popup.setOnShown((e) -> { //WindowEvent implementation
-//            popup.setX(s.getX() + s.getWidth()/2 - popup.getWidth()/2);
-//            popup.setY(s.getY() + s.getHeight()/2 - popup.getHeight()/2);
-//            
-//            //HAMMER TIME (with multiple mails this will SMASH your ears, i swear i'll move it up to line 70)
-//            
-//        });        
-//        popup.show(s);
-//    }
-//    
-//    private Popup createPopup(String message) {
-//        final Popup popup = new Popup();
-//        popup.setAutoFix(true);
-//        popup.setAutoHide(true);
-//        popup.setHideOnEscape(true);
-//        Label label = new Label(message);
-//        label.setOnMouseReleased((e) -> { popup.hide(); }); //MouseEvent implementation
-//        popup.getContent().add(label);
-//        return popup;
-//    }    
+}  

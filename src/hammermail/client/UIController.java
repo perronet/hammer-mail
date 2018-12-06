@@ -42,17 +42,35 @@ import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseMailSent;
 import hammermail.server.Database;
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import javafx.collections.ListChangeListener;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.TextAlignment;
+import javafx.stage.PopupWindow;
 
 public class UIController implements Initializable {
 
@@ -173,6 +191,15 @@ public class UIController implements Initializable {
                 bottombox.getChildren().clear(); //just to be safe
             }
         });
+        
+        //SETUP NOTIFICATION LISTENER
+        
+        Model.getModel().getMailsToNofity().addListener((ListChangeListener.Change<? extends Mail> change) -> {
+            change.next();
+            if(change.wasAdded()){
+                inboxNotify(change.getAddedSubList()); //Notifies then removes notification from list
+            }
+        });
    
         //SENT LIST
         
@@ -243,7 +270,6 @@ public class UIController implements Initializable {
         
         Thread daemon = new Thread(new DaemonTask());
         daemon.setDaemon(true);
-//        Thread daemon = new Thread(new DaemonTask(s));
         daemon.start();
   
     }
@@ -423,6 +449,66 @@ public class UIController implements Initializable {
                 d.dbStatus();
             }
         }
+    }
+
+    //POPUP NOTIFICATION 
+    
+    String path = "sound/andre_hammer.mp3";
+    Media sound = new Media(new File(path).toURI().toString());
+
+    public void inboxNotify(List<? extends Mail> newMails) {
+        PopupControl popup = new PopupControl();
+        MediaPlayer hammer = new MediaPlayer(sound);
+        CornerRadii corner = new CornerRadii(8, 0, 0, 0, false);
+        Insets insets = new Insets(15);
+        Integer adjustment = 7;
+        AnchorPane pane = new AnchorPane();
+        
+        Label label = new Label();
+        label.setTextFill(Color.WHITESMOKE);
+        label.setPadding(insets);
+        label.setTextAlignment(TextAlignment.CENTER);
+        
+        if(newMails.size() == 1){
+            label.setText("New mail from " + newMails.get(0).getSender() + "!\nSubject: " + newMails.get(0).getTitle());
+        }else{
+            String text = "You got " + newMails.size() + " new mails!";
+            for(Mail m : newMails){
+                text = text.concat("\n" + m.getSender() + " - Subject: " + m.getTitle());
+            }
+            label.setText(text);
+        }
+        
+        //I should've used CSS, i know...
+        pane.getChildren().add(label);
+        pane.setBackground(
+            new Background(new BackgroundFill(Color.DARKSLATEGREY, corner, Insets.EMPTY))
+        );
+        pane.setBorder( 
+            new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, corner, new BorderWidths(1.5)))
+        );
+
+        pane.setOnMouseReleased((e) -> { //MouseEvent implementation
+            popup.hide(); 
+        }); 
+        popup.getScene().setRoot(pane);
+        popup.setAutoFix(true);
+        popup.setAutoHide(true);
+        popup.setHideOnEscape(true);
+        
+        popup.setOnHidden((e) -> {
+            Model.getModel().removeNotify(newMails);
+        });
+        
+        //HAMMER TIME
+        
+        hammer.setVolume(.5);
+        popup.setOnShown((e) -> {
+            popup.setX(s.getX() + s.getWidth() - popup.getWidth() - adjustment);
+            popup.setY(s.getY() + s.getHeight() - popup.getHeight() - adjustment);
+            hammer.play();
+        }); 
+        popup.show(s);
     }
  
 }
