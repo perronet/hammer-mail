@@ -51,8 +51,8 @@ public class DaemonTask implements Runnable{
                 Timestamp time = Model.getModel().getLastRequestTime();
                 System.out.println("Daemon polling: " + time);
                 RequestGetMails requestGetMail = new RequestGetMails(time);
-                requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
                 Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
+                requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
 
 
                 Thread.sleep(10000);
