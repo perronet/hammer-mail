@@ -66,6 +66,7 @@ public class UILoginController implements Initializable {
             else {
                 ResponseBase response = composeAndSendGetMail();
                 if (response instanceof ResponseError){
+                    Model.getModel().deleteJson();
                     loginfailure.setFill(Color.rgb(255,0,0));
                     loginfailure.setText("Incorrect Authentication");
 
@@ -103,10 +104,11 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess){
                     response = composeAndSendGetMail();
-                    if (response instanceof ResponseError)
+                    if (response instanceof ResponseError){
+                        Model.getModel().deleteJson();
                         spawnLogin();
-
-                    else if (response instanceof ResponseMails){                        
+                    
+                    }else if (response instanceof ResponseMails){                        
                         updateModelReqMail((ResponseMails)response);
                         spawnHome();
                     }
@@ -120,12 +122,7 @@ public class UILoginController implements Initializable {
      
     //CONVERT INTO DIFF
     private void updateModelReqMail(ResponseMails response){
-        Model.getModel().setCurrentUser(username.getText(), password.getText());
         Model.getModel().createJson(username.getText());
-        
-//      We will check if it is possible to substitute the log file with this function
-//      Timestamp ts = Model.getModel().calculateLastMailStored();
-//      System.out.println(ts);
         List<Mail> received = response.getReceivedMails();
         List<Mail> sent = response.getSentMails();
 
@@ -176,10 +173,15 @@ public class UILoginController implements Initializable {
     }
     
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
-        Timestamp lastUpdate = viewLog();
+        //Timestamp lastUpdate = viewLog();
+        Model.getModel().setCurrentUser(username.getText(), password.getText());
+        Timestamp lastUpdate = Model.getModel().calculateLastMailStored();
+        System.out.println(lastUpdate);
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
+        
         requestGetMail.SetAuthentication(username.getText(), password.getText());
-        clientServerLog(new Timestamp(System.currentTimeMillis()));
+        //clientServerLog(new Timestamp(System.currentTimeMillis()));
+        Model.getModel().setLastMailStored(new Timestamp(System.currentTimeMillis()));
         return sendRequest(requestGetMail);
     }
     

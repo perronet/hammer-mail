@@ -93,12 +93,14 @@ public class Model {
     public void setLastMailStored(Timestamp lastMailStored) {
         try {
             this.lastMailStored = lastMailStored;
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
             JsonReader reader = new JsonReader(new FileReader(filepath));
             JsonPair toSet = gson.fromJson(reader, JsonPair.class);
-            toSet.setLastReq(lastMailStored);
-            writeJson(filepath, toSet);
+            if(toSet != null){
+                toSet.setLastReq(lastMailStored);
+                writeJson(filepath, toSet);
+            }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -155,6 +157,7 @@ public class Model {
                 listSent.add(0, m);
                 listInbox.add(0, m);
             }else if(containsUser(m.getReceiver(),user)){
+                System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 listInbox.add(0, m);
             }else{
                 listSent.add(0, m);
@@ -240,15 +243,6 @@ public class Model {
                     }
                     if (!isPresent)
                         toStore.add(mailToStore);
-                    if (mailToStore.getDate() == null) {
-                        lastMailStored = new Timestamp(0);
-                    } else {
-                        lastMailStored = mailToStore.getDate();
-                    }
-                    
-                    if (mailToStore.getDate() != null) {
-                        pairTest.setLastReq(mailToStore.getDate());
-                    }
                     pairTest.setMails(toStore);
                 }
             }else{
@@ -322,11 +316,6 @@ public class Model {
         //TODO: clean this dirty code, add check if mail is already in the list
     public void dispatchMail(List<Mail> newReceived, List<Mail> newSent){
 
-        //STEP 1: Store and load into model new mails received from the server
-        if(!(newReceived == null))
-            addMultiple(newReceived);
-        if(!(newSent == null))
-            addMultiple(newSent);
         
         //STEP 2: Load already stored mails into the model
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
@@ -345,12 +334,17 @@ public class Model {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //STEP 1: Store and load into model new mails received from the server
+        if(!(newReceived == null))
+            addMultiple(newReceived);
+        if(!(newSent == null))
+            addMultiple(newSent);
     }
     
     public void createJson(String username){
         File userFile = new File(this.currentUser.getUserFileFolder());
         if(!(userFile.exists())){
-            Gson file = new Gson();
+            Gson file = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
             File dir = new File(this.currentUser.getUsername() + "mails");
             dir.mkdir();
@@ -365,6 +359,10 @@ public class Model {
     }
     
     public Timestamp calculateLastMailStored(){
+        File userFile = new File(this.currentUser.getUserFileFolder());
+        if(!userFile.exists()){
+            createJson(this.currentUser.getUsername());
+        }
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	JsonPair pairTest = null;
         List<Mail> test = null;
@@ -384,6 +382,18 @@ public class Model {
             lastMailStored = new Timestamp(0);
 	return lastMailStored;
 	
+    }
+    
+    public void deleteJson(){
+        File dir = new File(this.currentUser.getUserFileFolder());
+	File[] listJson = dir.listFiles();
+        if(listJson != null){
+            for(File file : listJson){
+                file.delete();
+            }
+        }
+        dir.delete();
+	System.out.println("Deleted");
     }
 
 }

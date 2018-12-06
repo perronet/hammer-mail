@@ -50,8 +50,8 @@ public class DaemonTask implements Runnable{
     public void run() {
         try {
             while (true){
-                System.out.println("Daemon polling: " + viewLog());
-                RequestGetMails requestGetMail = new RequestGetMails(viewLog());
+                System.out.println("Daemon polling: " + Model.getModel().getLastMailStored());
+                RequestGetMails requestGetMail = new RequestGetMails(Model.getModel().getLastMailStored());
                 requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
 
                 Thread.sleep(2000);
@@ -59,11 +59,13 @@ public class DaemonTask implements Runnable{
                 ResponseBase response;
                 try {
                     response = sendRequest(requestGetMail);
-                    clientServerLog(new Timestamp(System.currentTimeMillis()));
+                    Model.getModel().setLastMailStored(new Timestamp(System.currentTimeMillis()));
+                    //clientServerLog(new Timestamp(System.currentTimeMillis()));
                     List<Mail> received = ((ResponseMails) response).getReceivedMails();
                     List<Mail> sent = ((ResponseMails) response).getSentMails();
                     
                     if (received.size() > 0){
+                        //at login, after having received a mail while offline, enters here twice. to fix
                         Platform.runLater(()->Model.getModel().addMultiple(received));
                         Platform.runLater(()->Model.getModel().addNotify(received));
                         System.out.println("You have " + received.size() + " new mails!");
