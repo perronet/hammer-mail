@@ -18,9 +18,7 @@ package hammermail.client;
 
 import hammermail.core.Mail;
 import hammermail.core.User;
-import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
-import static hammermail.core.Utils.viewLog;
 import hammermail.net.requests.RequestGetMails;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseMails;
@@ -50,16 +48,17 @@ public class DaemonTask implements Runnable{
     public void run() {
         try {
             while (true){
-                System.out.println("Daemon polling: " + Model.getModel().getLastMailStored());
-                RequestGetMails requestGetMail = new RequestGetMails(Model.getModel().getLastMailStored());
+                Timestamp time = Model.getModel().getLastRequestTime();
+                System.out.println("Daemon polling: " + time);
+                RequestGetMails requestGetMail = new RequestGetMails(time);
                 requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
+                Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
 
-                Thread.sleep(2000);
-                System.out.println("Daemon polling");
+
+                Thread.sleep(10000);
                 ResponseBase response;
                 try {
                     response = sendRequest(requestGetMail);
-                    Model.getModel().setLastMailStored(new Timestamp(System.currentTimeMillis()));
                     //clientServerLog(new Timestamp(System.currentTimeMillis()));
                     List<Mail> received = ((ResponseMails) response).getReceivedMails();
                     List<Mail> sent = ((ResponseMails) response).getSentMails();

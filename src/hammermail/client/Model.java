@@ -57,7 +57,7 @@ public class Model {
     
     private User currentUser;
     
-    private Timestamp lastMailStored;
+    private Timestamp lastRequestTime;
 
     private int draftCounter = 0; 
     
@@ -86,19 +86,19 @@ public class Model {
     
     //LAST MAIL
     
-    public Timestamp getLastMailStored() {
-        return lastMailStored;
+    public Timestamp getLastRequestTime() {
+        return lastRequestTime;
     }    
 
-    public void setLastMailStored(Timestamp lastMailStored) {
+    public void setLastRequestTime(Timestamp newTime) {
         try {
-            this.lastMailStored = lastMailStored;
+            this.lastRequestTime = newTime;
             Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
             JsonReader reader = new JsonReader(new FileReader(filepath));
             JsonPair toSet = gson.fromJson(reader, JsonPair.class);
             if(toSet != null){
-                toSet.setLastReq(lastMailStored);
+                toSet.setLastReq(newTime);
                 writeJson(filepath, toSet);
             }
         } catch (FileNotFoundException ex) {
@@ -341,7 +341,7 @@ public class Model {
             addMultiple(newSent);
     }
     
-    public void createJson(String username){
+    private void createJson(String username){
         File userFile = new File(this.currentUser.getUserFileFolder());
         if(!(userFile.exists())){
             Gson file = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
@@ -351,14 +351,14 @@ public class Model {
             try{
                 JsonWriter writer = new JsonWriter(new FileWriter(filepath));
                 System.out.println(filepath);
-
+                
             }catch (IOException ex) {
                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
     
-    public Timestamp calculateLastMailStored(){
+    public Timestamp takeLastRequestTime(){
         File userFile = new File(this.currentUser.getUserFileFolder());
         if(!userFile.exists()){
             createJson(this.currentUser.getUsername());
@@ -371,16 +371,16 @@ public class Model {
             reader = new JsonReader(new FileReader(this.currentUser.getUserFileFolder()));
             pairTest = gson.fromJson(reader, JsonPair.class);
             if(!(pairTest == null)){
-                lastMailStored = pairTest.getLastReq();
+                lastRequestTime = pairTest.getLastReq();
             }else{
-                lastMailStored = new Timestamp(0);
+                lastRequestTime = new Timestamp(0);
             } 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if(lastMailStored == null)
-            lastMailStored = new Timestamp(0);
-	return lastMailStored;
+        if(lastRequestTime == null)
+            lastRequestTime = new Timestamp(0);
+	return lastRequestTime;
 	
     }
     

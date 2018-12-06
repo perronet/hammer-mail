@@ -88,35 +88,35 @@ public class Utils {
         return (ResponseBase)in.readObject();
     }
 
-    public static void clientServerLog(Timestamp ts) throws IOException{    
-        BufferedWriter out = new BufferedWriter(new FileWriter("log.txt"));
-        out.write(ts.toString());
-        out.flush();
-        out.close();
-    }
-
-    public static Timestamp viewLog() {
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader("log.txt"));
-            String time = in.readLine();            
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date parsedDate = dateFormat.parse(time);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
-//            Timestamp timestamp = Timestamp.valueOf(time);
-            return timestamp;
-
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParseException | IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        //If error occurs then return the epoch
-        //We have to consider a better solution, we don't want to duplicate mail
-        //so we can for example reset the json file, reset the log, and then 
-        //take all the mail, a sort of "restore"
-        return new Timestamp(0);
-    }
-
+//    public static void clientServerLog(Timestamp ts) throws IOException{    
+//        BufferedWriter out = new BufferedWriter(new FileWriter("log.txt"));
+//        out.write(ts.toString());
+//        out.flush();
+//        out.close();
+//    }
+//
+//    public static Timestamp viewLog() {
+//        BufferedReader in = null;
+//        try {
+//            in = new BufferedReader(new FileReader("log.txt"));
+//            String time = in.readLine();            
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+//            Date parsedDate = dateFormat.parse(time);
+//            Timestamp timestamp = new Timestamp(parsedDate.getTime());
+////            Timestamp timestamp = Timestamp.valueOf(time);
+//            return timestamp;
+//
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (ParseException | IOException ex) {
+//            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+//        } 
+//        //If error occurs then return the epoch
+//        //We have to consider a better solution, we don't want to duplicate mail
+//        //so we can for example reset the json file, reset the log, and then 
+//        //take all the mail, a sort of "restore"
+//        return new Timestamp(0);
+//    }
+//
     
 }

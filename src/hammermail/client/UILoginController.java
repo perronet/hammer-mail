@@ -16,16 +16,11 @@
  */
 package hammermail.client;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
 import hammermail.core.EmptyMail;
 import hammermail.core.Mail;
-import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
-import static hammermail.core.Utils.viewLog;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
@@ -57,16 +52,14 @@ public class UILoginController implements Initializable {
     private Text loginfailure;
 
     @FXML
-    private void handleLogin(ActionEvent event) {
-        //TODO: LOAD FILE IF EXISTS, CREATE IT AND FILL IT IF IT DOESN'T EXISTS
-        
+    private void handleLogin(ActionEvent event) {        
         try {
             if (username.getText().isEmpty() || password.getText().isEmpty())
                 spawnLogin();
             else {
                 ResponseBase response = composeAndSendGetMail();
                 if (response instanceof ResponseError){
-                    Model.getModel().deleteJson();
+                    rollback();
                     loginfailure.setFill(Color.rgb(255,0,0));
                     loginfailure.setText("Incorrect Authentication");
 
@@ -81,7 +74,6 @@ public class UILoginController implements Initializable {
         } 
     }  
     
-    
 
     @FXML
     private void handleSignup(ActionEvent event){
@@ -92,9 +84,9 @@ public class UILoginController implements Initializable {
         
             else {
                 //Compose request and send
-                String user = username.getText();
                 RequestSignUp requestSignUp = new RequestSignUp();
-                requestSignUp.SetAuthentication(user, password.getText());
+                requestSignUp.SetAuthentication(username.getText(), password.getText());
+                
                 ResponseBase response = sendRequest(requestSignUp);
 
                 //Username taken
@@ -105,7 +97,7 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseSuccess){
                     response = composeAndSendGetMail();
                     if (response instanceof ResponseError){
-                        Model.getModel().deleteJson();
+                        rollback();
                         spawnLogin();
                     
                     }else if (response instanceof ResponseMails){                        
@@ -119,22 +111,44 @@ public class UILoginController implements Initializable {
         }       
  
     }
-     
-    //CONVERT INTO DIFF
+         
+
+    
+    
+    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
+        //Timestamp lastUpdate = viewLog();
+        Model.getModel().setCurrentUser(username.getText(), password.getText());
+        Timestamp lastUpdate = Model.getModel().takeLastRequestTime();
+        Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
+       
+        System.out.println("Login: last update " + lastUpdate);
+        RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
+        
+        requestGetMail.SetAuthentication(username.getText(), password.getText());
+        //clientServerLog(new Timestamp(System.currentTimeMillis()));
+        return sendRequest(requestGetMail);
+    }
+    
     private void updateModelReqMail(ResponseMails response){
-        Model.getModel().createJson(username.getText());
+        //Meglio confermare il login DOPO la response
+        Model.getModel().setCurrentUser(username.getText(), password.getText());
+        
         List<Mail> received = response.getReceivedMails();
         List<Mail> sent = response.getSentMails();
 
         Model.getModel().dispatchMail(received, sent);
     }
     
+    public void init(Stage stage){ 
+        this.s = stage;
+        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
+    }
+     
+    private void rollback(){
+        Model.getModel().deleteJson();
+        Model.getModel().setCurrentUser(null, null);
+    }
     
-    /**
-    * Method to spawn a new Login view.
-    * @author Gaetano
-    * @param event:
-    */
     private void spawnLogin(){
          //spawn a new login view
         try {
@@ -171,42 +185,10 @@ public class UILoginController implements Initializable {
             spawnLogin();
         }
     }
-    
-    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
-        //Timestamp lastUpdate = viewLog();
-        Model.getModel().setCurrentUser(username.getText(), password.getText());
-        Timestamp lastUpdate = Model.getModel().calculateLastMailStored();
-        System.out.println(lastUpdate);
-        RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
-        
-        requestGetMail.SetAuthentication(username.getText(), password.getText());
-        //clientServerLog(new Timestamp(System.currentTimeMillis()));
-        Model.getModel().setLastMailStored(new Timestamp(System.currentTimeMillis()));
-        return sendRequest(requestGetMail);
-    }
-    
-    
-    
-    public void init(Stage stage){ 
-        this.s = stage;
-        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
-    }
-        
 
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        File userFile = new File("log.txt");
-        if(!(userFile.exists())){
-            try {
-                clientServerLog(new Timestamp(0));                
-                System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog());
 
-            } catch (IOException ex) {
-                //Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog() );        
-        }
     }      
 }
