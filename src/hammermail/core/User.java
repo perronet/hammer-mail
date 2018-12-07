@@ -18,7 +18,7 @@ package hammermail.core;
 
 import java.io.Serializable;
 
-public class User implements Serializable { //Users will be static, no need to use properties (may change this later on)
+public class User implements Serializable {
     
     private String username;
     private String password; 

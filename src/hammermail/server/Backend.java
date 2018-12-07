@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018 Richard Matthew Stallman
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import javafx.beans.property.SimpleStringProperty;
 /**
  * This class implements the backend of the HammerMail server.
  *
- * @author 00mar
+ * @author Richard Matthew Stallman
  */
 public class Backend {
 

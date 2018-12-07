@@ -54,17 +54,12 @@ public class Mail implements Serializable {
         return hash;
     }
     
-    
-    
+    @Override
     public boolean equals(Object m){
         if (m == null) return false;
         if (!(m instanceof Mail)) return false;
         Mail test = (Mail) m;
-        if(this.hashCode() == m.hashCode()){
-            return true;
-        }else{
-            return false;
-        }
+        return this.hashCode() == m.hashCode();
     }
     
     public boolean isDraft(){
@@ -72,6 +67,7 @@ public class Mail implements Serializable {
     }
     
     //Getter and setters
+    
     public Integer getId() {
         return id;
     }

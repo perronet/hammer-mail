@@ -17,7 +17,6 @@
 package hammermail.client;
 
 import hammermail.core.EmptyMail;
-import hammermail.core.Globals;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.io.IOException;
@@ -41,7 +40,6 @@ import hammermail.net.requests.RequestSendMail;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseMailSent;
-import hammermail.server.Database;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -68,9 +66,7 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.PopupWindow;
 
 public class UIController implements Initializable {
 
@@ -123,7 +119,6 @@ public class UIController implements Initializable {
     
     private List<Mail> composeDeletingRequest(){
         List<Mail> mailsToDelete = new ArrayList<>();
-        //TODO Here add to mailsToDelete a Multiple Selection of mails from sentTab (not urgent)
         mailsToDelete.add(currentMail());
         if(!(currentMail().getDate() == null)){ //We don't need to send drafts to the database
             RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
@@ -164,7 +159,7 @@ public class UIController implements Initializable {
         
         (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
             if(!(currentMail() instanceof EmptyMail)){
-                if(containsUser(newValue.getReceiver(), currentUser)){ //This mail was received //Fix in case of multiple users
+                if(containsUser(newValue.getReceiver(), currentUser)){ //This mail was received
                     mailfromto.setText(newValue.getSender());
                     mailtofrom.setText(newValue.getReceiver());
                     fromto.setText("From");
@@ -207,10 +202,10 @@ public class UIController implements Initializable {
         listsent.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
 
         listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
+            System.out.println("New mail selected from sent list");
             int newindex = (int)newValue;
             if(!listsent.getSelectionModel().isEmpty()){
-                System.out.println("New mail selected from list");
-                    sentTabShow(); 
+                sentTabShow(); 
                 Model.getModel().setCurrentMail(Model.getModel().getSentMailByIndex(newindex));
             }
         });     
@@ -224,10 +219,9 @@ public class UIController implements Initializable {
         listdraft.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 
         listdraft.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> {
-            System.out.println("New draft selected from list");
+            System.out.println("New draft selected");
             int newindex = (int)newValue;
             if(!listdraft.getSelectionModel().isEmpty()){
-                //bottombox.getChildren().clear();
                 draftTabShow(); 
                 Model.getModel().setCurrentMail(Model.getModel().getDraftByIndex(newindex));
             }
@@ -242,10 +236,9 @@ public class UIController implements Initializable {
         listinbox.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 
         listinbox.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { 
-            System.out.println("New received mail selected from list");
+            System.out.println("New mail selected from inbox");
             int newindex = (int)newValue;
             if(!listinbox.getSelectionModel().isEmpty()){
-                //bottombox.getChildren().clear();
                 inboxTabShow(); 
                 Model.getModel().setCurrentMail(Model.getModel().getReceivedMailByIndex(newindex));
             }
@@ -258,11 +251,9 @@ public class UIController implements Initializable {
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE); //can't close tabs
         
         tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
-            
             bottombox.getChildren().clear();
             clearAllSelections();
             System.out.println("Tab number " + newValue + " selected, list selections cleared");
-                      
         });
         
         //START DAEMON PROCESS
@@ -522,7 +513,7 @@ class MailCell extends ListCell<Mail>{ //Custom cells for the list, we can show 
             setText(null);
         } else {
             if(containsUser(item.getReceiver(),Model.getModel().getCurrentUser().getUsername())){ //Mail was received
-                setText(item.getSender() + " - " + item.getTitle()); //URGENT FIX Daemon gives an error here
+                setText(item.getSender() + " - " + item.getTitle());
             }else{
                 if(item.getTitle().isEmpty() || item.getReceiver().isEmpty()){ //Handle drafts with empty fields (can't use isDraft() here)
                     setText("(No subject)");

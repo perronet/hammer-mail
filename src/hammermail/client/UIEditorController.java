@@ -25,21 +25,16 @@ import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
-import hammermail.server.Database;
 import java.sql.Timestamp;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -48,10 +43,8 @@ import javafx.stage.WindowEvent;
  *
  * @author marco
  */
-public class UIEditorController implements Initializable {
+public class UIEditorController {
 
-//    private Model m;
-   
     private Stage s;
     
     @FXML
@@ -131,7 +124,7 @@ public class UIEditorController implements Initializable {
      */
     
     //"Constructor"
-    public void init(Stage stage){ //to add parameter "current user" to set sender
+    public void init(Stage stage){
         this.s = stage;
     }
     
@@ -145,21 +138,12 @@ public class UIEditorController implements Initializable {
             if(!(tit.equals(""))){ mailsubject.setEditable(false);}
             if(!(text.equals(""))){ bodyfield.setEditable(false);}
         }
-        
-        
     }
 
-    
      private Mail composeMail(String receiver){
             String sender = Model.getModel().getCurrentUser().getUsername();
             Timestamp ts = new Timestamp(System.currentTimeMillis());
             return new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
     }
-    
-    
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        
-    } 
     
 }

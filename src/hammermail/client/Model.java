@@ -18,7 +18,6 @@ package hammermail.client;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import hammermail.core.User;
@@ -31,7 +30,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +59,7 @@ public class Model {
 
     private int draftCounter = 0; 
     
-    private Model() { //TODO load mails and user from file
+    private Model() {
         currentMail = new SimpleObjectProperty<>(); 
         Timestamp ts = new Timestamp(System.currentTimeMillis()); 
     }
@@ -141,11 +139,6 @@ public class Model {
     //ADD MAIL
     
     public void addMultiple(List<Mail> mailsToAdd){
-        /*
-        TODO some errors are generated in these list.add when you receive mails, if you fix it you need to also copy the code into:
-        addMail()
-        addMultipleNoStore()
-        */
         String user = currentUser.getUsername();
         for(Mail m : mailsToAdd){
             storeMail(m);
@@ -157,7 +150,6 @@ public class Model {
                 listSent.add(0, m);
                 listInbox.add(0, m);
             }else if(containsUser(m.getReceiver(),user)){
-                System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 listInbox.add(0, m);
             }else{
                 listSent.add(0, m);
@@ -168,21 +160,6 @@ public class Model {
     public void addNotify(List<Mail> mails){
         mailsToNotify.addAll(mails);
     }
-//    public void addMail(Mail m){ //This method is here for compatibility
-//        String user = currentUser.getUsername();
-//        
-//        storeMail(m);
-//        if(m.getDate() == null){
-//            listDraft.add(0, m);
-//        }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
-//            listSent.add(0, m);
-//            listInbox.add(0, m);
-//        }else if(containsUser(m.getReceiver(),user)){
-//            listInbox.add(0, m);
-//        }else{
-//            listSent.add(0, m);
-//        }    
-//    }
        
     public void saveDraft(String receiver, String title, String text){
         Mail m = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null); 
@@ -222,7 +199,6 @@ public class Model {
     
     //JSON PRIVATE METHODS
     
-    //Store mails into .json
     //Store mails into .json (each time read the file, append the new mail and write the file)
     private void storeMail(Mail mailToStore) {
         try {
@@ -311,13 +287,10 @@ public class Model {
     
     //JSON PUBLIC METHODS
 
-    //Forse si potrebbero mettere le funzioni di scrittura in un'altra classe
-    //TO BE CHECKED!!
-        //TODO: clean this dirty code, add check if mail is already in the list
+    //TODO: clean this dirty code, add check if mail is already in the list
     public void dispatchMail(List<Mail> newReceived, List<Mail> newSent){
 
-        
-        //STEP 2: Load already stored mails into the model
+        //STEP 1: Load already stored mails into the model
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         JsonReader reader;
         String filepath = this.currentUser.getUserFileFolder();
@@ -334,7 +307,8 @@ public class Model {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //STEP 1: Store and load into model new mails received from the server
+        
+        //STEP 2: Store and load into model new mails received from the server
         if(!(newReceived == null))
             addMultiple(newReceived);
         if(!(newSent == null))
