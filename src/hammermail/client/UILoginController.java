@@ -19,7 +19,6 @@ package hammermail.client;
 import hammermail.core.EmptyMail;
 import hammermail.core.Mail;
 import hammermail.core.Utils;
-import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
@@ -38,6 +37,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class UILoginController implements Initializable {
@@ -54,30 +54,27 @@ public class UILoginController implements Initializable {
     private Label loginfailure;
 
     @FXML
-    private void handleLogin(ActionEvent event) {        
+    private void handleLogin(ActionEvent event) {
         try {
             if (Utils.isAuthenticationWellFormed(username.getText(), password.getText())) {
                 ResponseBase response = composeAndSendGetMail();
-                    showError("Incorrect authentication");
-                if (response instanceof ResponseError){
+                showError("Incorrect authentication");
+                if (response instanceof ResponseError) {
                     rollback();
-                    loginfailure.setFill(Color.rgb(255,0,0));
-                    loginfailure.setText("Incorrect Authentication");
-
+                    showError("Incorrect Authentication");
                 } else if (response instanceof ResponseMails) {
                     updateModelReqMail((ResponseMails) response);
                     spawnHome();
                 }
-            }
-            else
+            } else {
                 showError("Insert a valid username and password!");
+            }
         } catch (ClassNotFoundException | IOException ex) {
             System.out.println(ex.getMessage());
             showError("Unable to connect to server.");
             // set the response to error internal_error
-        } 
-    }  
-    
+        }
+    }
 
     @FXML
     private void handleSignup(ActionEvent event) {
@@ -86,7 +83,7 @@ public class UILoginController implements Initializable {
                 //Compose request and send
                 RequestSignUp requestSignUp = new RequestSignUp();
                 requestSignUp.SetAuthentication(username.getText(), password.getText());
-                
+
                 ResponseBase response = sendRequest(requestSignUp);
 
                 //Username taken
@@ -95,64 +92,65 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess) {
                     response = composeAndSendGetMail();
-                    if (response instanceof ResponseError){
+                    if (response instanceof ResponseError) {
                         rollback();
                         spawnLogin();
-                    
-                    }else if (response instanceof ResponseMails){                        
-                        updateModelReqMail((ResponseMails)response);
+
+                    } else if (response instanceof ResponseMails) {
+                        updateModelReqMail((ResponseMails) response);
                         spawnHome();
                     }
                 }
-            }
-            else
+            } else {
                 showError("Insert a valid username and password!");
+            }
         } catch (ClassNotFoundException | IOException classEx) {
             showError("Unable to connect to server.");
             // set the response to error internal_error
         }
-
     }
-         
-
-    
-    
-    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
+ 
+    @FXML 
+    private void handleClose(ActionEvent event) { 
+        Platform.exit(); 
+    } 
+ 
+    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException {
         //Timestamp lastUpdate = viewLog();
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         Timestamp lastUpdate = Model.getModel().takeLastRequestTime();
         Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
-       
+
         System.out.println("Login: last update " + lastUpdate);
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
-        
+
         requestGetMail.SetAuthentication(username.getText(), password.getText());
         //clientServerLog(new Timestamp(System.currentTimeMillis()));
         return sendRequest(requestGetMail);
     }
-    
-    private void updateModelReqMail(ResponseMails response){
+
+    private void updateModelReqMail(ResponseMails response) {
         //Meglio confermare il login DOPO la response
         Model.getModel().setCurrentUser(username.getText(), password.getText());
-        
+
         List<Mail> received = response.getReceivedMails();
         List<Mail> sent = response.getSentMails();
 
         Model.getModel().dispatchMail(received, sent);
     }
-    
-    public void init(Stage stage){ 
+
+    public void init(Stage stage) {
         this.s = stage;
         Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
     }
-     
-    private void rollback(){
+
+    private void rollback() {
         Model.getModel().deleteJson();
         Model.getModel().setCurrentUser(null, null);
     }
-    
-    private void spawnLogin(){
-         //spawn a new login view
+
+    private void spawnLogin() {
+        //spawn a new login view
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
@@ -187,6 +185,7 @@ public class UILoginController implements Initializable {
             spawnLogin();
         }
     }
+
     private void showError(String message) {
         loginfailure.setVisible(true);
         loginfailure.setText(message);

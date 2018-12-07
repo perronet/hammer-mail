@@ -34,7 +34,6 @@ public class HammerMail extends Application {
         
         //Login Controller
         stage.initStyle(StageStyle.TRANSPARENT);
-        stage.setOpacity(1);
         FXMLLoader loginLoader = new FXMLLoader();
         loginLoader.setLocation(getClass().getResource("UIlogin.fxml"));
         Parent root = loginLoader.load();       
