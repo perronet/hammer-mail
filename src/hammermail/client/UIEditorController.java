@@ -25,6 +25,7 @@ import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
+import hammermail.net.responses.ResponseRetrieve;
 import java.sql.Timestamp;
 
 import java.io.IOException;
@@ -72,6 +73,8 @@ public class UIEditorController {
                 } else if (response instanceof ResponseMailSent){
 //                    mail.setId(((ResponseMailSent) response).getMailID());
 //                    Model.getModel().addMail(mail);
+                } else if (response instanceof ResponseRetrieve){
+                    //TODO
                 }
                 
 

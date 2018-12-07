@@ -19,6 +19,7 @@ package hammermail.server;
 
 import hammermail.core.Mail;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,10 +67,12 @@ public class UI extends Application {
             });
          
         //#TODO CREATE CONDITIONAL 
-        for (int i = 0; i < 0; i++)//Up to 200 working on my machine
+        for (int i = 0; i <0; i++)//Up to 200 working on my machine
         {
             testServer();
         }
+        Thread.sleep(70000);
+        new Database(false).dbStatus();
 
     }
 
@@ -100,6 +103,10 @@ public class UI extends Application {
 
             } catch (InterruptedException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
         t.start();
@@ -108,14 +115,24 @@ public class UI extends Application {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws ParseException, InterruptedException {
+    public static void main(String[] args) throws ParseException, InterruptedException, SQLException {
  
         Database d = new Database(false);
         d.addUser("tano", "a");
         d.addUser("marco", "a");
         d.addUser("omar", "a");
         d.addUser("andrea", "a");
-        
+//         int j = 0;
+//        for(int i = 0; i < 100; i++){
+//            d.addMail(new Mail(j++, "tano", "marco", "title", "text", new Timestamp(System.currentTimeMillis())));
+//            Thread.sleep(10);
+//        }
+//        
+//         for(int i = 0; i < 100; i++){
+//            d.addMail(new Mail(j++, "marco", "tano", "title", "text", new Timestamp(System.currentTimeMillis())));
+//            Thread.sleep(10);
+//        }
+         
         d.release();
 
         launch(args);    

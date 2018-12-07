@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Driver;
+import java.sql.SQLTimeoutException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +100,7 @@ public class Database {
         }
     }
 
-    protected boolean checkPassword(String userN, String passW) {
+    protected boolean checkPassword(String userN, String passW) throws SQLException {
         
         if (!isUser(userN)){
             return false;
@@ -118,23 +119,20 @@ public class Database {
             dbPsw = rs.getString("password");
 
         } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
+
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-//                conn.close();
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            } finally {
                 return dbPsw.equals(passW);
-            }
         }
     }
 
-    protected boolean isUser(String userN){
+    protected boolean isUser(String userN) throws SQLException{
 //        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -149,24 +147,20 @@ public class Database {
                isUser = true;
 
         } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
+
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-//                conn.close();
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            } finally { 
-                    return isUser;
-            }
+                return isUser;
         }
-
     }
 
-    protected void addUser(String userN, String psw) {
+    protected void addUser(String userN, String psw) throws SQLException {
 //        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -188,19 +182,15 @@ public class Database {
             }
 
         } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-//                conn.close();
                 dbStatus();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            }
         }
     }
 
@@ -231,7 +221,7 @@ public class Database {
 
     }
 
-    protected int addMail(Mail mail) {
+    protected void addMail(Mail mail) throws SQLException {
 //        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -250,41 +240,37 @@ public class Database {
             pstmt.setTimestamp(5, mail.getDate());
             pstmt.executeUpdate();
             
-            sql = "SELECT email_id FROM email   WHERE sender = ? "
-                           + "AND receiver = ? AND title = ? AND email_text = ? AND time = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, mail.getSender());
-            pstmt.setString(2, mail.getReceiver());
-            pstmt.setString(3, mail.getTitle());
-            pstmt.setString(4, mail.getText());
-            pstmt.setTimestamp(5, mail.getDate());
-            rs = pstmt.executeQuery();
-            
-            if(rs.next())
-                mailID = rs.getInt("email_id");
-            else {
-                System.out.println("Temp print, hope that never print!!!");
-            }
+//            sql = "SELECT email_id FROM email   WHERE sender = ? "
+//                           + "AND receiver = ? AND title = ? AND email_text = ? AND time = ?";
+//            pstmt = conn.prepareStatement(sql);
+//            pstmt.setString(1, mail.getSender());
+//            pstmt.setString(2, mail.getReceiver());
+//            pstmt.setString(3, mail.getTitle());
+//            pstmt.setString(4, mail.getText());
+//            pstmt.setTimestamp(5, mail.getDate());
+//            rs = pstmt.executeQuery();
+//            
+//            if(rs.next())
+//                mailID = rs.getInt("email_id");
+//            else {
+//                System.out.println("Temp print, hope that never print!!!");
+//            }
             
         } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
+
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (pstmt != null) pstmt.close();
-//                conn.close();
                 if (rs != null) rs.close();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            } finally {
-                return mailID;
-            }
+//                return mailID;
         }
     }
 
-    protected void removeMail(int mailID, String toRemove) {
+    protected void removeMail(int mailID, String toRemove) throws SQLException {
 //        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -293,28 +279,25 @@ public class Database {
 //            conn = DriverManager.getConnection(DB_URL);
             String sql = "UPDATE email SET deleted = deleted || ? || ';' WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
+            System.out.println("QUERY DEFAULT TIMEOUT: " + pstmt.getQueryTimeout());
             String replaceID = Integer.toString(mailID);
             pstmt.setString(1, toRemove);
             pstmt.setString(2, replaceID);
             pstmt.executeUpdate();
             checkRemove(mailID);
 
-        } catch (SQLException ex) {
+        }catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
+            
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (pstmt != null) pstmt.close();
-//                conn.close();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            }
         }
     }
    
-    protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) {
+    protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) throws SQLException {
         ArrayList<Mail> mailList = new ArrayList<>();
 //        Connection conn = null;
         PreparedStatement pstmt = null;
@@ -355,24 +338,20 @@ public class Database {
             }
 
         } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
+
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-//                conn.close();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            } finally {
                 return mailList;
-            }
         }
     }
 
-    protected ArrayList<Mail> getSentMails(String userN, Timestamp time) {
+    protected ArrayList<Mail> getSentMails(String userN, Timestamp time) throws SQLException {
         ArrayList<Mail> mailList = new ArrayList<>();
 //        Connection conn = null;
         PreparedStatement pstmt = null;
@@ -405,20 +384,15 @@ public class Database {
             }
 
         } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
-            try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-//                conn.close();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            } finally {
                 return mailList;
-            }
         }
     }    
 
@@ -454,12 +428,13 @@ public class Database {
             Driver driver = new JDBC();
             this.conn = driver.connect(DB_URL, conf.toProperties());
             this.conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            ((SQLiteConnection)this.conn).setBusyTimeout(60000);            
+            ((SQLiteConnection)this.conn).setBusyTimeout(8000);            
             DatabaseMetaData dbMeta = conn.getMetaData();
             
         } catch (SQLException ex) {
+//            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+//                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-            //return ResponseRetry
         } 
     }
   

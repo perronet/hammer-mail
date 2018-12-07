@@ -20,7 +20,6 @@ package hammermail.net.responses;
  *
  * @author sai
  */
-public class ResponseMailSent extends ResponseSuccess {
-    
+public class ResponseRetrieve extends ResponseBase{
     
 }

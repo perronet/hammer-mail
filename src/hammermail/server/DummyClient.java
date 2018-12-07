@@ -37,7 +37,17 @@ import java.util.logging.Logger;
  */
 public final class DummyClient {
 
-    public DummyClient() throws InterruptedException {
+    public DummyClient() throws InterruptedException, IOException, ClassNotFoundException {
+        
+//          for(int i = 0; i < 50; i++){
+//                ArrayList<Mail> mailsToDelete = new ArrayList<>();
+//                mailsToDelete.add(new Mail(i, "tano", "marco", "title", "text", new Timestamp(System.currentTimeMillis())));
+//                Thread.sleep(30);
+//                RequestDeleteMails deleteMailsReq = new RequestDeleteMails(mailsToDelete);
+//                deleteMailsReq.SetAuthentication("tano", "psw");
+//                testRequest(deleteMailsReq);
+//            }
+          
         try {
    
             //Testing Signup

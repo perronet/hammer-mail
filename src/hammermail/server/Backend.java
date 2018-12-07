@@ -32,8 +32,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static hammermail.net.responses.ResponseError.ErrorType.*;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import javafx.beans.property.SimpleStringProperty;
+import org.sqlite.SQLiteErrorCode;
+import org.sqlite.SQLiteException;
 //import static hammermail.net.responses.ResponseError.ErrorType.INCORRECT_AUTHENTICATION;
 //import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
 //import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
@@ -218,84 +221,102 @@ class Task implements Runnable {
 
     ResponseBase handleSignUp(RequestSignUp request) {
         Database db = new Database(false);
-        if (db.isUser(request.getUsername())) {
-            return new ResponseError(SIGNUP_USERNAME_TAKEN);
-        } else {
-            db.addUser(request.getUsername(), request.getPassword());
-        }
-        db.release();
+        try {
+            if (db.isUser(request.getUsername())) 
+                return new ResponseError(SIGNUP_USERNAME_TAKEN);
+            else 
+                db.addUser(request.getUsername(), request.getPassword());
+
+        } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                return new ResponseRetrieve();
+            else return new ResponseError(INTERNAL_ERROR);
+        } finally {db.release();}
         return new ResponseSuccess();
     }
 
     ResponseBase handleSendMail(RequestSendMail request) {
         Database db = new Database(false);
-        //note: checkPassword return false on not-existing user
-        if (db.checkPassword(request.getUsername(), request.getPassword())) {
-            if (request.IsMailWellFormed()) {
-                String rec = (request.getMail().getReceiver()).replaceAll("\\s+", "");
-                String[] receivers = rec.split(";");
-
-                if (receivers.length == 1) {
-                    if (!db.isUser(receivers[0])) {
-                        return new ResponseError(SENDING_TO_UNEXISTING_USER);
-                    } else {
-                        int mailID = db.addMail(request.getMail());
-                        return new ResponseMailSent(mailID);
+        try {
+            if (db.checkPassword(request.getUsername(), request.getPassword())) {
+                if (request.IsMailWellFormed()) {
+                    String rec = (request.getMail().getReceiver()).replaceAll("\\s+", "");
+                    String[] receivers = rec.split(";");
+                    
+                    if (receivers.length == 1) {
+                        if (!db.isUser(receivers[0])) {
+                            return new ResponseError(SENDING_TO_UNEXISTING_USER);
+                        } else {
+                            db.addMail(request.getMail());
+                            return new ResponseMailSent();
+                        }
                     }
+                    
+                    rec = "";
+                    String refused = "";
+                    
+                    for (int i = 0; i < receivers.length; i++) {
+                        if (db.isUser(receivers[i])) rec = rec + ";" + receivers[i];
+                        else refused = refused + ";" + receivers[i];
+                    }
+                    request.getMail().setReceiver(rec.substring(1));
+                    db.addMail(request.getMail());
+                    db.release();
+                    return new ResponseMailSent();
+                } else {
+                    db.release();
+                    return new ResponseError(SENDING_INVALID_MAIL);
                 }
 
-                rec = "";
-                String refused = "";
-
-                for (int i = 0; i < receivers.length; i++) {
-                    if (db.isUser(receivers[i])) {
-                        rec = rec + ";" + receivers[i];
-                    } else {
-                        refused = refused + ";" + receivers[i];
-                    }
-                }
-                request.getMail().setReceiver(rec.substring(1));
-                int mailID = db.addMail(request.getMail());
-                db.release();
-                return new ResponseMailSent(mailID);
             } else {
                 db.release();
-                return new ResponseError(SENDING_INVALID_MAIL);
+                return new ResponseError(INCORRECT_AUTHENTICATION);
             }
-
-        } else {
-            db.release();
-            return new ResponseError(INCORRECT_AUTHENTICATION);
-        }
+        } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                return new ResponseRetrieve();
+            else return new ResponseError(INTERNAL_ERROR);
+        } finally {db.release();}
     }
 
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
         Timestamp time = request.getLastMailDate();
 //        System.out.println("--------BACKEND: risponde a " + request.getUsername() + "request con time " + time);
-
-        if (db.checkPassword(request.getUsername(), request.getPassword())) {
-            ResponseMails response = new ResponseMails(db.getReceivedMails(request.getUsername(), time),
-            db.getSentMails(request.getUsername(), time));
-//            System.out.println("--------BACKEND: response rec " + response.getReceivedMails());   
+        try {
+            if (db.checkPassword(request.getUsername(), request.getPassword())) {
+                ResponseMails response = new ResponseMails(db.getReceivedMails(request.getUsername(), time),
+                db.getSentMails(request.getUsername(), time));
+//            System.out.println("--------BACKEND: response rec " + response.getReceivedMails());
 //            System.out.println("--------BACKEND: response sent " + response.getSentMails());   
 //            System.out.println("*****BACKEND: accepted get mails request");
 //            db.dbStatus();
-            db.release();
-            return response;
-        } else {
-            db.release();
-            return new ResponseError(INCORRECT_AUTHENTICATION);
+                db.release();
+                return response;
+            } else {
+                db.release();
+                return new ResponseError(INCORRECT_AUTHENTICATION);
+            }
+        } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                return new ResponseRetrieve();
+            else return new ResponseError(INTERNAL_ERROR);
         }
     }
 
     private ResponseBase handleDeleteMails(RequestDeleteMails requestDeleteMails) {
         Database db = new Database(false);
-        for (Integer mailID : requestDeleteMails.getMailsIDsToDelete()) {
-            db.removeMail(mailID, requestDeleteMails.getUsername());
-        }
-        db.release();
-        return new ResponseSuccess();
+        try {
+            for (Integer mailID : requestDeleteMails.getMailsIDsToDelete()) {
+                db.removeMail(mailID, requestDeleteMails.getUsername());
+            }
+            db.release();
+            return new ResponseSuccess();
+        } catch (SQLException ex) {
+            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+                return new ResponseRetrieve();
+            else return new ResponseError(INTERNAL_ERROR);
+        } finally {db.release();} 
     }
 
     public synchronized void logAction(String log) {

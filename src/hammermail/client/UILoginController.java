@@ -65,6 +65,8 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseMails) {
                     updateModelReqMail((ResponseMails) response);
                     spawnHome();
+                } else if (response instanceof ResponseRetrieve){
+                    //TODO
                 }
             } else {
                 showError("Insert a valid username and password!");
@@ -99,7 +101,11 @@ public class UILoginController implements Initializable {
                     } else if (response instanceof ResponseMails) {
                         updateModelReqMail((ResponseMails) response);
                         spawnHome();
+                    } else if (response instanceof ResponseRetrieve){
+                            //TODO
                     }
+                } else if (response instanceof ResponseRetrieve){
+                         //TODO
                 }
             } else {
                 showError("Insert a valid username and password!");
@@ -116,7 +122,6 @@ public class UILoginController implements Initializable {
     } 
  
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException {
-        //Timestamp lastUpdate = viewLog();
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         Timestamp lastUpdate = Model.getModel().takeLastRequestTime();
         Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
@@ -125,7 +130,6 @@ public class UILoginController implements Initializable {
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
 
         requestGetMail.SetAuthentication(username.getText(), password.getText());
-        //clientServerLog(new Timestamp(System.currentTimeMillis()));
         return sendRequest(requestGetMail);
     }
 

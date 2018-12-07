@@ -40,6 +40,7 @@ import hammermail.net.requests.RequestSendMail;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseMailSent;
+import hammermail.net.responses.ResponseRetrieve;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -423,9 +424,9 @@ public class UIController implements Initializable {
                     System.out.println(err);
                     handleError();
                 } else if (response instanceof ResponseMailSent){
-//                    mail.setId(((ResponseMailSent) response).getMailID());
-//                    Model.getModel().addMail(mail);
                     Model.getModel().removeDraft();
+                } else if (response instanceof ResponseRetrieve){
+                    //TODO
                 }
                 
 
