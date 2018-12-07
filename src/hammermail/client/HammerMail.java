@@ -20,7 +20,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class HammerMail extends Application {
     
@@ -31,6 +33,8 @@ public class HammerMail extends Application {
 //      Uncomment to start with login
         
         //Login Controller
+        stage.initStyle(StageStyle.TRANSPARENT);
+        stage.setOpacity(1);
         FXMLLoader loginLoader = new FXMLLoader();
         loginLoader.setLocation(getClass().getResource("UIlogin.fxml"));
         Parent root = loginLoader.load();       
@@ -38,8 +42,8 @@ public class HammerMail extends Application {
         loginController.init(stage);
         
         Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
         stage.setScene(scene);
-        stage.setTitle("HammerMail");
         stage.show();
     }
 

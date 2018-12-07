@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -9,23 +16,51 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="450.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hammermail.client.UILoginController">
-
+<AnchorPane prefHeight="294.0" prefWidth="465.0" styleClass="background" stylesheets="@../resources/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UILoginController">
     <children>
-        <Text layoutX="80.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hammer Mail" />	  
-        <HBox layoutX="60.0" layoutY="80.0" prefHeight="170.0" prefWidth="300.0" />
-        <Label layoutX="90.0" layoutY="130.0" prefHeight="16.0" prefWidth="73.0" text="Username" />
-            <TextField fx:id="username" layoutX="180.0" layoutY="130.0" />      
-      
-        <Label layoutX="90.0" layoutY="175.0" text="Password" />
-            <PasswordField fx:id="password" layoutX="180.0" layoutY="170.0" />
-        <Button layoutX="330.0" layoutY="240.0" onAction="#handleLogin" text="Submit" />
-
-        <Text fx:id="loginfailure" layoutX="80.0" layoutY="75.0" text="" />
-        <Button layoutX="60.0" layoutY="240.0" onAction="#handleSignup" text="Sign up" />
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="20.0">
+         <children>
+            <ImageView fitHeight="150.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../resources/hammermail.png" />
+               </image>
+               <VBox.margin>
+                  <Insets bottom="15.0" />
+               </VBox.margin>
+            </ImageView>
+                  <TextField fx:id="username" alignment="TOP_LEFT" onAction="#handleLogin" promptText="Username">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </TextField>
+                  <PasswordField fx:id="password" alignment="TOP_LEFT" onAction="#handleLogin" promptText="Password">
+               <font>
+                  <Font size="16.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </PasswordField>
+            <Label fx:id="loginfailure" blendMode="RED" text="error that could appear" textAlignment="CENTER">
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </Label>
+         </children>
+      </VBox>
+      <HBox alignment="CENTER" prefHeight="78.0" prefWidth="450.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <children>
+              <Button onAction="#handleSignup" prefHeight="50.0" prefWidth="150.0" styleClass="lowbutton" text="Sign up" />
+              <Button onAction="#handleLogin" prefHeight="50.0" prefWidth="150.0" text="Log in">
+               <font>
+                  <Font size="25.0" />
+               </font>
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+      <Button fx:id="close" layoutX="431.0" layoutY="9.0" mnemonicParsing="false" onAction="#handleClose" styleClass="closebutton" text="X" textAlignment="CENTER" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
     </children>
-
-    <stylesheets>
-        <URL value="@UI.css" />
-    </stylesheets>
 </AnchorPane>

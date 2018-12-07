@@ -199,7 +199,7 @@ class Task implements Runnable {
      * @return
      */
     ResponseBase handleRequest(RequestBase request) {
-        if (!request.IsAuthenticationWellFormed()) {
+        if (!request.isAuthenticationWellFormed()) {
             return new ResponseError(ResponseError.ErrorType.INCORRECT_AUTHENTICATION);
         }
 

@@ -118,5 +118,18 @@ public class Utils {
         return new Timestamp(0);
     }
 
+     /**
+     * An authentication is well formed if it makes sense 
+     * (no empty username/password, no invalid characters)
+     * @param username
+     * @param password
+     * @return true if the authentication is well-formed
+     */
+    public static boolean isAuthenticationWellFormed(String username, String password) {
+        return !isNullOrWhiteSpace(username) &&
+               !isNullOrWhiteSpace(password) &&
+               !username.contains("@");
+    }
+
     
 }

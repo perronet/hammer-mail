@@ -16,10 +16,9 @@
  */
 package hammermail.client;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
 import hammermail.core.EmptyMail;
 import hammermail.core.Mail;
+import hammermail.core.Utils;
 import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
 import static hammermail.core.Utils.viewLog;
@@ -31,14 +30,14 @@ import java.net.URL;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXMLLoader;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
@@ -46,50 +45,43 @@ import javafx.stage.Stage;
 public class UILoginController implements Initializable {
 
     private Stage s;
-        
+
     @FXML
     private TextField username;
 
     @FXML
     private PasswordField password;
 
-    @FXML 
-    private Text loginfailure;
+    @FXML
+    private Label loginfailure;
 
     @FXML
     private void handleLogin(ActionEvent event) {
         //TODO: LOAD FILE IF EXISTS, CREATE IT AND FILL IT IF IT DOESN'T EXISTS
-        
         try {
-            if (username.getText().isEmpty() || password.getText().isEmpty())
-                spawnLogin();
-            else {
+            if (Utils.isAuthenticationWellFormed(username.getText(), password.getText())) {
                 ResponseBase response = composeAndSendGetMail();
-                if (response instanceof ResponseError){
-                    loginfailure.setFill(Color.rgb(255,0,0));
-                    loginfailure.setText("Incorrect Authentication");
+                if (response instanceof ResponseError) {
+                    showError("Incorrect authentication");
 
-                } else if (response instanceof ResponseMails){
-                    updateModelReqMail((ResponseMails)response);
+                } else if (response instanceof ResponseMails) {
+                    updateModelReqMail((ResponseMails) response);
                     spawnHome();
-                } 
+                }
             }
-        } catch (ClassNotFoundException | IOException ex){
+            else
+                showError("Insert a valid username and password!");
+        } catch (ClassNotFoundException | IOException ex) {
             System.out.println(ex.getMessage());
+            showError("Unable to connect to server.");
             // set the response to error internal_error
-        } 
-    }  
-    
-    
+        }
+    }
 
     @FXML
-    private void handleSignup(ActionEvent event){
-        
+    private void handleSignup(ActionEvent event) {
         try {
-            if (username.getText().isEmpty() || password.getText().isEmpty())
-                spawnLogin();
-        
-            else {
+            if (Utils.isAuthenticationWellFormed(username.getText(), password.getText())) {
                 //Compose request and send
                 String user = username.getText();
                 RequestSignUp requestSignUp = new RequestSignUp();
@@ -97,32 +89,38 @@ public class UILoginController implements Initializable {
                 ResponseBase response = sendRequest(requestSignUp);
 
                 //Username taken
-                if (response instanceof ResponseError){
-                    loginfailure.setFill(Color.rgb(255,0,0));
-                    loginfailure.setText("Username taken");
+                if (response instanceof ResponseError) {
+                    showError("Username taken!");
 
-                } else if (response instanceof ResponseSuccess){
+                } else if (response instanceof ResponseSuccess) {
                     response = composeAndSendGetMail();
-                    if (response instanceof ResponseError)
+                    if (response instanceof ResponseError) {
                         spawnLogin();
-
-                    else if (response instanceof ResponseMails){                        
-                        updateModelReqMail((ResponseMails)response);
+                    } else if (response instanceof ResponseMails) {
+                        updateModelReqMail((ResponseMails) response);
                         spawnHome();
                     }
                 }
             }
-        } catch (ClassNotFoundException | IOException classEx){
+            else
+                showError("Insert a valid username and password!");
+        } catch (ClassNotFoundException | IOException classEx) {
+            showError("Unable to connect to server.");
             // set the response to error internal_error
-        }       
- 
+        }
+
     }
-     
+
+    @FXML
+    private void handleClose(ActionEvent event) {
+        Platform.exit();
+    }
+
     //CONVERT INTO DIFF
-    private void updateModelReqMail(ResponseMails response){
+    private void updateModelReqMail(ResponseMails response) {
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         Model.getModel().createJson(username.getText());
-        
+
 //      We will check if it is possible to substitute the log file with this function
 //      Timestamp ts = Model.getModel().calculateLastMailStored();
 //      System.out.println(ts);
@@ -131,19 +129,19 @@ public class UILoginController implements Initializable {
 
         Model.getModel().dispatchMail(received, sent);
     }
-    
-    
+
     /**
-    * Method to spawn a new Login view.
-    * @author Gaetano
-    * @param event:
-    */
-    private void spawnLogin(){
-         //spawn a new login view
+     * Method to spawn a new Login view.
+     *
+     * @author Gaetano
+     * @param event:
+     */
+    private void spawnLogin() {
+        //spawn a new login view
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
-            Parent root = fxmlLoader.load();       
+            Parent root = fxmlLoader.load();
             UILoginController loginController = fxmlLoader.getController();
             loginController.init(s);
             s.close();
@@ -152,16 +150,16 @@ public class UILoginController implements Initializable {
             s.setScene(scene);
             s.setTitle("HammerMail - Login");
             s.show();
-         } catch (IOException e){
-             //TODO
-         }
+        } catch (IOException e) {
+            //TODO
+        }
     }
-    
-    private void spawnHome(){
+
+    private void spawnHome() {
         try {
             FXMLLoader uiLoader = new FXMLLoader();
             uiLoader.setLocation(getClass().getResource("UI.fxml"));
-            Parent root;  
+            Parent root;
             root = uiLoader.load();
             UIController uiController = uiLoader.getController();
             s.close(); //close login view
@@ -174,37 +172,43 @@ public class UILoginController implements Initializable {
             spawnLogin();
         }
     }
-    
-    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
+
+    private void showError(String message) {
+        loginfailure.setVisible(true);
+        loginfailure.setText(message);
+    }
+
+    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException {
         Timestamp lastUpdate = viewLog();
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
         requestGetMail.SetAuthentication(username.getText(), password.getText());
         clientServerLog(new Timestamp(System.currentTimeMillis()));
         return sendRequest(requestGetMail);
     }
-    
-    
-    
-    public void init(Stage stage){ 
+
+    public void init(Stage stage) {
         this.s = stage;
         Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
     }
-        
 
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         File userFile = new File("log.txt");
-        if(!(userFile.exists())){
+        if (!(userFile.exists())) {
             try {
-                clientServerLog(new Timestamp(0));                
+                clientServerLog(new Timestamp(0));
                 System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog());
 
             } catch (IOException ex) {
                 //Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog() );        
+            System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog());
         }
-    }      
+
+        loginfailure.setVisible(false);
+
+        username.textProperty().addListener(e -> loginfailure.setVisible(false));
+        password.textProperty().addListener(e -> loginfailure.setVisible(false));
+    }
 }

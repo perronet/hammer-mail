@@ -16,6 +16,7 @@
  */
 package hammermail.net.requests;
 
+import hammermail.core.Utils;
 import static hammermail.core.Utils.isNullOrWhiteSpace;
 import java.io.Serializable;
 
@@ -36,7 +37,7 @@ public abstract class RequestBase implements Serializable {
     public boolean SetAuthentication(String username, String password) {
         this.username = username;
         this.password = password;
-        return IsAuthenticationWellFormed();
+        return isAuthenticationWellFormed();
     }
 
     public String getUsername() {
@@ -47,15 +48,8 @@ public abstract class RequestBase implements Serializable {
         return password;
     }
 
-    /**
-     * An authentication is well formed if it makes sense 
-     * (no empty username/password, no invalid characters)
-     * @return true if the authentication is well-formed
-     */
-    public boolean IsAuthenticationWellFormed(){
-        return !isNullOrWhiteSpace(username) &&
-               !isNullOrWhiteSpace(password) &&
-               !username.contains("@");
+    public boolean isAuthenticationWellFormed(){
+        return Utils.isAuthenticationWellFormed(username,password);
     }
     
 }
