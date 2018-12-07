@@ -40,7 +40,7 @@ import javafx.stage.Stage;
 public class UI extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws IOException, InterruptedException {
         primaryStage.setTitle("Hello World!");
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("UI.fxml"));
@@ -70,6 +70,7 @@ public class UI extends Application {
         {
             testServer();
         }
+
     }
 
     Backend startServer() {
@@ -96,6 +97,7 @@ public class UI extends Application {
             }
             try {
                 DummyClient c = new DummyClient();
+
             } catch (InterruptedException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -106,44 +108,16 @@ public class UI extends Application {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws ParseException, InterruptedException {
+ 
         Database d = new Database(false);
         d.addUser("tano", "a");
         d.addUser("marco", "a");
         d.addUser("omar", "a");
         d.addUser("andrea", "a");
-//        
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-//        Date parsedDate = dateFormat.parse("1970-01-01 01:00:00.000");
-//        Timestamp t0 = new Timestamp(parsedDate.getTime());
-//        
-//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.100");
-//        Timestamp t1 = new Timestamp(parsedDate.getTime());
-//        
-//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.200");
-//        Timestamp t2 = new Timestamp(parsedDate.getTime());
-//        
-//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.300");
-//        Timestamp t3 = new Timestamp(parsedDate.getTime());
-//        
-//        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-//        parsedDate = dateFormat.parse("1970-01-01 01:00:00.400");
-//        Timestamp t4 = new Timestamp(parsedDate.getTime());
-//
-//        
-//
-//        Mail m = new Mail(0, "tano", "marco", "titolo1", "text1", t1);
-//        d.addMail(m);
-//        m = new Mail(1, "tano", "marco", "titolo2", "text2", t2);
-//        d.addMail(m);
-//        m = new Mail(2, "marco", "tano", "titolo3", "text3", t3);
-//        d.addMail(m);
-//        m = new Mail(3, "marco", "tano", "titolo4", "text4", t4);
-//        d.addMail(m);
         
+        d.release();
+
         launch(args);    
     }
 

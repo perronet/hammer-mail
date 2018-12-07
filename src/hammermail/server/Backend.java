@@ -223,6 +223,7 @@ class Task implements Runnable {
         } else {
             db.addUser(request.getUsername(), request.getPassword());
         }
+        db.release();
         return new ResponseSuccess();
     }
 
@@ -255,15 +256,15 @@ class Task implements Runnable {
                 }
                 request.getMail().setReceiver(rec.substring(1));
                 int mailID = db.addMail(request.getMail());
-//                System.out.println("*****BACKEND: accepted Send mails request");
-//                        db.dbStatus();
-
+                db.release();
                 return new ResponseMailSent(mailID);
             } else {
+                db.release();
                 return new ResponseError(SENDING_INVALID_MAIL);
             }
 
         } else {
+            db.release();
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }
     }
@@ -280,9 +281,10 @@ class Task implements Runnable {
 //            System.out.println("--------BACKEND: response sent " + response.getSentMails());   
 //            System.out.println("*****BACKEND: accepted get mails request");
 //            db.dbStatus();
-
+            db.release();
             return response;
         } else {
+            db.release();
             return new ResponseError(INCORRECT_AUTHENTICATION);
         }
     }
@@ -292,8 +294,7 @@ class Task implements Runnable {
         for (Integer mailID : requestDeleteMails.getMailsIDsToDelete()) {
             db.removeMail(mailID, requestDeleteMails.getUsername());
         }
-//        System.out.println("*****BACKEND: accepted delete mails request");
-//        db.dbStatus();
+        db.release();
         return new ResponseSuccess();
     }
 

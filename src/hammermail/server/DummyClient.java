@@ -38,44 +38,8 @@ import java.util.logging.Logger;
 public final class DummyClient {
 
     public DummyClient() throws InterruptedException {
-        
-        Database db1 = new Database(false);
-        db1.addUser("marco", "psw");
-        db1.addUser("omar", "psw");
-        db1.addUser("tano", "psw");
-        db1.addUser("andrea", "psw");
-//                
-        // id, sender, receiver, title, text, date
-//        Timestamp t = new Timestamp(System.currentTimeMillis());
-//        Mail m1 = new Mail(1, "marco", "tano", "titolo", "text", t);
-//        Thread.sleep((long) 4);
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m2 = new Mail(2, "omar", "tano", "titolo", "text", t);
-//        Thread.sleep((long) 4);
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m3 = new Mail(3, "tano", "tano", "titolo", "tano invia", t);
-//        Thread.sleep((long) 4);
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m4 = new Mail(4, "andrea", "tano", "titolo", "tano riceve", t);
-//
-//        t = new Timestamp(System.currentTimeMillis());
-//        Mail m5 = new Mail(4, "omar", "tano", "titolo", "tano riceve", t);
-//
-//
-//        db1.addMail(m1);
-//        db1.addMail(m2);
-//        db1.addMail(m3);
-//        db1.addMail(m4);
-//        db1.addMail(m5);
-//        db1.removeMail(m1.getId(), "marco");
-//        db1.removeMail(m1.getId(), "tano");
-//
-//        
-        db1.dbStatus();
-
-
-
         try {
+   
             //Testing Signup
             logAction("Testing invalid...");
             RequestSignUp errorReq = new RequestSignUp();
@@ -113,6 +77,7 @@ public final class DummyClient {
             Logger.getLogger(DummyClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
     public void testRequest(RequestBase req) throws IOException, ClassNotFoundException {
         Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);

@@ -12,55 +12,50 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Driver;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.sqlite.JDBC;
+import org.sqlite.*;
+import org.sqlite.SQLiteConfig.TransactionMode;
 
 
 public class Database {
     private static final String URL = "src/hammermail/server/hammer.db";
     private static final String DB_URL = "jdbc:sqlite:" + URL;
+    private Connection conn = null;
+    private boolean exist;
+
 
     public Database(boolean dropOld) {
-        if (!Files.exists(Paths.get(URL))) {
-            createDB();
+        if (!Files.exists(Paths.get(URL))) 
+            exist = false;
+        else {
+            exist = true;
+                if (dropOld) {
+                    dropDB();
+                    System.out.println("Delete " + URL + " database");
+                    exist = false;
+                }
+            }
+        
+        configConnection();
+        
+        if (!exist)
             createTables();
-        } else {
-            if (dropOld) {
-                dropDB();
-                System.out.println("Delete " + URL + " database");
-                createDB();
-                createTables();
-            }
-        }
-    }
-
-    private void createDB() {
-        Connection conn = null;
         try {
-            try {
-                Class.forName("org.sqlite.JDBC");
-            } catch (ClassNotFoundException e) {
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-            conn = DriverManager.getConnection(DB_URL);
-            if (conn != null) {
-                DatabaseMetaData meta = conn.getMetaData();
-                System.out.println("The driver name is " + meta.getDriverName());
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
+            if (conn.isValid(0))
+                System.out.println("Connection estabilished");
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
+            
     }
+
 
     private void createTables() {
         String sqlUser = "CREATE TABLE IF NOT EXISTS users (\n"
@@ -82,36 +77,26 @@ public class Database {
                 + " ON UPDATE CASCADE \n"
                 + " ON DELETE CASCADE \n"
                 + ");";
-        Connection conn = null;
+//        Connection conn = null;
         Statement stmt = null;
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
             stmt.execute(sqlUser);
             stmt.execute(sqlEmail);
-
+            
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
             ex.printStackTrace(System.out);
 
         } finally {
             try {
-                stmt.close();
-                conn.close();
+                if (stmt != null) stmt.close();
+//                conn.close();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
         }
-    }
-
-    private void dropDB() {
-        try {
-            Files.deleteIfExists(Paths.get(URL));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-
     }
 
     protected boolean checkPassword(String userN, String passW) {
@@ -121,11 +106,11 @@ public class Database {
         }
         
         String dbPsw = "";
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -138,9 +123,9 @@ public class Database {
 
         } finally {
             try {
-                rs.close();
-                pstmt.close();
-                conn.close();
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             } finally {
@@ -150,12 +135,12 @@ public class Database {
     }
 
     protected boolean isUser(String userN){
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         boolean isUser = false;
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -169,9 +154,9 @@ public class Database {
 
         } finally {
             try {
-                rs.close();
-                pstmt.close();
-                conn.close();
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             } finally { 
@@ -182,11 +167,11 @@ public class Database {
     }
 
     protected void addUser(String userN, String psw) {
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -208,9 +193,10 @@ public class Database {
 
         } finally {
             try {
-                rs.close();
-                pstmt.close();
-                conn.close();
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
+                dbStatus();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -219,11 +205,11 @@ public class Database {
     }
 
     protected void removeUser(String userN) {
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
 
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "DELETE FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -235,8 +221,8 @@ public class Database {
 
         } finally {
             try {
-                pstmt.close();
-                conn.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -246,13 +232,13 @@ public class Database {
     }
 
     protected int addMail(Mail mail) {
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         int mailID = -1;
         
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "INSERT INTO email(sender, receiver, title, email_text, time) "
                            + "VALUES (?, ?, ?, ?, ?)";
          
@@ -286,9 +272,9 @@ public class Database {
 
         } finally {
             try {
-                pstmt.close();
-                conn.close();
-                rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
+                if (rs != null) rs.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -299,12 +285,12 @@ public class Database {
     }
 
     protected void removeMail(int mailID, String toRemove) {
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "UPDATE email SET deleted = deleted || ? || ';' WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
             String replaceID = Integer.toString(mailID);
@@ -319,8 +305,8 @@ public class Database {
 
         } finally {
             try {
-                pstmt.close();
-                conn.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -328,14 +314,14 @@ public class Database {
         }
     }
    
-  protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) {
+    protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) {
         ArrayList<Mail> mailList = new ArrayList<>();
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
                     + "WHERE time > ?"
                     + "AND (receiver = ? "
@@ -374,9 +360,9 @@ public class Database {
 
         } finally {
             try {
-                rs.close();
-                pstmt.close();
-                conn.close();
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -388,12 +374,12 @@ public class Database {
 
     protected ArrayList<Mail> getSentMails(String userN, Timestamp time) {
         ArrayList<Mail> mailList = new ArrayList<>();
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
                         + "WHERE sender = ? "
                         + "AND (deleted NOT LIKE ? )"
@@ -424,9 +410,9 @@ public class Database {
 
         } finally {
             try {
-                rs.close();
-                pstmt.close();
-                conn.close();
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -435,70 +421,89 @@ public class Database {
             }
         }
     }    
-    //Don't use this, will be deleted
-    protected ArrayList<Mail> getMails(String userN) {
-        ArrayList<Mail> mailList = new ArrayList<>();
-        Connection conn = null;
+
+    protected void release(){
+        try {
+            conn.close();
+            System.out.println("Releasing connection");
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        }
+  }
+  
+  
+  
+    //EXTERNAL UTILS
+    private void dropDB() {
+        try {
+            Files.deleteIfExists(Paths.get(URL));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
+
+    private void configConnection(){
+        try{
+            SQLiteConfig conf = new SQLiteConfig();
+            conf.setEncoding(SQLiteConfig.Encoding.UTF8);
+            conf.setTransactionMode(SQLiteConfig.TransactionMode.DEFFERED);
+            conf.setOpenMode(SQLiteOpenMode.FULLMUTEX);
+
+            Driver driver = new JDBC();
+            this.conn = driver.connect(DB_URL, conf.toProperties());
+            this.conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+            ((SQLiteConnection)this.conn).setBusyTimeout(60000);            
+            DatabaseMetaData dbMeta = conn.getMetaData();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            //return ResponseRetry
+        } 
+    }
+  
+    private boolean isContained(String [] contained, String[] container){
+      return Arrays.asList(container).containsAll(Arrays.asList(contained));
+  }
+  
+    private void checkRemove(int mailID){
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE sender = ? ORDER BY time DESC";
+//            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM email WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userN);
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Mail m = new Mail(1,
-                        /*rs.getInt("user_id"), */
-                        rs.getString("sender"),
-                        rs.getString("receiver"),
-                        rs.getString("title"),
-                        rs.getString("email_text"),
-                        rs.getTimestamp("time"));
-                mailList.add(m);
-            }
-            
-            sql = "SELECT * FROM email WHERE receiver LIKE ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "%" + userN + "%");
+            pstmt.setString(1, Integer.toString(mailID));
             rs = pstmt.executeQuery();
             
-            while (rs.next()) {
-                Mail m = new Mail(1,
-                        /*rs.getInt("user_id"), */
-                        rs.getString("sender"),
-                        rs.getString("receiver"),
-                        rs.getString("title"),
-                        rs.getString("email_text"),
-                        rs.getTimestamp("time"));
-                mailList.add(m);
+            if (rs.next()) {
+                String [] sender = rs.getString("sender").split(";");
+                String [] receivers = rs.getString("receiver").split(";");
+                String [] deleted = rs.getString("deleted").split(";");
+                
+                if (isContained(sender, deleted) && isContained(receivers, deleted)){
+                    System.out.println("DB: definitive deletion");
+                    sql = "DELETE FROM email WHERE email_id = ?";
+                    pstmt = conn.prepareStatement(sql);
+                    pstmt.setString(1, Integer.toString(mailID));
+                    pstmt.executeUpdate();                
+                }
             }
-            
+      
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
             ex.printStackTrace(System.out);
-
-        } finally {
-            try {
-                rs.close();
-                pstmt.close();
-                conn.close();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            } finally {
-                return mailList;
-            }
         }
-    }
-
+  }
+  
     protected void resetTables() {
-        Connection conn = null;
+//        Connection conn = null;
         Statement stmt = null;
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM users");
             stmt.executeUpdate("DELETE FROM email");
@@ -509,8 +514,8 @@ public class Database {
 
         } finally {
             try {
-                stmt.close();
-                conn.close();
+                if (stmt != null) stmt.close();
+//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -520,25 +525,25 @@ public class Database {
 
     public void dbStatus(){
         ArrayList<Mail> mailList = new ArrayList<>();;
-        Connection conn = null;
+//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            conn = DriverManager.getConnection(DB_URL);
+//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users";
-//            pstmt = conn.prepareStatement(sql);
-//            rs = pstmt.executeQuery();
-//            
-//            System.out.println("Hammer DB - Database status \n *********************************** \n");
-//            
-//            System.out.println("HammerMail users");
-//            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
-//            System.out.println("________________________________________________________");
-//            while (rs.next()) {
-//                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
-//                System.out.println("________________________________________________________");
-//            }
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            System.out.println("Hammer DB - Database status \n *********************************** \n");
+            
+            System.out.println("HammerMail users");
+            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
+            System.out.println("________________________________________________________");
+            while (rs.next()) {
+                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
+                System.out.println("________________________________________________________");
+            }
             
             
             sql = "SELECT * FROM email ORDER BY time DESC";
@@ -569,9 +574,9 @@ public class Database {
 
         } finally {
             try {
-                rs.close();
-                pstmt.close();
-                conn.close();
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -579,42 +584,4 @@ public class Database {
         }
 
     }
-
-  private void checkRemove(int mailID){
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-            conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM email WHERE email_id = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, Integer.toString(mailID));
-            rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                String [] sender = rs.getString("sender").split(";");
-                String [] receivers = rs.getString("receiver").split(";");
-                String [] deleted = rs.getString("deleted").split(";");
-                
-                if (isContained(sender, deleted) && isContained(receivers, deleted)){
-                    System.out.println("DB: definitive deletion");
-                    sql = "DELETE FROM email WHERE email_id = ?";
-                    pstmt = conn.prepareStatement(sql);
-                    pstmt.setString(1, Integer.toString(mailID));
-                    pstmt.executeUpdate();
-                
-                }
-            }
-      
-        } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
-        }
-  }
-     
-  private boolean isContained(String [] contained, String[] container){
-      return Arrays.asList(container).containsAll(Arrays.asList(contained));
-  }
-    
 }
