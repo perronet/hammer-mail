@@ -206,6 +206,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 .closebutton{
     -fx-border-color: white, white;
     -fx-border-width: .5;
+    -fx-opacity: 0.6;
     -fx-padding: 1 7 1 7;   
     -fx-border-radius: 5;
     -fx-background-radius: 0;
@@ -217,6 +218,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 .closebutton:hover {
     -fx-text-fill: #ffffff;
+    -fx-opacity: 1;
     -fx-background-color: transparent;
     -fx-border-width: .5;
     -fx-border-radius: 5;
@@ -224,6 +226,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 .closebutton:focused {
     -fx-text-fill: #ffffff;
+    -fx-opacity: 1;
     -fx-background-color: transparent;
     -fx-border-width: .5;
     -fx-border-radius: 5;
