@@ -41,6 +41,7 @@ import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseMailSent;
 import hammermail.net.responses.ResponseRetrieve;
+import hammermail.net.responses.ResponseSuccess;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -111,7 +112,10 @@ public class UIController implements Initializable {
         if(!(currentMail() instanceof EmptyMail)){
             int tabId = tabs.getSelectionModel().getSelectedIndex();
             List<Mail> mailsToDelete = composeDeletingRequest();
-
+            
+            if (mailsToDelete == null)
+                //SHOW POPUP: unable to contact server 
+            
             if(!mailsToDelete.isEmpty()){
                 Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
             }        
@@ -125,7 +129,16 @@ public class UIController implements Initializable {
             RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
             request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
             ResponseBase response = null;
-            try { response = sendRequest(request);} 
+            try { 
+                response = sendRequest(request);
+                
+                if (response instanceof ResponseError){
+                    return null;
+                } else if (response instanceof ResponseRetrieve){
+                    //TODO
+                }
+            
+            } 
             catch (ClassNotFoundException | IOException ex) {
                    //TODO
             } finally {
