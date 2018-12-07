@@ -18,9 +18,7 @@ package hammermail.client;
 
 import hammermail.core.Mail;
 import hammermail.core.User;
-import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
-import static hammermail.core.Utils.viewLog;
 import hammermail.net.requests.RequestGetMails;
 import hammermail.net.responses.ResponseBase;
 import hammermail.net.responses.ResponseMails;
@@ -50,20 +48,20 @@ public class DaemonTask implements Runnable{
     public void run() {
         try {
             while (true){
-                System.out.println("Daemon polling: " + viewLog());
-                RequestGetMails requestGetMail = new RequestGetMails(viewLog());
+                Timestamp time = Model.getModel().getLastRequestTime();
+                System.out.println("Daemon polling: " + time);
+                RequestGetMails requestGetMail = new RequestGetMails(time);
+                Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
                 requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
-
-                Thread.sleep(2000);
-                System.out.println("Daemon polling");
                 ResponseBase response;
                 try {
                     response = sendRequest(requestGetMail);
-                    clientServerLog(new Timestamp(System.currentTimeMillis()));
+                    //clientServerLog(new Timestamp(System.currentTimeMillis()));
                     List<Mail> received = ((ResponseMails) response).getReceivedMails();
                     List<Mail> sent = ((ResponseMails) response).getSentMails();
                     
                     if (received.size() > 0){
+                        //at login, after having received a mail while offline, enters here twice. to fix
                         Platform.runLater(()->Model.getModel().addMultiple(received));
                         Platform.runLater(()->Model.getModel().addNotify(received));
                         System.out.println("You have " + received.size() + " new mails!");
@@ -77,6 +75,7 @@ public class DaemonTask implements Runnable{
                     Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
+                Thread.sleep(10000);
 
             }
 

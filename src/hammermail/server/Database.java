@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -310,6 +311,7 @@ public class Database {
             pstmt.setString(1, toRemove);
             pstmt.setString(2, replaceID);
             pstmt.executeUpdate();
+            checkRemove(mailID);
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
@@ -525,18 +527,18 @@ public class Database {
         try {
             conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            
-            System.out.println("Hammer DB - Database status \n *********************************** \n");
-            
-            System.out.println("HammerMail users");
-            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
-            System.out.println("________________________________________________________");
-            while (rs.next()) {
-                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
-                System.out.println("________________________________________________________");
-            }
+//            pstmt = conn.prepareStatement(sql);
+//            rs = pstmt.executeQuery();
+//            
+//            System.out.println("Hammer DB - Database status \n *********************************** \n");
+//            
+//            System.out.println("HammerMail users");
+//            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
+//            System.out.println("________________________________________________________");
+//            while (rs.next()) {
+//                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
+//                System.out.println("________________________________________________________");
+//            }
             
             
             sql = "SELECT * FROM email ORDER BY time DESC";
@@ -575,8 +577,44 @@ public class Database {
                 ex.printStackTrace(System.out);
             }
         }
-    
-    
+
     }
 
+  private void checkRemove(int mailID){
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DriverManager.getConnection(DB_URL);
+            String sql = "SELECT * FROM email WHERE email_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, Integer.toString(mailID));
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                String [] sender = rs.getString("sender").split(";");
+                String [] receivers = rs.getString("receiver").split(";");
+                String [] deleted = rs.getString("deleted").split(";");
+                
+                if (isContained(sender, deleted) && isContained(receivers, deleted)){
+                    System.out.println("DB: definitive deletion");
+                    sql = "DELETE FROM email WHERE email_id = ?";
+                    pstmt = conn.prepareStatement(sql);
+                    pstmt.setString(1, Integer.toString(mailID));
+                    pstmt.executeUpdate();
+                
+                }
+            }
+      
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            ex.printStackTrace(System.out);
+        }
+  }
+     
+  private boolean isContained(String [] contained, String[] container){
+      return Arrays.asList(container).containsAll(Arrays.asList(contained));
+  }
+    
 }

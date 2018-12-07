@@ -89,8 +89,8 @@ public class UIEditorController implements Initializable {
             } finally {
                 s.close();
                 //Only for testing
-                Database d = new Database(false);
-                d.dbStatus();
+//                Database d = new Database(false);
+//                d.dbStatus();
             }
         }
     }

@@ -223,7 +223,6 @@ class Task implements Runnable {
         } else {
             db.addUser(request.getUsername(), request.getPassword());
         }
-
         return new ResponseSuccess();
     }
 
@@ -256,7 +255,9 @@ class Task implements Runnable {
                 }
                 request.getMail().setReceiver(rec.substring(1));
                 int mailID = db.addMail(request.getMail());
-                //TODO servers things?
+//                System.out.println("*****BACKEND: accepted Send mails request");
+//                        db.dbStatus();
+
                 return new ResponseMailSent(mailID);
             } else {
                 return new ResponseError(SENDING_INVALID_MAIL);
@@ -274,9 +275,11 @@ class Task implements Runnable {
 
         if (db.checkPassword(request.getUsername(), request.getPassword())) {
             ResponseMails response = new ResponseMails(db.getReceivedMails(request.getUsername(), time),
-                    db.getSentMails(request.getUsername(), time));
-//        System.out.println("--------BACKEND: response rec " + response.getReceivedMails());   
-//        System.out.println("--------BACKEND: response sent " + response.getSentMails());   
+            db.getSentMails(request.getUsername(), time));
+//            System.out.println("--------BACKEND: response rec " + response.getReceivedMails());   
+//            System.out.println("--------BACKEND: response sent " + response.getSentMails());   
+//            System.out.println("*****BACKEND: accepted get mails request");
+//            db.dbStatus();
 
             return response;
         } else {
@@ -289,6 +292,8 @@ class Task implements Runnable {
         for (Integer mailID : requestDeleteMails.getMailsIDsToDelete()) {
             db.removeMail(mailID, requestDeleteMails.getUsername());
         }
+//        System.out.println("*****BACKEND: accepted delete mails request");
+//        db.dbStatus();
         return new ResponseSuccess();
     }
 

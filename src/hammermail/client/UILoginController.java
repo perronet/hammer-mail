@@ -21,10 +21,8 @@ import hammermail.core.Mail;
 import hammermail.core.Utils;
 import static hammermail.core.Utils.clientServerLog;
 import static hammermail.core.Utils.sendRequest;
-import static hammermail.core.Utils.viewLog;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
@@ -56,13 +54,15 @@ public class UILoginController implements Initializable {
     private Label loginfailure;
 
     @FXML
-    private void handleLogin(ActionEvent event) {
-        //TODO: LOAD FILE IF EXISTS, CREATE IT AND FILL IT IF IT DOESN'T EXISTS
+    private void handleLogin(ActionEvent event) {        
         try {
             if (Utils.isAuthenticationWellFormed(username.getText(), password.getText())) {
                 ResponseBase response = composeAndSendGetMail();
-                if (response instanceof ResponseError) {
                     showError("Incorrect authentication");
+                if (response instanceof ResponseError){
+                    rollback();
+                    loginfailure.setFill(Color.rgb(255,0,0));
+                    loginfailure.setText("Incorrect Authentication");
 
                 } else if (response instanceof ResponseMails) {
                     updateModelReqMail((ResponseMails) response);
@@ -75,17 +75,18 @@ public class UILoginController implements Initializable {
             System.out.println(ex.getMessage());
             showError("Unable to connect to server.");
             // set the response to error internal_error
-        }
-    }
+        } 
+    }  
+    
 
     @FXML
     private void handleSignup(ActionEvent event) {
         try {
             if (Utils.isAuthenticationWellFormed(username.getText(), password.getText())) {
                 //Compose request and send
-                String user = username.getText();
                 RequestSignUp requestSignUp = new RequestSignUp();
-                requestSignUp.SetAuthentication(user, password.getText());
+                requestSignUp.SetAuthentication(username.getText(), password.getText());
+                
                 ResponseBase response = sendRequest(requestSignUp);
 
                 //Username taken
@@ -94,10 +95,12 @@ public class UILoginController implements Initializable {
 
                 } else if (response instanceof ResponseSuccess) {
                     response = composeAndSendGetMail();
-                    if (response instanceof ResponseError) {
+                    if (response instanceof ResponseError){
+                        rollback();
                         spawnLogin();
-                    } else if (response instanceof ResponseMails) {
-                        updateModelReqMail((ResponseMails) response);
+                    
+                    }else if (response instanceof ResponseMails){                        
+                        updateModelReqMail((ResponseMails)response);
                         spawnHome();
                     }
                 }
@@ -110,34 +113,46 @@ public class UILoginController implements Initializable {
         }
 
     }
+         
 
-    @FXML
-    private void handleClose(ActionEvent event) {
-        Platform.exit();
-    }
-
-    //CONVERT INTO DIFF
-    private void updateModelReqMail(ResponseMails response) {
+    
+    
+    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException{
+        //Timestamp lastUpdate = viewLog();
         Model.getModel().setCurrentUser(username.getText(), password.getText());
-        Model.getModel().createJson(username.getText());
-
-//      We will check if it is possible to substitute the log file with this function
-//      Timestamp ts = Model.getModel().calculateLastMailStored();
-//      System.out.println(ts);
+        Timestamp lastUpdate = Model.getModel().takeLastRequestTime();
+        Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
+       
+        System.out.println("Login: last update " + lastUpdate);
+        RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
+        
+        requestGetMail.SetAuthentication(username.getText(), password.getText());
+        //clientServerLog(new Timestamp(System.currentTimeMillis()));
+        return sendRequest(requestGetMail);
+    }
+    
+    private void updateModelReqMail(ResponseMails response){
+        //Meglio confermare il login DOPO la response
+        Model.getModel().setCurrentUser(username.getText(), password.getText());
+        
         List<Mail> received = response.getReceivedMails();
         List<Mail> sent = response.getSentMails();
 
         Model.getModel().dispatchMail(received, sent);
     }
-
-    /**
-     * Method to spawn a new Login view.
-     *
-     * @author Gaetano
-     * @param event:
-     */
-    private void spawnLogin() {
-        //spawn a new login view
+    
+    public void init(Stage stage){ 
+        this.s = stage;
+        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
+    }
+     
+    private void rollback(){
+        Model.getModel().deleteJson();
+        Model.getModel().setCurrentUser(null, null);
+    }
+    
+    private void spawnLogin(){
+         //spawn a new login view
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
@@ -172,42 +187,15 @@ public class UILoginController implements Initializable {
             spawnLogin();
         }
     }
-
     private void showError(String message) {
         loginfailure.setVisible(true);
         loginfailure.setText(message);
     }
 
-    private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException {
-        Timestamp lastUpdate = viewLog();
-        RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
-        requestGetMail.SetAuthentication(username.getText(), password.getText());
-        clientServerLog(new Timestamp(System.currentTimeMillis()));
-        return sendRequest(requestGetMail);
-    }
-
-    public void init(Stage stage) {
-        this.s = stage;
-        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        File userFile = new File("log.txt");
-        if (!(userFile.exists())) {
-            try {
-                clientServerLog(new Timestamp(0));
-                System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog());
-
-            } catch (IOException ex) {
-                //Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            System.out.println("°°°°°°°°°INIT-LOGIN: the current log is " + viewLog());
-        }
 
         loginfailure.setVisible(false);
-
         username.textProperty().addListener(e -> loginfailure.setVisible(false));
         password.textProperty().addListener(e -> loginfailure.setVisible(false));
     }
