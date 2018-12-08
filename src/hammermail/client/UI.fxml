@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
 <?import java.lang.*?>
 <?import java.net.*?>
 <?import java.util.*?>
@@ -7,85 +11,205 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="MainAnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hammermail.client.UIController">
-  <children>
-    <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      
-      <!--top pane-->  
-      <top>
-        <AnchorPane id="TopAnchorPane">
-          <children>
-            <HBox prefHeight="40.0" prefWidth="600.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-              <Label fx:id="user" text="topbar" />
-              <Button onAction="#handleCreate" text="generate new mail" />
-              <Button onAction="#handleDelete" text="remove mail" />
-            </HBox>
-          </children>
-        </AnchorPane>
-      </top>      
-      
-      <!--center pane-->
-      <center>
-        <AnchorPane id="CenterAnchorPane">
-          <SplitPane dividerPositions="0.4" focusTraversable="true" prefHeight="289.0" prefWidth="411.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <items>
-              <!-- Left panel -->
-              <TabPane fx:id="tabs" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-                <Tab fx:id="inboxtab" text="Inbox">
-                  <ListView fx:id="listinbox" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                </Tab>
-                <Tab fx:id="senttab" text="Sent">
-                  <!-- Mail list -->
-                  <ListView fx:id="listsent" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                </Tab>
-                <Tab fx:id="drafttab" text="Drafts">
-                  <ListView fx:id="listdraft" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                </Tab>
-              </TabPane>
-              <!-- Right panel -->
-              <AnchorPane minHeight="0.0" minWidth="0.0">
-                <children>
-                  <VBox fx:id="centerbox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">  
-                    <HBox spacing = "5.0">  
-                      <Label fx:id="fromto" text="From" minWidth="45.0" HBox.hgrow="NEVER"/>  
-                      <TextArea fx:id="mailfromto" editable="false" prefRowCount="1" HBox.hgrow="ALWAYS"/>
-                    </HBox>
-                    <HBox spacing = "5.0"> 
-                      <Label fx:id="tofrom" text="To" minWidth="45.0" HBox.hgrow="NEVER"/> 
-                      <TextArea fx:id="mailtofrom" editable="false" prefRowCount="1" HBox.hgrow="ALWAYS"/>
-                    </HBox> 
-                    <HBox spacing = "5.0"> 
-                      <Label fx:id="subject" text="Subject" minWidth="45.0" HBox.hgrow="NEVER"/> 
-                      <TextArea fx:id="mailtitle" editable="false" prefRowCount="1" HBox.hgrow="ALWAYS"/>
-                    </HBox> 
-                    <TextArea fx:id="maildate" editable="false" prefRowCount="1"/>
-                    <TextArea fx:id="mailcontent" editable="false"/>   
-                  </VBox>      
-                </children>
-              </AnchorPane>
-            </items>
-          </SplitPane>
-        </AnchorPane>
-      </center>
-      
-      <!--bottom pane-->
-      <bottom>
-        <AnchorPane id="BottomAnchorPane">
-          <children>
-            <HBox prefHeight="40.0" prefWidth="200.0" spacing="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-              <Label fx:id="loggedas" />
-            </HBox>
-            <HBox fx:id="bottombox" prefHeight="40.0" prefWidth="500.0" spacing="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            </HBox>
-          </children>
-        </AnchorPane>
-      </bottom>
-            
-    </BorderPane>
-  </children>
-  
-  <!--bind css document-->
-  <stylesheets>
-    <URL value="@UI.css" />
-  </stylesheets>
+<AnchorPane id="MainAnchorPane" prefHeight="551.0" prefWidth="877.0" styleClass="main-ui-root" stylesheets="@../resources/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UIController">
+    <children>
+        <HBox prefHeight="100.0" prefWidth="200.0" styleClass="root" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <VBox minWidth="211.0" prefHeight="551.0" prefWidth="211.0" style="-fx-background-color: -left-menu-bar-back-color;">
+                    <children>
+                        <!-- Left panel -->
+                        <TabPane fx:id="tabs" minHeight="0.0" minWidth="0.0" styleClass="tabpane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                            <tabs>
+                                <Tab text="Inbox">
+                                    <content>
+                                        <ListView fx:id="listinbox" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    </content>
+                                </Tab>
+                                <Tab text="Sent">
+                                    <content>
+                                        <!-- Mail list -->
+                                        <ListView fx:id="listsent" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    </content>
+                                </Tab>
+                                <Tab text="Drafts">
+                                    <content>
+                                        <ListView fx:id="listdraft" prefHeight="200.0" prefWidth="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                    </content>
+                                </Tab>
+                            </tabs>
+                     <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </VBox.margin>
+                        </TabPane>
+                        <HBox prefHeight="40.0" prefWidth="600.0" spacing="20.0">
+                            <children>
+                                <Button onAction="#handleCreate" styleClass="action-button">
+                           <graphic>
+                              <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../resources/newmail.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <tooltip>
+                              <Tooltip text="New mail" />
+                           </tooltip></Button>
+                            </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                        </HBox>
+                    </children>
+                </VBox>
+                <VBox fx:id="mailBox" alignment="TOP_RIGHT" styleClass="vbox" HBox.hgrow="ALWAYS">
+                    <children>
+                        <HBox alignment="CENTER_RIGHT">
+                            <children>
+                                <HBox spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                                      <Button fx:id="deleteButton" onAction="#handleDelete" styleClass="action-button">
+                                 <graphic>
+                                    <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../resources/delete.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Delete mail" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="replyButton" mnemonicParsing="false" styleClass="action-button">
+                                 <graphic>
+                                    <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../resources/reply.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Reply" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="replyAllButton" mnemonicParsing="false" styleClass="action-button">
+                                 <graphic>
+                                    <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../resources/replyall.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Reply to all" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="forwardButton" mnemonicParsing="false" styleClass="action-button">
+                                 <graphic>
+                                    <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../resources/forward.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Forward" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="sendButton" mnemonicParsing="false" styleClass="action-button">
+                                 <graphic>
+                                    <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../resources/send.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Send draft" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="modifyButton" mnemonicParsing="false" styleClass="action-button">
+                                 <graphic>
+                                    <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../resources/draft.png" />
+                                       </image>
+                                    </ImageView>
+                                 </graphic>
+                                 <tooltip>
+                                    <Tooltip text="Edit draft" />
+                                 </tooltip>
+                              </Button>
+                           </children></HBox>
+                                <Label fx:id="loggedas" alignment="CENTER_RIGHT" styleClass="label-enveloped" text="logged name">
+                                    <graphic>
+                                        <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../resources/user.png" />
+                                            </image>
+                                        </ImageView>
+                                    </graphic>
+                                </Label>
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                        </HBox> 
+                        <TextArea fx:id="maildate" editable="false" prefRowCount="1" styleClass="undecorated-text-area" text="13/08/1994" />  
+                        <HBox spacing="5.0">
+                            <children>  
+                                <Label fx:id="fromto" alignment="CENTER_RIGHT" minWidth="45.0" text="From" textAlignment="RIGHT" HBox.hgrow="NEVER" />  
+                                <Label fx:id="mailfromto" styleClass="label-enveloped" text="mail of sender here" />
+                            </children>
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </padding>
+                        </HBox>
+                        <HBox spacing="5.0">
+                            <children> 
+                                <Label fx:id="tofrom" alignment="CENTER_RIGHT" minWidth="45.0" text="To" textAlignment="RIGHT" HBox.hgrow="NEVER" /> 
+                                <Label fx:id="mailtofrom" styleClass="label-enveloped" text="mails of receivers here" />
+                            </children>
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </padding>
+                        </HBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="SOMETIMES">
+                            <children>
+                                <Separator prefWidth="200.0">
+                                    <effect>
+                                        <Bloom threshold="0.0" />
+                                    </effect>
+                                </Separator> 
+                                <Label fx:id="mailtitle" prefHeight="43.0" prefWidth="444.0" styleClass="title-text-area" text="Subject" VBox.vgrow="NEVER">
+                           <padding>
+                              <Insets left="10.0" top="10.0" />
+                           </padding></Label>
+                                <TextArea fx:id="mailcontent" editable="false" styleClass="undecorated-text-area" text="mail content" VBox.vgrow="SOMETIMES">
+                                    <VBox.margin>
+                                        <Insets left="10.0" />
+                                    </VBox.margin>
+                                </TextArea>
+                            </children>
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </VBox>
+                    </children>   
+                </VBox>
+            <VBox fx:id="noMailBox" alignment="CENTER" prefHeight="551.0" prefWidth="932.0">
+               <children>
+                  <Label fx:id="loggedas1" alignment="CENTER" styleClass="label-enveloped" text="Select a mail to view it." textAlignment="CENTER">
+                     <graphic>
+                        <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/mail.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Label>
+               </children>
+            </VBox>
+            </children>
+        </HBox>
+    </children>
 </AnchorPane>

@@ -25,6 +25,9 @@ import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 
 /**
  *
@@ -81,6 +84,12 @@ public class Utils {
         return !isNullOrWhiteSpace(username) &&
                !isNullOrWhiteSpace(password) &&
                !username.contains("@");
+    }
+    
+    public static void toggleCollapse(Node node, boolean isVisible)
+    {
+        node.setVisible(isVisible);
+        node.setManaged(isVisible);
     }
      /**
      * An authentication is well formed if it makes sense 

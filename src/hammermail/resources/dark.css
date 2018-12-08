@@ -19,222 +19,197 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Author     : 00mar
 */
 
-.pane {
-    -fx-background-color: #1d1d1d;
+* {
+    -fx-background-color: transparent;
+    -common-back-color: #262626;
+    -active-back-color: #2d2d2d;
+    -enveloped-back-color: #3A506B;
+    -tooltip-back-color: #363636;
+
+    -left-menu-bar-back-color: -enveloped-back-color;
+
+    /*text*/
+    -fx-font-family: "Segoe UI Semibold";
+    -common-text-fill: #e2e2e2; 
+    -enveloped-text-fill: #e2e2e2;
+    -common-text-font-size: 11pt;
+    -error-text-fill: #ff4444;
+    -active-text-fill: #2EC4B6;
+    -focused-text-fill: #aaffaa;
+
+
+    -common-border-fill: white;
+    -active-border-fill: white;
 }
 
-.background {
-    -fx-background-color: #1d1d1d;
-    -fx-background-radius: 10;
+.login-root {
+    -fx-background-color: -common-back-color;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+}
+
+.main-ui-root {
+    -fx-background-color: -common-back-color;
+}
+
+.label {
+    -fx-font-size: 11pt;
+    -fx-text-fill: -common-text-fill;
 }
 
 .label-error {
     -fx-font-size: 11pt;
-    -fx-font-family: "Segoe UI Semibold";
     -fx-fill: #ff4444;
     -fx-text-fill: #ff4444;
     -fx-opacity: 1;
 }
 
-.label {
+.label-enveloped {
     -fx-font-size: 11pt;
-    -fx-font-family: "Segoe UI Semibold";
-    -fx-text-fill: white;
-    -fx-opacity: 0.6;
+    -fx-background-color: -enveloped-back-color;
+    -fx-text-fill: -enveloped-text-fill;
+    -fx-background-radius: 15;
+    -fx-padding: 2 5 2 5;
 }
 
-.label-bright {
-    -fx-font-size: 11pt;
-    -fx-font-family: "Segoe UI Semibold";
-    -fx-text-fill: white;
-    -fx-opacity: 1;
-}
-
-.label-header {
-    -fx-font-size: 32pt;
-    -fx-font-family: "Segoe UI Light";
-    -fx-text-fill: white;
-    -fx-opacity: 1;
-}
-
-.table-view {
-    -fx-base: #1d1d1d;
-    -fx-control-inner-background: #1d1d1d;
-    -fx-background-color: #1d1d1d;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-header-border-color: transparent;
-    -fx-padding: 5;
-}
-
-.table-view .column-header-background {
-    -fx-background-color: transparent;
-}
-
-.table-view .column-header, .table-view .filler {
-    -fx-size: 35;
-    -fx-border-width: 0 0 1 0;
-    -fx-background-color: transparent;
-    -fx-border-color: 
-        transparent
-        transparent
-        derive(-fx-base, 80%) 
-        transparent;
-    -fx-border-insets: 0 10 1 0;
-}
-
-.table-view .column-header .label {
-    -fx-font-size: 20pt;
-    -fx-font-family: "Segoe UI Light";
-    -fx-text-fill: white;
-    -fx-alignment: center-left;
-    -fx-opacity: 1;
-}
-
-.table-view:focused .table-row-cell:filled:focused:selected {
-    -fx-background-color: -fx-focus-color;
-}
-
-.split-pane:horizontal > .split-pane-divider {
-    -fx-border-color: transparent #1d1d1d transparent #1d1d1d;
-    -fx-background-color: transparent, derive(#1d1d1d,20%);
-}
-
-.split-pane {
-    -fx-padding: 1 0 0 0;
-}
-
-.menu-bar {
-    -fx-background-color: derive(#1d1d1d,20%);
-}
-
-.context-menu {
-    -fx-background-color: derive(#1d1d1d,50%);
-}
-
-.menu-bar .label {
-    -fx-font-size: 14pt;
-    -fx-font-family: "Segoe UI Light";
-    -fx-text-fill: white;
-    -fx-opacity: 0.9;
-}
-
-.menu .left-container {
-    -fx-background-color: black;
-}
-
-.text-field {
-    -fx-font-size: 12pt;
-    -fx-font-family: "Segoe UI Semibold";
-}
-
-/* 
- * Metro style Push Button
- * Author: Pedro Duque Vieira
- * http://pixelduke.wordpress.com/2012/10/23/jmetro-windows-8-controls-on-java/
- */
 .button {
+    -fx-border-color: -common-border-fill;
+    -fx-text-fill: -common-text-fill;
     -fx-padding: 5 22 5 22;   
-    -fx-border-color: #e2e2e2;
     -fx-border-width: 2;    
     -fx-border-radius: 5;
-    -fx-background-radius: 0;
-    -fx-background-color: #1d1d1d;
-    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-background-radius: 5;
     -fx-font-size: 15pt;
-    -fx-text-fill: #d8d8d8;
-    -fx-background-insets: 0 0 0 0, 0, 1, 2;
 }
 
 .button:hover {
-    -fx-background-color: #3a3a3a;
+    -fx-background-color: -active-back-color;
 }
 
 .button:pressed, .button:default:hover:pressed {
-    -fx-background-color: white;
-    -fx-text-fill: #1d1d1d;
+    -fx-background-color: transparent;
+    -fx-text-fill: -active-border-fill;
+    -opacity: .6;
 }
 
 .button:focused {
-    -fx-border-color: white, white;
-    -fx-border-width: 1, 1;
-    -fx-border-style: solid,segments(1, 1);
-    -fx-border-radius: 5, 1;
-    -fx-border-insets: 1 1 1 1, 0;
+    -fx-text-fill: -focused-text-fill;
 }
 
 .button:disabled, .button:default:disabled {
     -fx-opacity: 0.4;
-    -fx-background-color: #1d1d1d;
-    -fx-text-fill: white;
 }
 
-.button:default {
-    -fx-background-color: -fx-focus-color;
-    -fx-text-fill: #ffffff;
-}
-
-.button:default:hover {
-    -fx-background-color: derive(-fx-focus-color,30%);
-}
-
-.lowbutton{
-    -fx-border-color: white, white;
+.undecorated-button{
     -fx-border-width: 0,0;
-    -fx-border-style: solid,segments(1, 1);
-    -fx-border-radius: 10, 0;
-    -fx-border-insets: 1 1 1 1, 0;
+    -fx-opacity: 0.8;
 }
 
-.lowbutton:hover {
-    -fx-text-fill: #ffffff;
-    -fx-border-width: 0,0;
-    -fx-background-color: transparent;
-}
-
-.lowbutton:focused {
-    -fx-text-fill: #ffffff;
-    -fx-border-width: 0,0;
-    -fx-background-color: transparent;
-}
-
-.lowbutton:pressed {
-    -fx-background-color: transparent;
-    -fx-border-width: 0,0;
-    -fx-text-fill: #cccccc;
-}
-
-.closebutton{
-    -fx-border-color: white, white;
+.undecorated-button:hover {
+    -opacity: 1;
     -fx-border-width: .5;
-    -fx-opacity: 0.6;
-    -fx-padding: 1 7 1 7;   
-    -fx-border-radius: 5;
-    -fx-background-radius: 0;
-    -fx-background-color: #1d1d1d;
-    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.undecorated-button:pressed {
+    -opacity: .6;
+}
+
+.undecorated-button:focused {
+    -opacity: .8;
+}
+
+.close-button{
+    -fx-padding: 2 5.3 2 5.3;
+    -fx-border-width: .7;    
+    -fx-border-radius: 20;
+    -fx-font-size: 7pt;
+    -fx-border-color: white, white;
+}
+
+
+.action-button {
+    -fx-border-color: -common-border-fill;
+    -fx-text-fill: -common-text-fill;
+    -fx-padding: 5 20 5 20;   
+    -fx-border-width: 1.5;    
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-font-size: 15pt;
+}
+
+.action-button:hover {
+    -fx-background-color: -active-back-color;
+}
+
+.action-button:pressed, .button:default:hover:pressed {
+    -fx-background-color: transparent;
+    -fx-text-fill: -active-border-fill;
+    -opacity: .6;
+}
+
+.action-button:focused {
+    -fx-text-fill: -focused-text-fill;
+}
+
+.action-button:disabled, .action-button:default:disabled {
+    -fx-opacity: 0.4;
+}
+
+.text-area {
+    -fx-text-fill: -common-text-fill;
+    -fx-border-width: .7;    
+    -fx-border-radius: 20;
+    -fx-font-size: 7pt;
+    -fx-border-color: white, white;
+}
+
+.undecorated-text-area {
+    -fx-text-fill: -common-text-fill;
+    padding: 0;
+    -fx-border-width: 0;    
     -fx-font-size: 10pt;
-    -fx-border-radius: 5;
 }
 
-.closebutton:hover {
-    -fx-text-fill: #ffffff;
-    -fx-opacity: 1;
-    -fx-background-color: transparent;
-    -fx-border-width: .5;
-    -fx-border-radius: 5;
+.title-text-area {
+    -fx-text-fill: -common-text-fill;
+    padding: 0;
+    -fx-border-width: 0;    
+    -fx-font-size: 18pt;
 }
 
-.closebutton:focused {
-    -fx-text-fill: #ffffff;
-    -fx-opacity: 1;
-    -fx-background-color: transparent;
-    -fx-border-width: .5;
+.text-field {
+    -fx-font-size: 12pt;
+    -fx-border-width: .7;    
     -fx-border-radius: 5;
+    -fx-border-color: white, white;
+    -fx-text-fill: -common-text-fill;
 }
 
-.closebutton:pressed {
-    -fx-background-color: transparent;
-    -fx-text-fill: #ffffff;
-    -fx-border-width: .5;
-    -fx-border-radius: 5;
+.tab  { 
+    -fx-alignment: CENTER;
+}
+
+.tab .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: -common-text-fill;
+    -fx-font-size: 14pt;
+}
+
+.tab:focused .tab-label { 
+    -fx-text-fill: -active-text-fill;
+    -fx-border-width: 0;    
+}
+.tab:selected .tab-label { 
+    -fx-text-fill: -active-text-fill;
+    -fx-border-width: 0;    
+}
+
+.tooltip {
+    -fx-text-fill: -active-text-fill;
+    -fx-background: -tooltip-back-color;
+    -fx-background-color: -tooltip-back-color;
+    -fx-background-radius: 10pt;
+    -fx-padding: 3 5 3 5;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5) , 10, 0.0 , 0 , 3 );
+    -fx-font-size: 14;
 }

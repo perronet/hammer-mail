@@ -22,11 +22,14 @@ import hammermail.core.Utils;
 import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
+import hammermail.server.Backend;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -65,7 +68,7 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseMails) {
                     updateModelReqMail((ResponseMails) response);
                     spawnHome();
-                } else if (response instanceof ResponseRetrieve){
+                } else if (response instanceof ResponseRetrieve) {
                     //TODO
                 }
             } else {
@@ -96,16 +99,15 @@ public class UILoginController implements Initializable {
                     response = composeAndSendGetMail();
                     if (response instanceof ResponseError) {
                         rollback();
-                        spawnLogin();
-
+                        showError("Unable to connect to server!");
                     } else if (response instanceof ResponseMails) {
                         updateModelReqMail((ResponseMails) response);
                         spawnHome();
-                    } else if (response instanceof ResponseRetrieve){
-                            //TODO
+                    } else if (response instanceof ResponseRetrieve) {
+                        //TODO
                     }
-                } else if (response instanceof ResponseRetrieve){
-                         //TODO
+                } else if (response instanceof ResponseRetrieve) {
+                    //TODO
                 }
             } else {
                 showError("Insert a valid username and password!");
@@ -115,12 +117,12 @@ public class UILoginController implements Initializable {
             // set the response to error internal_error
         }
     }
- 
-    @FXML 
-    private void handleClose(ActionEvent event) { 
-        Platform.exit(); 
-    } 
- 
+
+    @FXML
+    private void handleClose(ActionEvent event) {
+        Platform.exit();
+    }
+
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException {
         Model.getModel().setCurrentUser(username.getText(), password.getText());
         Timestamp lastUpdate = Model.getModel().takeLastRequestTime();
@@ -146,8 +148,17 @@ public class UILoginController implements Initializable {
     public void init(Stage stage) {
         this.s = stage;
         Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
+        
+        //Autostart server and login
+        username.setText("a");
+        password.setText("a");
+        Thread t = new Thread(() -> {
+            Backend b;
+            b = new Backend();
+            b.startServer();
+        });
+        t.start();
     }
-
     private void rollback() {
         Model.getModel().deleteJson();
         Model.getModel().setCurrentUser(null, null);
@@ -186,7 +197,8 @@ public class UILoginController implements Initializable {
             uiController.init(newstage);
             newstage.show();
         } catch (IOException ex) {
-            spawnLogin();
+            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            Platform.exit();
         }
     }
 
