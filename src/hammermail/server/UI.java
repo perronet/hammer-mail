@@ -52,7 +52,7 @@ public class UI extends Application {
         uiController.initModel(model);
 
         primaryStage.show();
-
+        
         Backend backend = startServer();
         backend.logProperty().addListener((value, oldValue, newValue) -> {
             Platform.runLater(() -> {
@@ -71,7 +71,6 @@ public class UI extends Application {
         {
             testServer();
         }
-        Thread.sleep(70000);
         new Database(false).dbStatus();
 
     }
