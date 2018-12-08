@@ -315,13 +315,13 @@ public class Model {
             addMultiple(newSent);
     }
     
-    private void createJson(String username){
-        File userFile = new File(this.currentUser.getUserFileFolder());
+    private void createJson(){
+        File userFile = new File("savedmails" + "/" + this.currentUser.getUsername() + "mails");
         if(!(userFile.exists())){
+            userFile.mkdirs();
             Gson file = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
-            File dir = new File(this.currentUser.getUsername() + "mails");
-            dir.mkdir();
+            //userFile.mkdir();
             try{
                 JsonWriter writer = new JsonWriter(new FileWriter(filepath));
                 System.out.println(filepath);
@@ -335,7 +335,7 @@ public class Model {
     public Timestamp takeLastRequestTime(){
         File userFile = new File(this.currentUser.getUserFileFolder());
         if(!userFile.exists()){
-            createJson(this.currentUser.getUsername());
+            createJson();
         }
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
 	JsonPair pairTest = null;
