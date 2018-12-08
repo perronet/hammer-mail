@@ -34,7 +34,7 @@ public class User implements Serializable {
     }
     
     public String getUserFileFolder(){
-        return this.username + "mails" + "/" + this.username + ".json";
+        return "savedmails" + "/" + this.username + "mails" + "/" + this.username + ".json";
     }
     
     public String getUsername() {
