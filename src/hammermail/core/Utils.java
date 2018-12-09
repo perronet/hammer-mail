@@ -25,9 +25,16 @@ import java.net.Inet4Address;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 /**
  *
@@ -70,6 +77,21 @@ public class Utils {
             }
         }
         return lines;
+    }
+
+    public static void spawnError(String text) {
+        Label errorLabel = new Label(text);
+        errorLabel.setAlignment(Pos.CENTER);
+        errorLabel.setPadding(new Insets(100));
+        errorLabel.getStylesheets().add("../dark.css"); //FIXME wrong css path
+        errorLabel.setStyle("label-enveloped");
+        
+        Parent root = new AnchorPane(errorLabel);
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setTitle("Error!");
+        stage.setScene(scene);
+        stage.show();
     }
     
     public static ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{

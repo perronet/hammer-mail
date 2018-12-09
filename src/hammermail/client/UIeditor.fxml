@@ -36,8 +36,5 @@
 
         </BorderPane>
     </children>
-    
-    <stylesheets>
-        <URL value="@UI.css" />
-    </stylesheets>
+
 </AnchorPane>

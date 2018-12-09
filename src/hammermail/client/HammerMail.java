@@ -42,6 +42,7 @@ public class HammerMail extends Application {
         
         Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
+        stage.setTitle("HammerMail - Login");
         stage.setScene(scene);
         stage.show();
     }

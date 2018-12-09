@@ -36,6 +36,7 @@ import hammermail.core.Utils;
 import static hammermail.core.Utils.containsUser;
 import static hammermail.core.Utils.isNullOrWhiteSpace;
 import static hammermail.core.Utils.sendRequest;
+import static hammermail.core.Utils.spawnError;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import java.io.File;
@@ -103,11 +104,12 @@ public class UIController implements Initializable {
             int tabId = tabs.getSelectionModel().getSelectedIndex();
             List<Mail> mailsToDelete = composeDeletingRequest();
 
-            if (mailsToDelete == null) //SHOW POPUP: unable to contact server 
-            {
-                if (!mailsToDelete.isEmpty()) {
-                    Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
-                }
+            if (mailsToDelete == null){
+                spawnError("Unable to contact server");
+                System.out.println("Unable to contact server");
+            }
+            if (!mailsToDelete.isEmpty()) { //just to be sure
+                Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
             }
         }
     }
@@ -315,7 +317,7 @@ public class UIController implements Initializable {
 
         sendButton.setOnAction((ActionEvent e) -> {
             if (currentMail().getReceiver().isEmpty()) {
-                handleError();
+                spawnError("Invalid receiver");
             } else {
                 sendDraft();
                 Model.getModel().removeDraft();
@@ -380,22 +382,6 @@ public class UIController implements Initializable {
         }
     }
 
-    //Duplicate. To move.
-    private void handleError() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("UIEditorError.fxml"));
-            Parent root = fxmlLoader.load();
-            Scene scene = new Scene(root, 200, 200);
-            Stage stage = new Stage();
-            stage.setTitle("Error!");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            System.out.println(e.toString());
-        }
-    }
-
     private Mail composeMail(String receiver) {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         return new Mail(-1, currentUser, receiver, currentMail().getTitle(), currentMail().getText(), ts);
@@ -406,7 +392,7 @@ public class UIController implements Initializable {
         //ENSURE that the current mail is the draft
         String receiver = currentMail().getReceiver();
         if (isNullOrWhiteSpace(receiver)) {
-            handleError();
+            spawnError("Invalid receiver");
         } else {
             Mail mail = composeMail(receiver);
             RequestSendMail request = new RequestSendMail(mail);
@@ -419,7 +405,7 @@ public class UIController implements Initializable {
 //                  TODO inspect the type of error
                     ResponseError.ErrorType err = ((ResponseError) response).getErrorType();
                     System.out.println(err);
-                    handleError();
+                    spawnError("Error response received: " + err.toString());
                 } else if (response instanceof ResponseMailSent) {
                     Model.getModel().removeDraft();
                 } else if (response instanceof ResponseRetrieve) {
@@ -428,7 +414,7 @@ public class UIController implements Initializable {
 
             } catch (ClassNotFoundException | IOException classEx) {
                 System.out.println("catch2");
-                handleError();
+                spawnError("Internal error");
                 // set the response to error internal_error
             } finally {
                 //Only for testing
@@ -451,8 +437,8 @@ public class UIController implements Initializable {
         AnchorPane pane = new AnchorPane();
 
         Label label = new Label();
-        label.getStylesheets().add("../dark.css");
-        label.setStyle("enveloped-label");
+        label.getStylesheets().add("../dark.css"); //FIXME wrong css path
+        label.setStyle("label-enveloped");
         label.setTextFill(Color.WHITESMOKE);
         label.setPadding(insets);
         label.setTextAlignment(TextAlignment.CENTER);

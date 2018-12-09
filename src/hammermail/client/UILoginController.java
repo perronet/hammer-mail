@@ -203,8 +203,8 @@ public class UILoginController implements Initializable {
     }
 
     private void showError(String message) {
-        loginfailure.setVisible(true);
         loginfailure.setText(message);
+        loginfailure.setVisible(true);
     }
 
     @Override

@@ -26,15 +26,13 @@ import hammermail.net.responses.ResponseError;
 import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
 import hammermail.net.responses.ResponseRetrieve;
+import static hammermail.core.Utils.spawnError;
 import java.sql.Timestamp;
 
 import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -56,7 +54,7 @@ public class UIEditorController {
         //TODO read receiver to each comma and verify it is an existent person
         String receiver = receiversmail.getText();
         if(isNullOrWhiteSpace(receiver)){
-            handleError();
+            spawnError("Invalid receiver");
         }else{
             Mail mail = composeMail(receiver);
             RequestSendMail request = new RequestSendMail(mail);
@@ -69,7 +67,7 @@ public class UIEditorController {
 //                  TODO inspect the type of error
                     ErrorType err = ((ResponseError)response).getErrorType();
                     System.out.println(err);
-                    handleError();
+                    spawnError("Error response received: " + err.toString());
                 } else if (response instanceof ResponseMailSent){
 //                    mail.setId(((ResponseMailSent) response).getMailID());
 //                    Model.getModel().addMail(mail);
@@ -80,7 +78,7 @@ public class UIEditorController {
 
             } catch (ClassNotFoundException | IOException classEx){
                 System.out.println("catch2");
-                handleError();
+                spawnError("Internal error");
             // set the response to error internal_error
             } finally {
                 s.close();
@@ -105,21 +103,6 @@ public class UIEditorController {
             System.out.println("Draft saved");
             s.close();
         }
-    }
-    
-    private void handleError(){
-        try{
-                FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("UIEditorError.fxml"));
-                Parent root = fxmlLoader.load();
-                Scene scene = new Scene(root, 200, 200);
-                Stage stage = new Stage();
-                stage.setTitle("Error!");
-                stage.setScene(scene);
-                stage.show();
-            }catch(IOException e){
-                System.out.println (e.toString());
-            }
     }
     
     /**
