@@ -11,7 +11,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="MainAnchorPane" prefHeight="551.0" prefWidth="877.0" styleClass="main-ui-root" stylesheets="@../resources/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UIController">
+<AnchorPane id="MainAnchorPane" prefHeight="551.0" prefWidth="1069.0" styleClass="main-ui-root" stylesheets="@../resources/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UIController">
     <children>
         <HBox prefHeight="100.0" prefWidth="200.0" styleClass="root" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -173,7 +173,7 @@
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </padding>
                         </HBox>
-                        <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="SOMETIMES">
+                        <VBox VBox.vgrow="SOMETIMES">
                             <children>
                                 <Separator prefWidth="200.0">
                                     <effect>
@@ -184,7 +184,7 @@
                            <padding>
                               <Insets left="10.0" top="10.0" />
                            </padding></Label>
-                                <TextArea fx:id="mailcontent" editable="false" styleClass="undecorated-text-area" text="mail content" VBox.vgrow="SOMETIMES">
+                                <TextArea fx:id="mailcontent" editable="false" styleClass="undecorated-text-area" text="mail content" wrapText="true" VBox.vgrow="SOMETIMES">
                                     <VBox.margin>
                                         <Insets left="10.0" />
                                     </VBox.margin>
@@ -196,7 +196,7 @@
                         </VBox>
                     </children>   
                 </VBox>
-            <VBox fx:id="noMailBox" alignment="CENTER" prefHeight="551.0" prefWidth="932.0">
+            <VBox fx:id="noMailBox" alignment="CENTER" HBox.hgrow="ALWAYS">
                <children>
                   <Label fx:id="loggedas1" alignment="CENTER" styleClass="label-enveloped" text="Select a mail to view it." textAlignment="CENTER">
                      <graphic>

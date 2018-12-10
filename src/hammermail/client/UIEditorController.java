@@ -34,6 +34,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -45,41 +46,43 @@ import javafx.stage.WindowEvent;
 public class UIEditorController {
 
     private Stage s;
+
+    @FXML
+    private TextField receiversmail, mailsubject;
     
     @FXML
-    private TextArea receiversmail, mailsubject, bodyfield;
-    
-    @FXML 
-    private void handleSend(ActionEvent event){
+    private TextArea bodyfield;
+
+    @FXML
+    private void handleSend(ActionEvent event) {
         //TODO read receiver to each comma and verify it is an existent person
         String receiver = receiversmail.getText();
-        if(isNullOrWhiteSpace(receiver)){
+        if (isNullOrWhiteSpace(receiver)) {
             spawnError("Invalid receiver");
-        }else{
+        } else {
             Mail mail = composeMail(receiver);
             RequestSendMail request = new RequestSendMail(mail);
             User current = Model.getModel().getCurrentUser();
             request.SetAuthentication(current.getUsername(), current.getPassword());
-            
+
             try {
                 ResponseBase response = sendRequest(request);
-                if (response instanceof ResponseError){
+                if (response instanceof ResponseError) {
 //                  TODO inspect the type of error
-                    ErrorType err = ((ResponseError)response).getErrorType();
+                    ErrorType err = ((ResponseError) response).getErrorType();
                     System.out.println(err);
                     spawnError("Error response received: " + err.toString());
-                } else if (response instanceof ResponseMailSent){
+                } else if (response instanceof ResponseMailSent) {
 //                    mail.setId(((ResponseMailSent) response).getMailID());
 //                    Model.getModel().addMail(mail);
-                } else if (response instanceof ResponseRetrieve){
+                } else if (response instanceof ResponseRetrieve) {
                     //TODO
                 }
-                
 
-            } catch (ClassNotFoundException | IOException classEx){
+            } catch (ClassNotFoundException | IOException classEx) {
                 System.out.println("catch2");
                 spawnError("Internal error");
-            // set the response to error internal_error
+                // set the response to error internal_error
             } finally {
                 s.close();
                 //Only for testing
@@ -88,48 +91,52 @@ public class UIEditorController {
             }
         }
     }
-    
-    
-    @FXML 
-    public void handleSave(Event event){
+
+    @FXML
+    public void handleSave(Event event) {
         String receiver = receiversmail.getText();
         String mailsub = mailsubject.getText();
         String body = bodyfield.getText();
-        if(isNullOrWhiteSpace(receiver) && isNullOrWhiteSpace(mailsub) 
-                && isNullOrWhiteSpace(body) && (event instanceof WindowEvent)){
+        if (isNullOrWhiteSpace(receiver) && isNullOrWhiteSpace(mailsub)
+                && isNullOrWhiteSpace(body) && (event instanceof WindowEvent)) {
             s.close();
-        }else{
+        } else {
             Model.getModel().saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
             s.close();
         }
     }
-    
+
     /**
      * Initializes the controller class.
      */
-    
     //"Constructor"
-    public void init(Stage stage){
+    public void init(Stage stage) {
         this.s = stage;
     }
-    
+
     //If the field is not empty, it cannot be modified
-    public void setTextAreas(String sndrcv, String tit, String text, boolean modifiable){
+    public void setTextAreas(String sndrcv, String tit, String text, boolean modifiable) {
         receiversmail.setText(sndrcv);
         mailsubject.setText(tit);
         bodyfield.setText(text);
-        if(!(modifiable)){
-            if(!(sndrcv.equals(""))){ receiversmail.setEditable(false);}
-            if(!(tit.equals(""))){ mailsubject.setEditable(false);}
-            if(!(text.equals(""))){ bodyfield.setEditable(false);}
+        if (!(modifiable)) {
+            if (!(sndrcv.equals(""))) {
+                receiversmail.setEditable(false);
+            }
+            if (!(tit.equals(""))) {
+                mailsubject.setEditable(false);
+            }
+            if (!(text.equals(""))) {
+                bodyfield.setEditable(false);
+            }
         }
     }
 
-     private Mail composeMail(String receiver){
-            String sender = Model.getModel().getCurrentUser().getUsername();
-            Timestamp ts = new Timestamp(System.currentTimeMillis());
-            return new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
+    private Mail composeMail(String receiver) {
+        String sender = Model.getModel().getCurrentUser().getUsername();
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        return new Mail(-1, sender, receiver, mailsubject.getText(), bodyfield.getText(), ts);
     }
-    
+
 }

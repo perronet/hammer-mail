@@ -437,8 +437,6 @@ public class UIController implements Initializable {
         AnchorPane pane = new AnchorPane();
 
         Label label = new Label();
-        label.getStylesheets().add("../dark.css"); //FIXME wrong css path
-        label.setStyle("label-enveloped");
         label.setTextFill(Color.WHITESMOKE);
         label.setPadding(insets);
         label.setTextAlignment(TextAlignment.CENTER);
@@ -487,7 +485,6 @@ public class UIController implements Initializable {
 }
 
 class MailCell extends ListCell<Mail> { //Custom cells for the list, we can show a Mail object in different ways
-
     @Override
     protected void updateItem(Mail item, boolean empty) {
         super.updateItem(item, empty);

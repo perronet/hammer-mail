@@ -163,9 +163,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -fx-border-color: white, white;
 }
 
+.mail-editor-text-area{
+    -fx-border-radius: 5;
+    -fx-font-size: 12pt;
+}
+
+.mail-editor-text-field{
+    -fx-padding: 0 0 0 10;
+}
+
 .undecorated-text-area {
     -fx-text-fill: -common-text-fill;
-    padding: 0;
+    -fx-padding: 0;
     -fx-border-width: 0;    
     -fx-font-size: 10pt;
 }
@@ -197,11 +206,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 .tab:focused .tab-label { 
     -fx-text-fill: -active-text-fill;
-    -fx-border-width: 0;    
+    -fx-border-width: 0;
 }
+
 .tab:selected .tab-label { 
     -fx-text-fill: -active-text-fill;
-    -fx-border-width: 0;    
+    -fx-border-width: 0;
+}
+
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
 }
 
 .tooltip {
@@ -212,4 +226,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -fx-padding: 3 5 3 5;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.5) , 10, 0.0 , 0 , 3 );
     -fx-font-size: 14;
+}
+
+.list-view {
+    -fx-padding: 10 3 5 2;
+}
+
+.list-cell:filled {
+    -fx-padding: 10 8 10 5;
+    -fx-background-insets:  3 2 3 2;
+    -fx-border-insets:  3 2 3 2;
+    -fx-border-width: .7;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+
+    -fx-border-color: derive(-enveloped-back-color, -30%);
+    -fx-background-color: -enveloped-back-color;
+    -fx-text-fill: -common-text-fill;
+    -fx-font-size: 14;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: derive(-enveloped-back-color, -30%);
+    -fx-border-color: derive(-active-text-fill,-10%);
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: derive(-enveloped-back-color, -10%);;
 }
