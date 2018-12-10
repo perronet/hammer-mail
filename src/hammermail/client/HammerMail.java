@@ -38,20 +38,18 @@ public class HammerMail extends Application {
         loginLoader.setLocation(getClass().getResource("UIlogin.fxml"));
         Parent root = loginLoader.load();       
         UILoginController loginController = loginLoader.getController();
-        loginController.init(stage);
+        loginController.setStage(stage);
         
         Scene scene = new Scene(root);
         scene.setFill(Color.TRANSPARENT);
         stage.setTitle("HammerMail - Login");
         stage.setScene(scene);
+        loginController.startTestServer();//uncomment to quicly test
         stage.show();
     }
-
     
     public static void main(String[] args) {
 		launch(args);
-		
-
     }
     
 }

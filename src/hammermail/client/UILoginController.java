@@ -45,7 +45,7 @@ import javafx.stage.Stage;
 
 public class UILoginController implements Initializable {
 
-    private Stage s;
+    private Stage stage;
 
     @FXML
     private TextField username;
@@ -145,20 +145,11 @@ public class UILoginController implements Initializable {
         Model.getModel().dispatchMail(received, sent);
     }
 
-    public void init(Stage stage) {
-        this.s = stage;
-        Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
-        
-        //Autostart server and login
-        username.setText("a");
-        password.setText("a");
-        Thread t = new Thread(() -> {
-            Backend b;
-            b = new Backend();
-            b.startServer();
-        });
-        t.start();
+    public void setStage(Stage stage) {
+        this.stage = stage;
+       // Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
     }
+    
     private void rollback() {
         Model.getModel().deleteJson();
         Model.getModel().setCurrentUser(null, null);
@@ -171,13 +162,13 @@ public class UILoginController implements Initializable {
             fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
             Parent root = fxmlLoader.load();
             UILoginController loginController = fxmlLoader.getController();
-            loginController.init(s);
-            s.close();
+            loginController.setStage(stage);
+            stage.close();
 
             Scene scene = new Scene(root);
-            s.setScene(scene);
-            s.setTitle("HammerMail - Login");
-            s.show();
+            stage.setScene(scene);
+            stage.setTitle("HammerMail - Login");
+            stage.show();
         } catch (IOException e) {
             //TODO
         }
@@ -190,11 +181,11 @@ public class UILoginController implements Initializable {
             Parent root;
             root = uiLoader.load();
             UIController uiController = uiLoader.getController();
-            s.close(); //close login view
+            stage.close(); //close login view
             Stage newstage = new Stage();
             newstage.setTitle("HammerMail - Home");
             newstage.setScene(new Scene(root));
-            uiController.init(newstage);
+            uiController.setStage(newstage);
             newstage.show();
         } catch (IOException ex) {
             Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
@@ -213,5 +204,17 @@ public class UILoginController implements Initializable {
         loginfailure.setVisible(false);
         username.textProperty().addListener(e -> loginfailure.setVisible(false));
         password.textProperty().addListener(e -> loginfailure.setVisible(false));
+    }
+    
+    public void startTestServer() {
+        //Autostart server and login
+        username.setText("a");
+        password.setText("a");
+        Thread t = new Thread(() -> {
+            Backend b;
+            b = new Backend();
+            b.startServer();
+        });
+        t.start();
     }
 }

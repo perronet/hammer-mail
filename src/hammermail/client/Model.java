@@ -40,53 +40,60 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Model {
-    
+
     private static final Model model = new Model(); //this will execute the constructor the first time you call a method
-    
+
     private final ObservableList<Mail> listInbox = FXCollections.observableArrayList();
-    
-    private final ObservableList<Mail> listSent = FXCollections.observableArrayList(); 
-    
+
+    private final ObservableList<Mail> listSent = FXCollections.observableArrayList();
+
     private final ObservableList<Mail> listDraft = FXCollections.observableArrayList();
-    
+
     private final ObservableList<Mail> mailsToNotify = FXCollections.observableArrayList();
-    
+
     private final SimpleObjectProperty<Mail> currentMail;
-    
+
     private User currentUser;
-    
+
     private Timestamp lastRequestTime;
 
-    private int draftCounter = 0; 
-    
+    private int draftCounter = 0;
+
     private Model() {
-        currentMail = new SimpleObjectProperty<>(); 
-        Timestamp ts = new Timestamp(System.currentTimeMillis()); 
+        currentMail = new SimpleObjectProperty<>();
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
     }
 
     public static Model getModel() {
         return model;
     }
-    
+
     //CURRENT MAIL
-    
-    public final Mail getCurrentMail(){ return currentMail.get(); }
-    
-    public final void setCurrentMail(Mail m){ currentMail.set(m); }
-    
-    public SimpleObjectProperty<Mail> currentMailProperty() { return currentMail; }
-    
+    public final Mail getCurrentMail() {
+        return currentMail.get();
+    }
+
+    public final void setCurrentMail(Mail m) {
+        currentMail.set(m);
+    }
+
+    public SimpleObjectProperty<Mail> currentMailProperty() {
+        return currentMail;
+    }
+
     //CURRENT USER
-    
-    public User getCurrentUser() { return currentUser; }     
-     
-    public void setCurrentUser(String username, String password){ this.currentUser = new User(username, password); }
-    
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(String username, String password) {
+        this.currentUser = new User(username, password);
+    }
+
     //LAST MAIL
-    
     public Timestamp getLastRequestTime() {
         return lastRequestTime;
-    }    
+    }
 
     public void setLastRequestTime(Timestamp newTime) {
         try {
@@ -95,7 +102,7 @@ public class Model {
             String filepath = this.currentUser.getUserFileFolder();
             JsonReader reader = new JsonReader(new FileReader(filepath));
             JsonPair toSet = gson.fromJson(reader, JsonPair.class);
-            if(toSet != null){
+            if (toSet != null) {
                 toSet.setLastReq(newTime);
                 writeJson(filepath, toSet);
             }
@@ -103,102 +110,96 @@ public class Model {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     //MAIL GETTERS
-    
-    public Mail getDraftByIndex(int i){
+    public Mail getDraftByIndex(int i) {
         return listDraft.get(i);
     }
-    
-    public Mail getSentMailByIndex(int i){
+
+    public Mail getSentMailByIndex(int i) {
         return listSent.get(i);
     }
 
-    public Mail getReceivedMailByIndex(int i){
+    public Mail getReceivedMailByIndex(int i) {
         return listInbox.get(i);
     }
-    
+
     //LIST GETTERS
-    
-    public ObservableList<Mail> getListInbox(){ 
+    public ObservableList<Mail> getListInbox() {
         return listInbox;
     }
-    
-    public ObservableList<Mail> getListSent(){ 
+
+    public ObservableList<Mail> getListSent() {
         return listSent;
     }
-    
-    public ObservableList<Mail> getListDraft(){ 
+
+    public ObservableList<Mail> getListDraft() {
         return listDraft;
     }
 
-    public ObservableList<Mail> getMailsToNofity(){ 
+    public ObservableList<Mail> getMailsToNotify() {
         return mailsToNotify;
     }
-    
+
     //ADD MAIL
-    
-    public void addMultiple(List<Mail> mailsToAdd){
+    public void addMultiple(List<Mail> mailsToAdd) {
         String user = currentUser.getUsername();
-        for(Mail m : mailsToAdd){
+        for (Mail m : mailsToAdd) {
             storeMail(m);
-            if(m.getDate() == null){
+            if (m.getDate() == null) {
                 listDraft.add(0, m);
-            }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
-                if (listInbox.contains(m) && listSent.contains(m))
+            } else if (m.getSender().equals(user) && containsUser(m.getReceiver(), user)) {
+                if (listInbox.contains(m) && listSent.contains(m)) {
                     return;
+                }
                 listSent.add(0, m);
                 listInbox.add(0, m);
-            }else if(containsUser(m.getReceiver(),user)){
+            } else if (containsUser(m.getReceiver(), user)) {
                 listInbox.add(0, m);
-            }else{
+            } else {
                 listSent.add(0, m);
-            }    
+            }
         }
     }
-    
-    public void addNotify(List<Mail> mails){
+
+    public void addNotify(List<Mail> mails) {
         mailsToNotify.addAll(mails);
     }
-       
-    public void saveDraft(String receiver, String title, String text){
-        Mail m = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null); 
+
+    public void saveDraft(String receiver, String title, String text) {
+        Mail m = new Mail(draftCounter, currentUser.getUsername(), receiver, title, text, null);
         storeMail(m);
         listDraft.add(0, m);
         draftCounter++;
-    }    
-    
-    //REMOVE MAIL
-    
-    public void removeMultiple(List<Mail> mailsToDelete, int listId){ //Tab IDs and list IDs are the same
-        for(Mail m : mailsToDelete){
-            removeFromStorage(m);
-        }
-        switch(listId){
-            case 0:
-                Model.getModel().getListInbox().removeAll(mailsToDelete);
-            case 1:
-                Model.getModel().getListSent().removeAll(mailsToDelete);
-            case 2:
-                Model.getModel().getListDraft().removeAll(mailsToDelete);    
-        } 
-        setCurrentMail(new EmptyMail());
     }
 
-    public void removeDraft(){
+    //REMOVE MAIL
+    public void removeMultiple(List<Mail> mailsToDelete, int listId) { //Tab IDs and list IDs are the same
+        for (Mail m : mailsToDelete) {
+            removeFromStorage(m);
+        }
+        switch (listId) {
+            case 0:
+                Model.getModel().getListInbox().removeAll(mailsToDelete); break;
+            case 1:
+                Model.getModel().getListSent().removeAll(mailsToDelete); break;
+            case 2:
+                Model.getModel().getListDraft().removeAll(mailsToDelete); break;
+        }
+    }
+
+    public void removeDraft() {
         removeFromStorage(getCurrentMail());
         listDraft.remove(getCurrentMail());
         setCurrentMail(new EmptyMail());
     }
-    
-    public void removeNotify(List<? extends Mail> m){
+
+    public void removeNotify(List<? extends Mail> m) {
         mailsToNotify.removeAll(m);
     }
 
     //JSON MANIPULATION
-    
     //JSON PRIVATE METHODS
-    
     //Store mails into .json (each time read the file, append the new mail and write the file)
     private void storeMail(Mail mailToStore) {
         try {
@@ -209,7 +210,7 @@ public class Model {
             JsonPair pairTest = new JsonPair(null, null);
             JsonReader reader = new JsonReader(new FileReader(filepath));
             pairTest = gson.fromJson(reader, JsonPair.class);
-            if(!(pairTest == null)){
+            if (!(pairTest == null)) {
                 toStore = pairTest.getMails();
                 if (!(toStore == null)) {
                     for (Mail m : toStore) {
@@ -217,32 +218,34 @@ public class Model {
                             isPresent = true;
                         }
                     }
-                    if (!isPresent)
+                    if (!isPresent) {
                         toStore.add(mailToStore);
+                    }
                     pairTest.setMails(toStore);
                 }
-            }else{
+            } else {
                 List<Mail> put = new ArrayList<>();
                 put.add(mailToStore);
-                if(mailToStore.getDate() != null)
+                if (mailToStore.getDate() != null) {
                     pairTest = new JsonPair(mailToStore.getDate(), put);
-                else
+                } else {
                     pairTest = new JsonPair(new Timestamp(0), put);
+                }
             }
             writeJson(filepath, pairTest);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private void removeFromStorage(Mail mailToDelete) {
         try {
             Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
             List<Mail> test = null;
             JsonReader reader = new JsonReader(new FileReader(filepath));
-            JsonPair  pairTest = gson.fromJson(reader, JsonPair.class);
-            if(!(pairTest == null)){
+            JsonPair pairTest = gson.fromJson(reader, JsonPair.class);
+            if (!(pairTest == null)) {
                 test = pairTest.getMails();
                 if (!(test == null)) {
                     test.remove(mailToDelete);
@@ -254,41 +257,40 @@ public class Model {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    private void writeJson(String filename, JsonPair pairToWrite){
-	Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+
+    private void writeJson(String filename, JsonPair pairToWrite) {
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         try {
             FileWriter writer = new FileWriter(filename);
             String toWrite = gson.toJson(pairToWrite);
             writer.write(toWrite);
             writer.close();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void addMultipleNoStore(List<Mail> mailsToAdd){ //This is only used in the model, using it outside would be very dangerous
+    private void addMultipleNoStore(List<Mail> mailsToAdd) { //This is only used in the model, using it outside would be very dangerous
         String user = currentUser.getUsername();
-        
-        for(Mail m : mailsToAdd){
-            if(m.getDate() == null){
+
+        for (Mail m : mailsToAdd) {
+            if (m.getDate() == null) {
                 listDraft.add(0, m);
-            }else if(m.getSender().equals(user) && containsUser(m.getReceiver(),user)){
+            } else if (m.getSender().equals(user) && containsUser(m.getReceiver(), user)) {
                 listSent.add(0, m);
                 listInbox.add(0, m);
-            }else if(containsUser(m.getReceiver(),user)){
+            } else if (containsUser(m.getReceiver(), user)) {
                 listInbox.add(0, m);
-            }else{
+            } else {
                 listSent.add(0, m);
-            }    
+            }
         }
     }
-    
-    //JSON PUBLIC METHODS
 
+    //JSON PUBLIC METHODS
     //TODO: clean this dirty code, add check if mail is already in the list
-    public void dispatchMail(List<Mail> newReceived, List<Mail> newSent){
+    public void dispatchMail(List<Mail> newReceived, List<Mail> newSent) {
 
         //STEP 1: Load already stored mails into the model
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
@@ -298,76 +300,79 @@ public class Model {
         try {
             reader = new JsonReader(new FileReader(filepath));
             JsonPair pairToRead = gson.fromJson(reader, JsonPair.class);
-            if(!(pairToRead == null)){
-                 mails = pairToRead.getMails();
-                if(!(mails == null)){ //Loads mails from json
+            if (!(pairToRead == null)) {
+                mails = pairToRead.getMails();
+                if (!(mails == null)) { //Loads mails from json
                     addMultipleNoStore(mails);
                 }
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         //STEP 2: Store and load into model new mails received from the server
-        if(!(newReceived == null))
+        if (!(newReceived == null)) {
             addMultiple(newReceived);
-        if(!(newSent == null))
+        }
+        if (!(newSent == null)) {
             addMultiple(newSent);
+        }
     }
-    
-    private void createJson(){
+
+    private void createJson() {
         File userFile = new File("savedmails" + "/" + this.currentUser.getUsername() + "mails");
-        if(!(userFile.exists())){
+        if (!(userFile.exists())) {
             userFile.mkdirs();
             Gson file = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
             //userFile.mkdir();
-            try{
+            try {
                 JsonWriter writer = new JsonWriter(new FileWriter(filepath));
                 System.out.println(filepath);
-                
-            }catch (IOException ex) {
+
+            } catch (IOException ex) {
                 Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-    
-    public Timestamp takeLastRequestTime(){
+
+    public Timestamp takeLastRequestTime() {
         File userFile = new File(this.currentUser.getUserFileFolder());
-        if(!userFile.exists()){
+        if (!userFile.exists()) {
             createJson();
         }
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-	JsonPair pairTest = null;
+        JsonPair pairTest = null;
         List<Mail> test = null;
         JsonReader reader;
         try {
             reader = new JsonReader(new FileReader(this.currentUser.getUserFileFolder()));
             pairTest = gson.fromJson(reader, JsonPair.class);
-            if(!(pairTest == null)){
+            if (!(pairTest == null)) {
                 lastRequestTime = pairTest.getLastReq();
-            }else{
+            } else {
                 lastRequestTime = new Timestamp(0);
-            } 
+            }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if(lastRequestTime == null)
+        if (lastRequestTime == null) {
             lastRequestTime = new Timestamp(0);
-	return lastRequestTime;
-	
+        }
+        return lastRequestTime;
+
     }
-    
-    public void deleteJson(){
+
+    public void deleteJson() {
         File dir = new File(this.currentUser.getUserFileFolder());
-	File[] listJson = dir.listFiles();
-        if(listJson != null){
-            for(File file : listJson){
+        File[] listJson = dir.listFiles();
+        if (listJson != null) {
+            for (File file : listJson) {
                 file.delete();
             }
         }
         dir.delete();
-	System.out.println("Deleted");
+        System.out.println("Deleted");
     }
 
 }

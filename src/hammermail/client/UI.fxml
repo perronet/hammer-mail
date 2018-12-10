@@ -18,7 +18,7 @@
                 <VBox minWidth="211.0" prefHeight="551.0" prefWidth="211.0" style="-fx-background-color: -left-menu-bar-back-color;">
                     <children>
                         <!-- Left panel -->
-                        <TabPane fx:id="tabs" minHeight="0.0" minWidth="0.0" styleClass="tabpane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                        <TabPane fx:id="tabPane" minHeight="0.0" minWidth="0.0" styleClass="tabpane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                             <tabs>
                                 <Tab text="Inbox">
                                     <content>
@@ -43,7 +43,7 @@
                         </TabPane>
                         <HBox prefHeight="40.0" prefWidth="600.0" spacing="20.0">
                             <children>
-                                <Button onAction="#handleCreate" styleClass="action-button">
+                                <Button fx:id="newMailButton" styleClass="action-button">
                            <graphic>
                               <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -67,7 +67,7 @@
                             <children>
                                 <HBox spacing="5.0" HBox.hgrow="ALWAYS">
                            <children>
-                                      <Button fx:id="deleteButton" onAction="#handleDelete" styleClass="action-button">
+                                      <Button fx:id="deleteButton" styleClass="action-button">
                                  <graphic>
                                     <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -140,7 +140,7 @@
                                  </tooltip>
                               </Button>
                            </children></HBox>
-                                <Label fx:id="loggedas" alignment="CENTER_RIGHT" styleClass="label-enveloped" text="logged name">
+                                <Label fx:id="usernameLabel" alignment="CENTER_RIGHT" styleClass="label-enveloped" text="logged name">
                                     <graphic>
                                         <ImageView fitHeight="150.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
                                             <image>
@@ -157,8 +157,8 @@
                         <TextArea fx:id="maildate" editable="false" prefRowCount="1" styleClass="undecorated-text-area" text="13/08/1994" />  
                         <HBox spacing="5.0">
                             <children>  
-                                <Label fx:id="fromto" alignment="CENTER_RIGHT" minWidth="45.0" text="From" textAlignment="RIGHT" HBox.hgrow="NEVER" />  
-                                <Label fx:id="mailfromto" styleClass="label-enveloped" text="mail of sender here" />
+                                <Label alignment="CENTER_RIGHT" minWidth="45.0" text="From" textAlignment="RIGHT" HBox.hgrow="NEVER" />  
+                                <Label fx:id="fromLabel" styleClass="label-enveloped" text="mail of sender here" />
                             </children>
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -166,8 +166,8 @@
                         </HBox>
                         <HBox spacing="5.0">
                             <children> 
-                                <Label fx:id="tofrom" alignment="CENTER_RIGHT" minWidth="45.0" text="To" textAlignment="RIGHT" HBox.hgrow="NEVER" /> 
-                                <Label fx:id="mailtofrom" styleClass="label-enveloped" text="mails of receivers here" />
+                                <Label alignment="CENTER_RIGHT" minWidth="45.0" text="To" textAlignment="RIGHT" HBox.hgrow="NEVER" /> 
+                                <Label fx:id="toLabel" styleClass="label-enveloped" text="mails of receivers here" />
                             </children>
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -180,7 +180,7 @@
                                         <Bloom threshold="0.0" />
                                     </effect>
                                 </Separator> 
-                                <Label fx:id="mailtitle" prefHeight="43.0" prefWidth="444.0" styleClass="title-text-area" text="Subject" VBox.vgrow="NEVER">
+                                <Label fx:id="subjectLabel" prefHeight="43.0" prefWidth="444.0" styleClass="title-text-area" text="Subject" VBox.vgrow="NEVER">
                            <padding>
                               <Insets left="10.0" top="10.0" />
                            </padding></Label>

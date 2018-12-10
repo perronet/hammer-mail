@@ -41,6 +41,7 @@ import hammermail.net.requests.*;
 import hammermail.net.responses.*;
 import java.io.File;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -70,15 +71,15 @@ import javafx.scene.text.TextAlignment;
 
 public class UIController implements Initializable {
 
-    private Stage s;
+    private Stage stage;
 
     private final String currentUser = Model.getModel().getCurrentUser().getUsername();
 
     @FXML
-    private Label fromto, tofrom, loggedas, mailfromto, mailtofrom, mailtitle;
+    private Label fromLabel, toLabel, subjectLabel, usernameLabel;
 
     @FXML
-    private Button sendButton, modifyButton, forwardButton, replyButton, replyAllButton, deleteButton;
+    private Button newMailButton, sendButton, modifyButton, forwardButton, replyButton, replyAllButton, deleteButton;
 
     @FXML
     private ListView<Mail> listinbox, listsent, listdraft;
@@ -87,183 +88,191 @@ public class UIController implements Initializable {
     private TextArea maildate, mailcontent;
 
     @FXML
-    private TabPane tabs;
+    private TabPane tabPane;
 
     @FXML
     private VBox noMailBox, mailBox;
 
-    //BUTTON HANDLES
-    @FXML
-    private void handleCreate(ActionEvent event) {
-        openEditor("", "", "", false);
-    }
-
-    @FXML
-    private void handleDelete(ActionEvent event) {
-        if (!(currentMail() instanceof EmptyMail)) {
-            int tabId = tabs.getSelectionModel().getSelectedIndex();
-            List<Mail> mailsToDelete = composeDeletingRequest();
-
-            if (mailsToDelete == null){
-                spawnError("Unable to contact server");
-                System.out.println("Unable to contact server");
-            }
-            if (!mailsToDelete.isEmpty()) { //just to be sure
-                Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
-            }
-        }
-    }
-
-    private List<Mail> composeDeletingRequest() {
-        List<Mail> mailsToDelete = new ArrayList<>();
-        mailsToDelete.add(currentMail());
-        if (!(currentMail().getDate() == null)) { //We don't need to send drafts to the database
-            RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
-            request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
-            ResponseBase response = null;
-            try {
-                response = sendRequest(request);
-
-                if (response instanceof ResponseError) {
-                    return null;
-                } else if (response instanceof ResponseRetrieve) {
-                    //TODO
-                }
-
-            } catch (ClassNotFoundException | IOException ex) {
-                //TODO
-            } finally {
-//                if (response != null){
-//                    System.out.println("response non null");
-//                    Database db = new Database(false);
-//                    db.dbStatus();
-//                }
-            }
-        }
-        return mailsToDelete;
-    }
-
-    //INITIALIZATION
-    public void init(Stage s) {
-        this.s = s;
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
-        clearAllSelections();
-        //GENERIC SETUPS
-//        Model.getModel().dispatchMail(this.currentUser);
-        loggedas.setText(currentUser);
-        fromto.setAlignment(Pos.CENTER);
-        tabInitialize(); //Never execute this again
+        usernameLabel.setText(currentUser);
 
-        //SETUP CURRENT MAIL LISTENER
-        (Model.getModel()).currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
-            if (!(currentMail() instanceof EmptyMail)) {
-                if (containsUser(newValue.getReceiver(), currentUser)) { //This mail was received
-                    mailfromto.setText(newValue.getSender());
-                    mailtofrom.setText(newValue.getReceiver());
-                    fromto.setText("From");
-                    tofrom.setText("To");
-                } else { //This mail was sent or is draft
-                    mailfromto.setText(newValue.getReceiver());
-                    mailtofrom.setText(newValue.getSender());
-                    fromto.setText("To");
-                    tofrom.setText("From");
-                }
+        //Setting up current mail listener
+        Model.getModel().currentMailProperty().addListener((obsValue, oldValue, newValue) -> {
+            boolean isEmptyMail = getCurrentMail() instanceof EmptyMail;
+            if (!isEmptyMail) {
+                fromLabel.setText(newValue.getSender());
+                toLabel.setText(newValue.getReceiver());
 
                 if (newValue.isDraft()) { //This handles null dates from drafts
                     maildate.clear();
                 } else {
-                    maildate.setText(newValue.getDate().toString());
+                    SimpleDateFormat sdfr = new SimpleDateFormat("dd MMM yyyy - HH:mm");
+                    maildate.setText(sdfr.format(newValue.getDate()));
                 }
 
-                mailtitle.setText(newValue.getTitle().trim());
+                subjectLabel.setText(newValue.getTitle().trim());
                 mailcontent.setText(newValue.getText());
-            } else {
-                clearAllSelections();
-                clearAllText();
             }
+
+            Utils.toggleCollapse(mailBox, !isEmptyMail);
+            Utils.toggleCollapse(noMailBox, isEmptyMail);
         });
 
-        //SETUP NOTIFICATION LISTENER
-        Model.getModel().getMailsToNofity().addListener((ListChangeListener.Change<? extends Mail> change) -> {
+        clearAllSelections();
+        initializeButtons();
+        initializeLists();
+
+        selectFirstMail(listinbox);
+
+        //Setting up notifications
+        Model.getModel().getMailsToNotify().addListener((ListChangeListener.Change<? extends Mail> change) -> {
             change.next();
             if (change.wasAdded()) {
                 inboxNotify(change.getAddedSubList()); //Notifies then removes notification from list
             }
         });
 
-        //SENT LIST
-        listsent.setItems(Model.getModel().getListSent()); //the ListView will automatically refresh the view to represent the items in the ObservableList
+        //Setting up tab change
+        tabPane.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
+            clearAllSelections();
+            System.out.println("Tab number " + newValue + " selected, list selections cleared");
 
-        listsent.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
-
-        listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
-            System.out.println("New mail selected from sent list");
-            int newindex = (int) newValue;
-            if (!listsent.getSelectionModel().isEmpty()) {
-                sentTabShow();
-                Model.getModel().setCurrentMail(Model.getModel().getSentMailByIndex(newindex));
-                updateSelectedMailView();
+            switch ((int) newValue) {
+                case 0:
+                    selectFirstMail(listinbox);
+                    break;
+                case 1:
+                    selectFirstMail(listsent);
+                    break;
+                case 2:
+                    selectFirstMail(listdraft);
+                    break;
             }
         });
 
+        //Starting daemon
+        Thread daemon = new Thread(new DaemonTask());
+        daemon.setDaemon(true);
+        daemon.start();
+    }
+
+    private void initializeLists() {
+        //Sent list
+        listsent.setItems(Model.getModel().getListSent()); //the ListView will automatically refresh the view to represent the items in the ObservableList
+        listsent.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
         listsent.setCellFactory(param -> new MailCell()); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
-
-        //DRAFT LIST
-        listdraft.setItems(Model.getModel().getListDraft());
-
-        listdraft.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-
-        listdraft.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> {
-            System.out.println("New draft selected");
+        listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
             int newindex = (int) newValue;
-            if (!listdraft.getSelectionModel().isEmpty()) {
+
+            if (!listsent.getSelectionModel().isEmpty() && newindex >= 0) {
+                System.out.println("New mail selected from sent list");
+                sentTabShow();
+                Model.getModel().setCurrentMail(Model.getModel().getSentMailByIndex(newindex));
+            }
+        });
+
+        //Draft list
+        listdraft.setItems(Model.getModel().getListDraft());
+        listdraft.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        listdraft.setCellFactory(param -> new MailCell());
+        listdraft.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> {
+            int newindex = (int) newValue;
+
+            if (!listdraft.getSelectionModel().isEmpty() && newindex >= 0) {
+                System.out.println("New draft selected");
                 draftTabShow();
                 Model.getModel().setCurrentMail(Model.getModel().getDraftByIndex(newindex));
             }
         });
 
-        listdraft.setCellFactory(param -> new MailCell());
-
-        //INBOX LIST
+        //Inbox list
         listinbox.setItems(Model.getModel().getListInbox());
-
         listinbox.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-
+        listinbox.setCellFactory(param -> new MailCell());
         listinbox.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> {
-            System.out.println("New mail selected from inbox");
             int newindex = (int) newValue;
-            if (!listinbox.getSelectionModel().isEmpty()) {
+
+            if (!listinbox.getSelectionModel().isEmpty() && newindex >= 0) {
+                System.out.println("New mail selected from inbox");
                 inboxTabShow();
                 Model.getModel().setCurrentMail(Model.getModel().getReceivedMailByIndex(newindex));
-                updateSelectedMailView();
+            }
+        });
+    }
+
+    private void initializeButtons() {
+        newMailButton.setOnAction((ActionEvent e) -> openEditor("", "", "", false));
+
+        deleteButton.setOnAction((ActionEvent e) -> {
+            if (!(getCurrentMail() instanceof EmptyMail)) {
+                int tabId = tabPane.getSelectionModel().getSelectedIndex();
+                List<Mail> mailsToDelete = composeDeletingRequest();
+
+                if (mailsToDelete == null) {
+                    spawnError("Unable to contact server");
+                } else {
+                    Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
+                   
+                    clearAllSelections();
+                    Model.getModel().setCurrentMail(new EmptyMail());
+                }
             }
         });
 
-        listinbox.setCellFactory(param -> new MailCell());
-
-        //TABS 
-        tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE); //can't close tabs
-
-        tabs.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
-            clearAllSelections();
-            System.out.println("Tab number " + newValue + " selected, list selections cleared");
+        sendButton.setOnAction((ActionEvent e) -> {
+            if (getCurrentMail().getReceiver().isEmpty()) {
+                spawnError("Invalid receiver");
+            } else {
+                sendDraft();
+                Model.getModel().removeDraft();
+            }
         });
 
-        updateSelectedMailView();
-        
-        //START DAEMON PROCESS
-        Thread daemon = new Thread(new DaemonTask());
-        daemon.setDaemon(true);
-        daemon.start();
+        modifyButton.setOnAction((ActionEvent e) -> {
+            openEditor(getCurrentMail().getReceiver(), getCurrentMail().getTitle(), getCurrentMail().getText(), true);
+            Model.getModel().removeDraft();
+        });
 
+        forwardButton.setOnAction((ActionEvent e) -> {
+            openEditor("", getCurrentMail().getTitle(), "Forwarded from: " + getCurrentMail().getSender() + " -- " + getCurrentMail().getText(), false);
+        });
+
+        replyButton.setOnAction((ActionEvent e) -> {
+            openEditor(getCurrentMail().getSender(), "", "", false);
+        });
+
+        replyAllButton.setOnAction((ActionEvent e) -> {
+            String receiver = getCurrentMail().getReceiver();
+            StringTokenizer st = new StringTokenizer(receiver, ";");
+            String newReceiver = new String();
+            String test = new String();
+            String sender = getCurrentMail().getSender();
+            while (st.hasMoreTokens()) {
+                test = st.nextToken();
+                if (!(test.equals(currentUser))) {
+                    newReceiver = newReceiver + test + ";";
+                }
+            }
+            newReceiver = newReceiver + sender;
+            openEditor(newReceiver, "", "", false);
+        });
     }
 
-    //UTILS
-    private Mail currentMail() { //Use this to make the code cleaner
+    public void setStage(Stage s) {
+        this.stage = s;
+    }
+
+    private Mail getCurrentMail() {
         return Model.getModel().getCurrentMail();
+    }
+
+    private void selectFirstMail(ListView<Mail> list) {
+        if (!list.getItems().isEmpty()) {
+            list.getSelectionModel().select(0);
+        } else {
+            Model.getModel().setCurrentMail(new EmptyMail());
+        }
     }
 
     private void clearAllSelections() {
@@ -277,21 +286,6 @@ public class UIController implements Initializable {
         Utils.toggleCollapse(replyAllButton, false);
         Utils.toggleCollapse(sendButton, false);
         Utils.toggleCollapse(modifyButton, false);
-        updateSelectedMailView();
-    }
-
-    private void updateSelectedMailView() {
-        boolean isMailSelected = Model.getModel().getCurrentMail() != null && !(Model.getModel().getCurrentMail() instanceof EmptyMail);
-        Utils.toggleCollapse(mailBox, isMailSelected);
-        Utils.toggleCollapse(noMailBox, !isMailSelected);
-    }   
-
-    private void clearAllText() {
-        mailfromto.setText("");
-        mailtitle.setText("");
-        maildate.clear();
-        mailcontent.clear();
-        mailtofrom.setText("");
     }
 
     //BOTTOM BUTTONS
@@ -313,59 +307,16 @@ public class UIController implements Initializable {
         Utils.toggleCollapse(modifyButton, true);
     }
 
-    private void tabInitialize() {
-
-        sendButton.setOnAction((ActionEvent e) -> {
-            if (currentMail().getReceiver().isEmpty()) {
-                spawnError("Invalid receiver");
-            } else {
-                sendDraft();
-                Model.getModel().removeDraft();
-            }
-        });
-
-        modifyButton.setOnAction((ActionEvent e) -> {
-            openEditor(currentMail().getReceiver(), currentMail().getTitle(), currentMail().getText(), true);
-            Model.getModel().removeDraft();
-        });
-
-        forwardButton.setOnAction((ActionEvent e) -> {
-            openEditor("", currentMail().getTitle(), "Forwarded from: " + currentMail().getSender() + " -- " + currentMail().getText(), false);
-        });
-
-        replyButton.setOnAction((ActionEvent e) -> {
-            openEditor(currentMail().getSender(), "", "", false);
-        });
-
-        replyAllButton.setOnAction((ActionEvent e) -> {
-            String receiver = currentMail().getReceiver();
-            StringTokenizer st = new StringTokenizer(receiver, ";");
-            String newReceiver = new String();
-            String test = new String();
-            String sender = currentMail().getSender();
-            while (st.hasMoreTokens()) {
-                test = st.nextToken();
-                if (!(test.equals(currentUser))) {
-                    newReceiver = newReceiver + test + ";";
-                }
-            }
-            newReceiver = newReceiver + sender;
-            openEditor(newReceiver, "", "", false);
-        });
-
-    }
-
     //EDIT-SEND MAIL METHODS
     private void openEditor(String sndrcv, String title, String body, boolean modifiable) {
         try {
-            clearAllSelections(); //So that when you close the editor you have nothing selected
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIeditor.fxml"));
             Parent root = fxmlLoader.load();
             Scene scene = new Scene(root, 350, 450);
             Stage stage = new Stage();
             UIEditorController editorController = fxmlLoader.getController();
-            editorController.init(stage);
+            editorController.setStage(stage);
             editorController.setTextAreas(sndrcv, title, body, modifiable);
             stage.setTitle("Write a mail...");
             stage.setScene(scene);
@@ -384,13 +335,13 @@ public class UIController implements Initializable {
 
     private Mail composeMail(String receiver) {
         Timestamp ts = new Timestamp(System.currentTimeMillis());
-        return new Mail(-1, currentUser, receiver, currentMail().getTitle(), currentMail().getText(), ts);
+        return new Mail(-1, currentUser, receiver, getCurrentMail().getTitle(), getCurrentMail().getText(), ts);
     }
 
     private void sendDraft() {
         //TODO read receiver to each comma and verify it is an existent person
         //ENSURE that the current mail is the draft
-        String receiver = currentMail().getReceiver();
+        String receiver = getCurrentMail().getReceiver();
         if (isNullOrWhiteSpace(receiver)) {
             spawnError("Invalid receiver");
         } else {
@@ -475,21 +426,44 @@ public class UIController implements Initializable {
         //HAMMER TIME
         hammer.setVolume(.5);
         popup.setOnShown((e) -> {
-            popup.setX(s.getX() + s.getWidth() - popup.getWidth() - adjustment);
-            popup.setY(s.getY() + s.getHeight() - popup.getHeight() - adjustment);
+            popup.setX(stage.getX() + stage.getWidth() - popup.getWidth() - adjustment);
+            popup.setY(stage.getY() + stage.getHeight() - popup.getHeight() - adjustment);
             hammer.play();
         });
-        popup.show(s);
+        popup.show(stage);
     }
 
+    //Currently deletes only one mail, but it's ready to delete multiple
+    private List<Mail> composeDeletingRequest() {
+        List<Mail> mailsToDelete = new ArrayList<>();
+        mailsToDelete.add(getCurrentMail());
+
+        if (!getCurrentMail().isDraft()) { //We don't need to send drafts to the database
+            RequestDeleteMails request = new RequestDeleteMails(mailsToDelete);
+            request.SetAuthentication(currentUser, Model.getModel().getCurrentUser().getPassword());
+            try {
+                ResponseBase response = sendRequest(request);
+
+                if (response instanceof ResponseError) {
+                    return null;
+                } else if (response instanceof ResponseRetrieve) {
+                    //TODO
+                }
+            } catch (ClassNotFoundException | IOException ex) {
+                //TODO
+            }
+        }
+        return mailsToDelete;
+    }
 }
 
 class MailCell extends ListCell<Mail> { //Custom cells for the list, we can show a Mail object in different ways
-    @Override
-    protected void updateItem(Mail item, boolean empty) {
-        super.updateItem(item, empty);
 
-        if (empty || item == null || item.getId() == null) {
+    @Override
+    protected void updateItem(Mail item, boolean isEmpty) {
+        super.updateItem(item, isEmpty);
+
+        if (isEmpty || item == null || item.getId() == null) {
             setText(null);
         } else {
             if (containsUser(item.getReceiver(), Model.getModel().getCurrentUser().getUsername())) { //Mail was received

@@ -45,7 +45,7 @@ import javafx.stage.WindowEvent;
  */
 public class UIEditorController {
 
-    private Stage s;
+    private Stage stage;
 
     @FXML
     private TextField receiversmail, mailsubject;
@@ -84,7 +84,7 @@ public class UIEditorController {
                 spawnError("Internal error");
                 // set the response to error internal_error
             } finally {
-                s.close();
+                stage.close();
                 //Only for testing
 //                Database d = new Database(false);
 //                d.dbStatus();
@@ -99,20 +99,16 @@ public class UIEditorController {
         String body = bodyfield.getText();
         if (isNullOrWhiteSpace(receiver) && isNullOrWhiteSpace(mailsub)
                 && isNullOrWhiteSpace(body) && (event instanceof WindowEvent)) {
-            s.close();
+            stage.close();
         } else {
             Model.getModel().saveDraft(receiver, mailsub, body);
             System.out.println("Draft saved");
-            s.close();
+            stage.close();
         }
     }
 
-    /**
-     * Initializes the controller class.
-     */
-    //"Constructor"
-    public void init(Stage stage) {
-        this.s = stage;
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     //If the field is not empty, it cannot be modified
