@@ -93,6 +93,8 @@ public class UIController implements Initializable {
     @FXML
     private VBox noMailBox, mailBox;
 
+    Thread daemon;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
         usernameLabel.setText(currentUser);
@@ -152,7 +154,7 @@ public class UIController implements Initializable {
         });
 
         //Starting daemon
-        Thread daemon = new Thread(new DaemonTask());
+        daemon = new Thread(new DaemonTask());
         daemon.setDaemon(true);
         daemon.start();
     }
@@ -213,7 +215,7 @@ public class UIController implements Initializable {
                     spawnError("Unable to contact server");
                 } else {
                     Model.getModel().removeMultiple(mailsToDelete, tabId); //Tab ID and List ID are the same
-                   
+
                     clearAllSelections();
                     Model.getModel().setCurrentMail(new EmptyMail());
                 }
@@ -224,8 +226,9 @@ public class UIController implements Initializable {
             if (getCurrentMail().getReceiver().isEmpty()) {
                 spawnError("Invalid receiver");
             } else {
-                sendDraft();
-                Model.getModel().removeDraft();
+                if (sendDraft()) {
+                    Model.getModel().removeDraft();
+                }
             }
         });
 
@@ -246,10 +249,9 @@ public class UIController implements Initializable {
             String receiver = getCurrentMail().getReceiver();
             StringTokenizer st = new StringTokenizer(receiver, ";");
             String newReceiver = new String();
-            String test = new String();
             String sender = getCurrentMail().getSender();
             while (st.hasMoreTokens()) {
-                test = st.nextToken();
+                String test = st.nextToken();
                 if (!(test.equals(currentUser))) {
                     newReceiver = newReceiver + test + ";";
                 }
@@ -338,7 +340,7 @@ public class UIController implements Initializable {
         return new Mail(-1, currentUser, receiver, getCurrentMail().getTitle(), getCurrentMail().getText(), ts);
     }
 
-    private void sendDraft() {
+    private boolean sendDraft() {
         //TODO read receiver to each comma and verify it is an existent person
         //ENSURE that the current mail is the draft
         String receiver = getCurrentMail().getReceiver();
@@ -357,15 +359,16 @@ public class UIController implements Initializable {
                     ResponseError.ErrorType err = ((ResponseError) response).getErrorType();
                     System.out.println(err);
                     spawnError("Error response received: " + err.toString());
-                } else if (response instanceof ResponseMailSent) {
-                    Model.getModel().removeDraft();
-                } else if (response instanceof ResponseRetrieve) {
-                    //TODO
+                    return false;
                 }
+                
+                return true;
 
             } catch (ClassNotFoundException | IOException classEx) {
                 System.out.println("catch2");
                 spawnError("Internal error");
+                return false;
+
                 // set the response to error internal_error
             } finally {
                 //Only for testing
@@ -373,6 +376,7 @@ public class UIController implements Initializable {
 //                d.dbStatus();
             }
         }
+        return false;
     }
 
     //POPUP NOTIFICATION 

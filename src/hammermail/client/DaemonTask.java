@@ -1,4 +1,4 @@
-  /*
+/*
  * Copyright (C) 2018 sai
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,20 +34,21 @@ import javafx.application.Platform;
  *
  * @author sai
  */
-public class DaemonTask implements Runnable{
-        
+public class DaemonTask implements Runnable {
+
     private Socket clientSocket;
     private final User user = Model.getModel().getCurrentUser();
 
-    public DaemonTask(){
-    if (clientSocket == null)
-        clientSocket = new Socket();
+    public DaemonTask() {
+        if (clientSocket == null) {
+            clientSocket = new Socket();
+        }
     }
 
     @Override
     public void run() {
         try {
-            while (true){
+            while (true) {
                 Timestamp time = Model.getModel().getLastRequestTime();
                 System.out.println("Daemon polling: " + time);
                 RequestGetMails requestGetMail = new RequestGetMails(time);
@@ -59,30 +60,30 @@ public class DaemonTask implements Runnable{
                     //clientServerLog(new Timestamp(System.currentTimeMillis()));
                     List<Mail> received = ((ResponseMails) response).getReceivedMails();
                     List<Mail> sent = ((ResponseMails) response).getSentMails();
-                    
-                    if (received.size() > 0){
+
+                    if (received.size() > 0) {
                         //at login, after having received a mail while offline, enters here twice. to fix
-                        Platform.runLater(()->Model.getModel().addMultiple(received));
-                        Platform.runLater(()->Model.getModel().addNotify(received));
+                        Platform.runLater(() -> Model.getModel().addMultiple(received));
+                        Platform.runLater(() -> Model.getModel().addNotify(received));
                         System.out.println("You have " + received.size() + " new mails!");
                     }
 
-                    if (sent.size() > 0){
-                        Platform.runLater(()->Model.getModel().addMultiple(sent));
+                    if (sent.size() > 0) {
+                        Platform.runLater(() -> Model.getModel().addMultiple(sent));
                     }
 
                 } catch (IOException ex) {
                     Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                Thread.sleep(10000);
-
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                    //TODO
+                }
             }
-
-        } catch (InterruptedException ex) {
-                //TODO
         } catch (ClassNotFoundException ex) {
-             Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-}  
+}

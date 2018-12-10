@@ -83,7 +83,7 @@ public class Utils {
         Label errorLabel = new Label(text);
         errorLabel.setAlignment(Pos.CENTER);
         errorLabel.setPadding(new Insets(100));
-        errorLabel.getStylesheets().add("../dark.css"); //FIXME wrong css path
+        errorLabel.getStylesheets().add("../resources/dark.css"); //FIXME wrong css path
         errorLabel.setStyle("label-enveloped");
         
         Parent root = new AnchorPane(errorLabel);
