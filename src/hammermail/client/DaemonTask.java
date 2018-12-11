@@ -50,7 +50,7 @@ public class DaemonTask implements Runnable {
         try {
             while (true) {
                 Timestamp time = Model.getModel().getLastRequestTime();
-                System.out.println("Daemon polling: " + time);
+//                System.out.println("Daemon polling: " + time);
                 RequestGetMails requestGetMail = new RequestGetMails(time);
                 Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
                 requestGetMail.SetAuthentication(user.getUsername(), user.getPassword());
@@ -77,7 +77,7 @@ public class DaemonTask implements Runnable {
                 }
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(6000);
                 } catch (InterruptedException ex) {
                     //TODO
                 }

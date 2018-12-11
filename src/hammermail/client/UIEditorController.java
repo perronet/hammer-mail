@@ -27,6 +27,8 @@ import hammermail.net.responses.ResponseError.ErrorType;
 import hammermail.net.responses.ResponseMailSent;
 import hammermail.net.responses.ResponseRetrieve;
 import static hammermail.core.Utils.spawnError;
+import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
+import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
 import java.sql.Timestamp;
 
 import java.io.IOException;
@@ -68,19 +70,43 @@ public class UIEditorController {
             try {
                 ResponseBase response = sendRequest(request);
                 if (response instanceof ResponseError) {
-//                  TODO inspect the type of error
                     ErrorType err = ((ResponseError) response).getErrorType();
-                    System.out.println(err);
+                    switch(err){
+                        case SENDING_TO_UNEXISTING_USER:
+                            //Popup or visualize this message
+                        
+                        case SENDING_INVALID_MAIL:
+                            //as before
+                        
+                        case INTERNAL_ERROR:
+                            //as before
+
+                    }
                     spawnError("Error response received: " + err.toString());
-                } else if (response instanceof ResponseMailSent) {
+                } 
+                else if (response instanceof ResponseMailSent) {
 //                    mail.setId(((ResponseMailSent) response).getMailID());
 //                    Model.getModel().addMail(mail);
-                } else if (response instanceof ResponseRetrieve) {
-                    //TODO
+                    if ( ((ResponseMailSent)response).getRefusedName().length() > 0){
+                        //SHOW POPUP, mail was sent to: response.getSentTo()
+                        // response.getRefusedNames doesn't exists
+                    }
+
+                } 
+                else if (response instanceof ResponseRetrieve) {
+                    response = sendRequest(request);
+                    int count = 0;
+                    while (response instanceof ResponseRetrieve && count < 5){
+                        response = sendRequest(request);
+                        count++;
+                    }
+
+                    if (response instanceof ResponseError || response instanceof ResponseRetrieve) {
+                        spawnError("Unable to contact server, retry to send");
+                    } 
                 }
 
             } catch (ClassNotFoundException | IOException classEx) {
-                System.out.println("catch2");
                 spawnError("Internal error");
                 // set the response to error internal_error
             } finally {

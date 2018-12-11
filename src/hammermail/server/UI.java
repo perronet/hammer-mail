@@ -71,7 +71,6 @@ public class UI extends Application {
         {
             testServer();
         }
-        new Database(false).dbStatus();
 
     }
 

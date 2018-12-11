@@ -44,7 +44,7 @@ public class HammerMail extends Application {
         scene.setFill(Color.TRANSPARENT);
         stage.setTitle("HammerMail - Login");
         stage.setScene(scene);
-        loginController.startTestServer();//uncomment to quicly test
+//        loginController.startTestServer();//uncomment to quicly test
         stage.show();
     }
     

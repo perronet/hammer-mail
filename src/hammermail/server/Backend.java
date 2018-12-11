@@ -248,7 +248,7 @@ class Task implements Runnable {
                             return new ResponseError(SENDING_TO_UNEXISTING_USER);
                         } else {
                             db.addMail(request.getMail());
-                            return new ResponseMailSent();
+                            return new ResponseMailSent(receivers[0], "");
                         }
                     }
                     
@@ -262,7 +262,7 @@ class Task implements Runnable {
                     request.getMail().setReceiver(rec.substring(1));
                     db.addMail(request.getMail());
                     db.release();
-                    return new ResponseMailSent();
+                    return new ResponseMailSent(rec, refused);
                 } else {
                     db.release();
                     return new ResponseError(SENDING_INVALID_MAIL);

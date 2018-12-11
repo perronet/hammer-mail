@@ -46,6 +46,7 @@ import javafx.stage.Stage;
 public class UILoginController implements Initializable {
 
     private Stage stage;
+    private Timestamp rollbackTime;
 
     @FXML
     private TextField username;
@@ -56,6 +57,37 @@ public class UILoginController implements Initializable {
     @FXML
     private Label loginfailure;
 
+    private void retrieveGet(){
+        System.out.println("In normal usage condition this doesn't print!!!");
+        
+        int count = 0;
+        ResponseBase response;
+        try {
+            rollback();
+            response = composeAndSendGetMail();
+
+            while (response instanceof ResponseRetrieve && count < 5){
+                rollback();
+                response = composeAndSendGetMail();
+                count++;
+            }
+
+            if (response instanceof ResponseError || response instanceof ResponseRetrieve) {
+                rollback();
+                showError("Unable to contact server, retry");
+            } else if (response instanceof ResponseMails) {
+                updateModelReqMail((ResponseMails) response);
+                spawnHome();
+            }
+        
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
     @FXML
     private void handleLogin(ActionEvent event) {
         try {
@@ -68,9 +100,9 @@ public class UILoginController implements Initializable {
                 } else if (response instanceof ResponseMails) {
                     updateModelReqMail((ResponseMails) response);
                     spawnHome();
-                } else if (response instanceof ResponseRetrieve) {
-                    //TODO
-                }
+                } else if (response instanceof ResponseRetrieve)
+                    retrieveGet();
+                
             } else {
                 showError("Insert a valid username and password!");
             }
@@ -104,10 +136,10 @@ public class UILoginController implements Initializable {
                         updateModelReqMail((ResponseMails) response);
                         spawnHome();
                     } else if (response instanceof ResponseRetrieve) {
-                        //TODO
+                        retrieveGet();
                     }
                 } else if (response instanceof ResponseRetrieve) {
-                    //TODO
+                    showError("Unable to contact server, retry");
                 }
             } else {
                 showError("Insert a valid username and password!");
@@ -125,8 +157,10 @@ public class UILoginController implements Initializable {
 
     private ResponseBase composeAndSendGetMail() throws ClassNotFoundException, IOException {
         Model.getModel().setCurrentUser(username.getText(), password.getText());
-        Timestamp lastUpdate = Model.getModel().takeLastRequestTime();
+        Timestamp lastUpdate = Model.getModel().takeLastRequestTime();        
         Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
+        
+        this.rollbackTime = new Timestamp(lastUpdate.getTime());
 
         System.out.println("Login: last update " + lastUpdate);
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
@@ -153,6 +187,7 @@ public class UILoginController implements Initializable {
     private void rollback() {
         Model.getModel().deleteJson();
         Model.getModel().setCurrentUser(null, null);
+        Model.getModel().setLastRequestTime(this.rollbackTime);
     }
 
     private void spawnLogin() {
@@ -168,9 +203,9 @@ public class UILoginController implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("HammerMail - Login");
-            stage.show();
-        } catch (IOException e) {
-            //TODO
+            stage.show(); 
+        }   catch (IOException ex) {
+            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -206,15 +241,15 @@ public class UILoginController implements Initializable {
         password.textProperty().addListener(e -> loginfailure.setVisible(false));
     }
     
-    public void startTestServer() {
-        //Autostart server and login
-        username.setText("a");
-        password.setText("a");
-        Thread t = new Thread(() -> {
-            Backend b;
-            b = new Backend();
-            b.startServer();
-        });
-        t.start();
-    }
+//    public void startTestServer() {
+//        //Autostart server and login
+//        username.setText("a");
+//        password.setText("a");
+//        Thread t = new Thread(() -> {
+//            Backend b;
+//            b = new Backend();
+//            b.startServer();
+//        });
+//        t.start();
+//    }
 }

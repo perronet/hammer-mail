@@ -48,12 +48,6 @@ public class Database {
         
         if (!exist)
             createTables();
-        try {
-            if (conn.isValid(0))
-                System.out.println("Connection estabilished");
-        } catch (SQLException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        }
             
     }
 
@@ -190,7 +184,7 @@ public class Database {
         } finally {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                dbStatus();
+//                dbStatus();
         }
     }
 
@@ -279,7 +273,6 @@ public class Database {
 //            conn = DriverManager.getConnection(DB_URL);
             String sql = "UPDATE email SET deleted = deleted || ? || ';' WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
-            System.out.println("QUERY DEFAULT TIMEOUT: " + pstmt.getQueryTimeout());
             String replaceID = Integer.toString(mailID);
             pstmt.setString(1, toRemove);
             pstmt.setString(2, replaceID);
@@ -399,7 +392,7 @@ public class Database {
     protected void release(){
         try {
             conn.close();
-            System.out.println("Releasing connection");
+//            System.out.println("Releasing connection");
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -498,65 +491,65 @@ public class Database {
         }
     }
 
-    public void dbStatus(){
-        ArrayList<Mail> mailList = new ArrayList<>();;
-//        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        try {
-//            conn = DriverManager.getConnection(DB_URL);
-            String sql = "SELECT * FROM users";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            
-            System.out.println("Hammer DB - Database status \n *********************************** \n");
-            
-            System.out.println("HammerMail users");
-            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
-            System.out.println("________________________________________________________");
-            while (rs.next()) {
-                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
-                System.out.println("________________________________________________________");
-            }
-            
-            
-            sql = "SELECT * FROM email ORDER BY time DESC";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            System.out.println("\n\nHammerMail email");
-            System.out.println("Id\t| From\t| To\t| Titolo\t| Text\t| Time\t\t| Deleted From");
-            System.out.println("_________________________________________________________________________________________________");
-            
-            Timestamp t = null;
-            while (rs.next()) {
-                t = new Timestamp(rs.getDate("time").getTime());
-                System.out.println(rs.getInt("email_id") 
-                        + "\t | " + rs.getString("sender")
-                        + "\t | " + rs.getString("receiver")
-                        + "\t | " + rs.getString("title")
-                        + "\t | " + rs.getString("email_text")
-                        + "\t | " + t
-                        + "\t | " + rs.getString("deleted")
-                );
-                System.out.println("_________________________________________________________________________________________________");
-            }
+//    public void dbStatus(){
+//        ArrayList<Mail> mailList = new ArrayList<>();;
+////        Connection conn = null;
+//        PreparedStatement pstmt = null;
+//        ResultSet rs = null;
 //
-        } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
-
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-//                conn.close();
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
-            }
-        }
-
-    }
+//        try {
+////            conn = DriverManager.getConnection(DB_URL);
+//            String sql = "SELECT * FROM users";
+//            pstmt = conn.prepareStatement(sql);
+//            rs = pstmt.executeQuery();
+//            
+//            System.out.println("Hammer DB - Database status \n *********************************** \n");
+//            
+//            System.out.println("HammerMail users");
+//            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
+//            System.out.println("________________________________________________________");
+//            while (rs.next()) {
+//                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
+//                System.out.println("________________________________________________________");
+//            }
+//            
+//            
+//            sql = "SELECT * FROM email ORDER BY time DESC";
+//            pstmt = conn.prepareStatement(sql);
+//            rs = pstmt.executeQuery();
+//
+//            System.out.println("\n\nHammerMail email");
+//            System.out.println("Id\t| From\t| To\t| Titolo\t| Text\t| Time\t\t| Deleted From");
+//            System.out.println("_________________________________________________________________________________________________");
+//            
+//            Timestamp t = null;
+//            while (rs.next()) {
+//                t = new Timestamp(rs.getDate("time").getTime());
+//                System.out.println(rs.getInt("email_id") 
+//                        + "\t | " + rs.getString("sender")
+//                        + "\t | " + rs.getString("receiver")
+//                        + "\t | " + rs.getString("title")
+//                        + "\t | " + rs.getString("email_text")
+//                        + "\t | " + t
+//                        + "\t | " + rs.getString("deleted")
+//                );
+//                System.out.println("_________________________________________________________________________________________________");
+//            }
+////
+//        } catch (SQLException ex) {
+//            System.out.println("SQLException: " + ex.getMessage());
+//            ex.printStackTrace(System.out);
+//
+//        } finally {
+//            try {
+//                if (rs != null) rs.close();
+//                if (pstmt != null) pstmt.close();
+////                conn.close();
+//            } catch (SQLException ex) {
+//                System.out.println("SQLException: " + ex.getMessage());
+//                ex.printStackTrace(System.out);
+//            }
+//        }
+//
+//    }
 }

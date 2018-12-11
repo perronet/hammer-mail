@@ -452,12 +452,21 @@ public class UIController implements Initializable {
                 if (response instanceof ResponseError) {
                     return null;
                 } else if (response instanceof ResponseRetrieve) {
-                    //TODO
+                    response = sendRequest(request);
+                    int count = 0;
+                    while (response instanceof ResponseRetrieve && count < 5){
+                        response = sendRequest(request);
+                        count++;
+                    }
+
+                    if (response instanceof ResponseError || response instanceof ResponseRetrieve) {
+                        return null;
+                    } 
                 }
             } catch (ClassNotFoundException | IOException ex) {
                 //TODO
             }
-        }
+        }  
         return mailsToDelete;
     }
 }
