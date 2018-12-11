@@ -57,7 +57,6 @@ public class UIEditorController {
 
     @FXML
     private void handleSend(ActionEvent event) {
-        //TODO read receiver to each comma and verify it is an existent person
         String receiver = receiversmail.getText();
         if (isNullOrWhiteSpace(receiver)) {
             spawnError("Invalid receiver");
@@ -73,27 +72,19 @@ public class UIEditorController {
                     ErrorType err = ((ResponseError) response).getErrorType();
                     switch(err){
                         case SENDING_TO_UNEXISTING_USER:
-                            //Popup or visualize this message
+                            spawnError("Unexistent receiver\nError code: " + err.toString());
                         
                         case SENDING_INVALID_MAIL:
-                            //as before
+                            spawnError("Invalid mail\nError code: " + err.toString());
                         
                         case INTERNAL_ERROR:
-                            //as before
-
+                            spawnError("Server: Internal error\nError code: " + err.toString());
                     }
-                    spawnError("Error response received: " + err.toString());
-                } 
-                else if (response instanceof ResponseMailSent) {
-//                    mail.setId(((ResponseMailSent) response).getMailID());
-//                    Model.getModel().addMail(mail);
-                    if ( ((ResponseMailSent)response).getRefusedName().length() > 0){
-                        //SHOW POPUP, mail was sent to: response.getSentTo()
-                        // response.getRefusedNames doesn't exists
-                    }
+                    
+                }else if (response instanceof ResponseMailSent) {
+                    spawnErrorIfWrongReceivers((ResponseMailSent)response);
 
-                } 
-                else if (response instanceof ResponseRetrieve) {
+                }else if (response instanceof ResponseRetrieve) {
                     response = sendRequest(request);
                     int count = 0;
                     while (response instanceof ResponseRetrieve && count < 5){
@@ -103,17 +94,15 @@ public class UIEditorController {
 
                     if (response instanceof ResponseError || response instanceof ResponseRetrieve) {
                         spawnError("Unable to contact server, retry to send");
-                    } 
+                    }else{
+                        spawnErrorIfWrongReceivers((ResponseMailSent)response);
+                    }
                 }
 
             } catch (ClassNotFoundException | IOException classEx) {
-                spawnError("Internal error");
-                // set the response to error internal_error
+                spawnError("Server: Internal error");
             } finally {
                 stage.close();
-                //Only for testing
-//                Database d = new Database(false);
-//                d.dbStatus();
             }
         }
     }

@@ -11,7 +11,7 @@
 
 <VBox prefHeight="427.0" prefWidth="331.0" styleClass="main-ui-root" stylesheets="@../resources/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.client.UIEditorController">
    <children>
-            <Label fx:id="label1" text="Receiver(s)">
+            <Label fx:id="label1" text="To">
          <VBox.margin>
             <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
          </VBox.margin>

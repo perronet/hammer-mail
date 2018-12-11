@@ -21,8 +21,8 @@ package hammermail.net.responses;
  * @author sai
  */
 public class ResponseMailSent extends ResponseSuccess {
-    private String sentTo;
-    private String refusedName;
+    private final String sentTo;
+    private final String refusedName;
     
     public ResponseMailSent(String sent, String refused){
         this.sentTo = sent;

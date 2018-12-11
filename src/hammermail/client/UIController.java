@@ -39,6 +39,7 @@ import static hammermail.core.Utils.sendRequest;
 import static hammermail.core.Utils.spawnError;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
+import hammermail.net.responses.ResponseError.ErrorType;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -47,16 +48,13 @@ import java.util.List;
 import java.util.StringTokenizer;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.PopupControl;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -69,6 +67,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
+import static hammermail.core.Utils.spawnErrorIfWrongReceivers;
 
 public class UIController implements Initializable {
 
@@ -116,9 +115,13 @@ public class UIController implements Initializable {
 
                 subjectLabel.setText(newValue.getTitle().trim());
                 mailcontent.setText(newValue.getText());
+            }else{
+                hideAllButtons();
             }
-
-            Utils.toggleCollapse(mailBox, !isEmptyMail);
+            //Hide main pane if the mail is empty
+            Utils.toggleCollapse(mailBox, !isEmptyMail);  
+            
+            //Show "empty mail" pane if the mail is empty
             Utils.toggleCollapse(noMailBox, isEmptyMail);
         });
 
@@ -282,16 +285,10 @@ public class UIController implements Initializable {
         listinbox.getSelectionModel().clearSelection();
         listsent.getSelectionModel().clearSelection();
         listdraft.getSelectionModel().clearSelection();
-
-        Utils.toggleCollapse(deleteButton, false);
-        Utils.toggleCollapse(forwardButton, false);
-        Utils.toggleCollapse(replyButton, false);
-        Utils.toggleCollapse(replyAllButton, false);
-        Utils.toggleCollapse(sendButton, false);
-        Utils.toggleCollapse(modifyButton, false);
+        hideAllButtons();
     }
 
-    //BOTTOM BUTTONS
+    //SHOW-HIDE BUTTONS
     private void inboxTabShow() {
         Utils.toggleCollapse(deleteButton, true);
         Utils.toggleCollapse(forwardButton, true);
@@ -310,6 +307,15 @@ public class UIController implements Initializable {
         Utils.toggleCollapse(modifyButton, true);
     }
 
+    private void hideAllButtons(){
+        Utils.toggleCollapse(deleteButton, false);
+        Utils.toggleCollapse(forwardButton, false);
+        Utils.toggleCollapse(replyButton, false);
+        Utils.toggleCollapse(replyAllButton, false);
+        Utils.toggleCollapse(sendButton, false);
+        Utils.toggleCollapse(modifyButton, false);
+    }
+    
     //EDIT-SEND MAIL METHODS
     private void openEditor(String sndrcv, String title, String body, boolean modifiable) {
         try {
@@ -356,27 +362,46 @@ public class UIController implements Initializable {
             try {
                 ResponseBase response = sendRequest(request);
                 if (response instanceof ResponseError) {
-//                  TODO inspect the type of error
-                    ResponseError.ErrorType err = ((ResponseError) response).getErrorType();
-                    System.out.println(err);
-                    spawnError("Error response received: " + err.toString());
+                    ErrorType err = ((ResponseError) response).getErrorType();
+                    switch(err){
+                        case SENDING_TO_UNEXISTING_USER:
+                            spawnError("Unexistent receiver\nError code: " + err.toString());
+                        
+                        case SENDING_INVALID_MAIL:
+                            spawnError("Invalid mail\nError code: " + err.toString());
+                        
+                        case INTERNAL_ERROR:
+                            spawnError("Server: Internal error\nError code: " + err.toString());
+                    }
                     return false;
+                    
+                }else if (response instanceof ResponseMailSent) {
+                    spawnErrorIfWrongReceivers((ResponseMailSent)response);
+                    return true;
+                    
+                }else if (response instanceof ResponseRetrieve) {
+                    response = sendRequest(request);
+                    int count = 0;
+                    while (response instanceof ResponseRetrieve && count < 5){
+                        response = sendRequest(request);
+                        count++;
+                    }
+
+                    if (response instanceof ResponseError || response instanceof ResponseRetrieve) {
+                        spawnError("Unable to contact server, retry to send");
+                        return false;
+                    }else{
+                        spawnErrorIfWrongReceivers((ResponseMailSent)response);
+                        return true;
+                    }
                 }
-                
-                return true;
 
             } catch (ClassNotFoundException | IOException classEx) {
-                System.out.println("catch2");
                 spawnError("Internal error");
                 return false;
-
-                // set the response to error internal_error
-            } finally {
-                //Only for testing
-//                Database d = new Database(false);
-//                d.dbStatus();
             }
         }
+        
         return false;
     }
 

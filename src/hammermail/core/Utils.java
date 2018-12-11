@@ -18,6 +18,7 @@ package hammermail.core;
 
 import hammermail.net.requests.RequestBase;
 import hammermail.net.responses.ResponseBase;
+import hammermail.net.responses.ResponseMailSent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,6 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -80,18 +82,42 @@ public class Utils {
     }
 
     public static void spawnError(String text) {
-        Label errorLabel = new Label(text);
-        errorLabel.setAlignment(Pos.CENTER);
-        errorLabel.setPadding(new Insets(100));
-        
-        Parent root = new AnchorPane(errorLabel);
-        Scene scene = new Scene(root);
         Stage stage = new Stage();
-        stage.setTitle("Error!");
+        Label errorLabel = new Label(text);
+        
+        Button button = new Button("   Ok   ");
+        button.setOnAction( e -> stage.close());
+        
+        //TODO style button (Sorry Omar)
+        
+        VBox box = new VBox(errorLabel, button);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(40));
+        box.setSpacing(20);
+        
+        Parent root = new AnchorPane(box);
+        Scene scene = new Scene(root);
+        stage.setTitle("Error");
         stage.setScene(scene);
         root.setStyle("-fx-background-color: #262626;");
-        errorLabel.setStyle("-fx-font-size: 13pt; -fx-fill: #ff4444; -fx-text-fill: #ff4444;");
+        errorLabel.setStyle("-fx-font-size: 12pt; -fx-fill: #ff4444; -fx-text-fill: #ff4444;");
         stage.show();
+    }
+    
+    public static void spawnErrorIfWrongReceivers(ResponseMailSent response){
+        if (response.getRefusedName().length() > 0){
+            StringTokenizer stRefused = new StringTokenizer(response.getRefusedName(), ";");
+            StringTokenizer stSent = new StringTokenizer(response.getSentTo(), ";");
+            String newRefused = new String();
+            String newSent = new String();
+            while (stRefused.hasMoreTokens()) {
+                newRefused = newRefused + stRefused.nextToken() + (stRefused.hasMoreTokens() ? ", " : ".");
+            }
+            while (stSent.hasMoreTokens()) {
+                newSent = newSent + stSent.nextToken() + (stSent.hasMoreTokens() ? ", " : ".");
+            }
+            spawnError("The following receivers were invalid:\n" + newRefused + "\nThe mail was sent to:\n" + newSent);
+        }
     }
     
     public static ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
