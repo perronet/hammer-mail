@@ -67,6 +67,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
 
 public class UIController implements Initializable {
@@ -380,7 +381,7 @@ public class UIController implements Initializable {
     }
 
     //POPUP NOTIFICATION 
-    String path = "sound/andre_hammer.mp3";
+    String path = "src/hammermail/resources/andre_hammer.mp3";
     Media sound = new Media(new File(path).toURI().toString());
 
     public void inboxNotify(List<? extends Mail> newMails) {
@@ -392,7 +393,7 @@ public class UIController implements Initializable {
         AnchorPane pane = new AnchorPane();
 
         Label label = new Label();
-        label.setTextFill(Color.WHITESMOKE);
+        label.setTextFill(Paint.valueOf("#e2e2e2"));
         label.setPadding(insets);
         label.setTextAlignment(TextAlignment.CENTER);
 
@@ -409,10 +410,10 @@ public class UIController implements Initializable {
         //I should've used CSS, i know...
         pane.getChildren().add(label);
         pane.setBackground(
-                new Background(new BackgroundFill(Color.DARKSLATEGREY, corner, Insets.EMPTY))
+            new Background(new BackgroundFill(Paint.valueOf("#3A506B"), corner, Insets.EMPTY))
         );
         pane.setBorder(
-                new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, corner, new BorderWidths(1.5)))
+            new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, corner, new BorderWidths(1.5)))
         );
 
         pane.setOnMouseReleased((e) -> { //MouseEvent implementation

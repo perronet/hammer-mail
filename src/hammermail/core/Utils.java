@@ -83,14 +83,14 @@ public class Utils {
         Label errorLabel = new Label(text);
         errorLabel.setAlignment(Pos.CENTER);
         errorLabel.setPadding(new Insets(100));
-        errorLabel.getStylesheets().add("../resources/dark.css"); //FIXME wrong css path
-        errorLabel.setStyle("label-enveloped");
         
         Parent root = new AnchorPane(errorLabel);
         Scene scene = new Scene(root);
         Stage stage = new Stage();
         stage.setTitle("Error!");
         stage.setScene(scene);
+        root.setStyle("-fx-background-color: #262626;");
+        errorLabel.setStyle("-fx-font-size: 13pt; -fx-fill: #ff4444; -fx-text-fill: #ff4444;");
         stage.show();
     }
     
