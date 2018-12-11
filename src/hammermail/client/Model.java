@@ -372,6 +372,7 @@ public class Model {
             }
         }
         dir.delete();
+        dir.getParentFile().delete();
         System.out.println("Deleted");
     }
 

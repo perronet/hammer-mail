@@ -46,7 +46,6 @@ import javafx.stage.Stage;
 public class UILoginController implements Initializable {
 
     private Stage stage;
-    private Timestamp rollbackTime;
 
     @FXML
     private TextField username;
@@ -160,7 +159,7 @@ public class UILoginController implements Initializable {
         Timestamp lastUpdate = Model.getModel().takeLastRequestTime();        
         Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
         
-        this.rollbackTime = new Timestamp(lastUpdate.getTime());
+//        this.rollbackTime = new Timestamp(lastUpdate.getTime());
 
         System.out.println("Login: last update " + lastUpdate);
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
@@ -187,7 +186,6 @@ public class UILoginController implements Initializable {
     private void rollback() {
         Model.getModel().deleteJson();
         Model.getModel().setCurrentUser(null, null);
-        Model.getModel().setLastRequestTime(this.rollbackTime);
     }
 
     private void spawnLogin() {
