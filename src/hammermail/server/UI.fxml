@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane 
-    prefHeight="400.0" prefWidth="600.0"  
-    xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" 
-    fx:controller="hammermail.server.UIController"
->
-    <TextArea fx:id = "logText"
-        AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
-        editable = "false"
-    />
+<AnchorPane prefHeight="400.0" prefWidth="600.0" styleClass="main-ui-root" stylesheets="@../resources/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hammermail.server.UIController">
+   <children>
+       <TextArea fx:id="logText" editable="false" layoutY="18.0" prefHeight="382.0" prefWidth="583.0" style="-fx-font-size: 12;" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding></TextArea>
+   </children>
 </AnchorPane>

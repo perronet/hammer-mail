@@ -42,10 +42,11 @@ public class UI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException, InterruptedException {
-        primaryStage.setTitle("Hello World!");
+        primaryStage.setTitle("Hammermail backend");
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("UI.fxml"));
         primaryStage.setScene(new Scene(loader.load()));
+        primaryStage.setMaximized(true);
 
         UIController uiController = loader.getController();
         UIModel model = new UIModel();
@@ -60,13 +61,10 @@ public class UI extends Application {
             });
         });
         
-        //primaryStage.onCloseRequestProperty().addListener((val)->{ backend.stopServer();});
-
          primaryStage.setOnCloseRequest(e -> {
                 backend.stopServer();
             });
          
-        //#TODO CREATE CONDITIONAL 
         for (int i = 0; i <0; i++)//Up to 200 working on my machine
         {
             testServer();

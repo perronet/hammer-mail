@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Richard Matthew Stallman
+ * Copyright (C)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,16 +37,7 @@ import java.sql.Timestamp;
 import javafx.beans.property.SimpleStringProperty;
 import org.sqlite.SQLiteErrorCode;
 import org.sqlite.SQLiteException;
-//import static hammermail.net.responses.ResponseError.ErrorType.INCORRECT_AUTHENTICATION;
-//import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
-//import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
-//import static hammermail.net.responses.ResponseError.ErrorType.SIGNUP_USERNAME_TAKEN;
 
-/**
- * This class implements the backend of the HammerMail server.
- *
- * @author Richard Matthew Stallman
- */
 public class Backend {
 
     private ExecutorService exec;
@@ -72,11 +63,11 @@ public class Backend {
      * This method will loop until the server is working
      */
     boolean serverLoop() {
-        logAction("Waiting for request...");
+        logAction("-------------- Waiting for request... --------------");
 
         try {
             Socket incoming = serverSocket.accept();
-            logAction("Received request! Starting new task...");
+            //logAction("Received request! Starting new task...");
             handleNewRequest(incoming);
         } catch (IOException ex) {
             //No error: it can get here whene the backed is shut down
@@ -122,7 +113,7 @@ public class Backend {
         if (Utils.countLines(log) > Globals.HAMMERMAIL_SERVER_MAX_LOG_LINES) {
             oldLog = oldLog.substring(oldLog.indexOf('\n'));
         }
-        
+
         logText.set(oldLog);
         //System.out.println("°°°° BACKEND °°°° " + log);
     }
@@ -162,14 +153,9 @@ class Task implements Runnable {
         ObjectInputStream in = null;
         ObjectOutputStream out = null;
         try {
-            logAction("Task initialized! Receiving data...");
-
             in = new ObjectInputStream(clientSocket.getInputStream());
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             Object obj = in.readObject();
-
-            //#TODO MANAGE RESPONSES
-            logAction("Server task received request");
 
             if (!(obj instanceof RequestBase)) {
                 logAction("Error: received object of type: " + obj.getClass());
@@ -203,6 +189,7 @@ class Task implements Runnable {
      */
     ResponseBase handleRequest(RequestBase request) {
         if (!request.isAuthenticationWellFormed()) {
+            logAction(request.getUsername() + " - " + request.getPassword() + " has invalid username/password!");
             return new ResponseError(ResponseError.ErrorType.INCORRECT_AUTHENTICATION);
         }
 
@@ -222,16 +209,23 @@ class Task implements Runnable {
     ResponseBase handleSignUp(RequestSignUp request) {
         Database db = new Database(false);
         try {
-            if (db.isUser(request.getUsername())) 
+            if (db.isUser(request.getUsername())) {
+                logAction("New user tried to signup, but username is taken: " + request.getUsername());
                 return new ResponseError(SIGNUP_USERNAME_TAKEN);
-            else 
+            } else {
+                logAction("New user signed up: " + request.getUsername());
                 db.addUser(request.getUsername(), request.getPassword());
+            }
 
         } catch (SQLException ex) {
-            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+            if (((SQLiteException) ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY)) {
                 return new ResponseRetrieve();
-            else return new ResponseError(INTERNAL_ERROR);
-        } finally {db.release();}
+            } else {
+                return new ResponseError(INTERNAL_ERROR);
+            }
+        } finally {
+            db.release();
+        }
         return new ResponseSuccess();
     }
 
@@ -242,26 +236,32 @@ class Task implements Runnable {
                 if (request.IsMailWellFormed()) {
                     String rec = (request.getMail().getReceiver()).replaceAll("\\s+", "");
                     String[] receivers = rec.split(";");
-                    
+
                     if (receivers.length == 1) {
                         if (!db.isUser(receivers[0])) {
+                            logAction("Mail sent from " + request.getMail().getSender() + " but " + request.getMail().getReceiver() + " do not exist!");
                             return new ResponseError(SENDING_TO_UNEXISTING_USER);
                         } else {
+                            logAction("Mail sent from " + request.getMail().getSender() + " to " + request.getMail().getReceiver());
                             db.addMail(request.getMail());
                             return new ResponseMailSent(receivers[0], "");
                         }
                     }
-                    
+
                     rec = "";
                     String refused = "";
-                    
+
                     for (int i = 0; i < receivers.length; i++) {
-                        if (db.isUser(receivers[i])) rec = rec + ";" + receivers[i];
-                        else refused = refused + ";" + receivers[i];
+                        if (db.isUser(receivers[i])) {
+                            rec = rec + ";" + receivers[i];
+                        } else {
+                            refused = refused + ":" + receivers[i];
+                        }
                     }
                     request.getMail().setReceiver(rec.substring(1));
                     db.addMail(request.getMail());
                     db.release();
+                    logAction("Mail sent from " + request.getMail().getSender() + " to " + request.getMail().getReceiver() + " but some refused: " + refused);
                     return new ResponseMailSent(rec, refused);
                 } else {
                     db.release();
@@ -270,53 +270,62 @@ class Task implements Runnable {
 
             } else {
                 db.release();
+                logAction(request.getUsername() + " - " + request.getPassword() + " has invalid username/password!");
                 return new ResponseError(INCORRECT_AUTHENTICATION);
             }
         } catch (SQLException ex) {
-            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+            if (((SQLiteException) ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY)) {
                 return new ResponseRetrieve();
-            else return new ResponseError(INTERNAL_ERROR);
-        } finally {db.release();}
+            } else {
+                return new ResponseError(INTERNAL_ERROR);
+            }
+        } finally {
+            db.release();
+        }
     }
 
     ResponseBase handleGetMails(RequestGetMails request) {
         Database db = new Database(false);
         Timestamp time = request.getLastMailDate();
-//        System.out.println("--------BACKEND: risponde a " + request.getUsername() + "request con time " + time);
         try {
             if (db.checkPassword(request.getUsername(), request.getPassword())) {
                 ResponseMails response = new ResponseMails(db.getReceivedMails(request.getUsername(), time),
-                db.getSentMails(request.getUsername(), time));
-//            System.out.println("--------BACKEND: response rec " + response.getReceivedMails());
-//            System.out.println("--------BACKEND: response sent " + response.getSentMails());   
-//            System.out.println("*****BACKEND: accepted get mails request");
-//            db.dbStatus();
+                        db.getSentMails(request.getUsername(), time));
                 db.release();
+                logAction(request.getUsername() + " downloaded " + (response.getSentMails().size() + response.getReceivedMails().size()) + " mails.");
                 return response;
             } else {
                 db.release();
+                logAction(request.getUsername() + " - " + request.getPassword() + " has invalid username/password!");
                 return new ResponseError(INCORRECT_AUTHENTICATION);
             }
         } catch (SQLException ex) {
-            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+            if (((SQLiteException) ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY)) {
                 return new ResponseRetrieve();
-            else return new ResponseError(INTERNAL_ERROR);
+            } else {
+                return new ResponseError(INTERNAL_ERROR);
+            }
         }
     }
 
-    private ResponseBase handleDeleteMails(RequestDeleteMails requestDeleteMails) {
+    private ResponseBase handleDeleteMails(RequestDeleteMails request) {
         Database db = new Database(false);
         try {
-            for (Integer mailID : requestDeleteMails.getMailsIDsToDelete()) {
-                db.removeMail(mailID, requestDeleteMails.getUsername());
+            for (Integer mailID : request.getMailsIDsToDelete()) {
+                db.removeMail(mailID, request.getUsername());
+                logAction(request.getUsername() + " deleted a mail with id: " + mailID);
             }
             db.release();
             return new ResponseSuccess();
         } catch (SQLException ex) {
-            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
+            if (((SQLiteException) ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY)) {
                 return new ResponseRetrieve();
-            else return new ResponseError(INTERNAL_ERROR);
-        } finally {db.release();} 
+            } else {
+                return new ResponseError(INTERNAL_ERROR);
+            }
+        } finally {
+            db.release();
+        }
     }
 
     public synchronized void logAction(String log) {
