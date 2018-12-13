@@ -67,13 +67,13 @@ public class UIEditorController {
                     ErrorType err = ((ResponseError) response).getErrorType();
                     switch(err){
                         case SENDING_TO_UNEXISTING_USER:
-                            spawnError("Unexistent receiver\nError code: " + err.toString());
+                            spawnError("Unexistent receiver\nError code: " + err.toString()); break;
                         
                         case SENDING_INVALID_MAIL:
-                            spawnError("Invalid mail\nError code: " + err.toString());
+                            spawnError("Invalid mail\nError code: " + err.toString()); break;
                         
                         case INTERNAL_ERROR:
-                            spawnError("Server: Internal error\nError code: " + err.toString());
+                            spawnError("Server: Internal error\nError code: " + err.toString()); break;
                     }
                     
                 }else if (response instanceof ResponseMailSent) {

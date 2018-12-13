@@ -348,8 +348,6 @@ public class UIController implements Initializable {
     }
 
     private boolean sendDraft() {
-        //TODO read receiver to each comma and verify it is an existent person
-        //ENSURE that the current mail is the draft
         String receiver = getCurrentMail().getReceiver();
         if (isNullOrWhiteSpace(receiver)) {
             spawnError("Invalid receiver");
@@ -365,13 +363,13 @@ public class UIController implements Initializable {
                     ErrorType err = ((ResponseError) response).getErrorType();
                     switch(err){
                         case SENDING_TO_UNEXISTING_USER:
-                            spawnError("Unexistent receiver\nError code: " + err.toString());
+                            spawnError("Unexistent receiver\nError code: " + err.toString()); break;
                         
                         case SENDING_INVALID_MAIL:
-                            spawnError("Invalid mail\nError code: " + err.toString());
+                            spawnError("Invalid mail\nError code: " + err.toString()); break;
                         
                         case INTERNAL_ERROR:
-                            spawnError("Server: Internal error\nError code: " + err.toString());
+                            spawnError("Server: Internal error\nError code: " + err.toString()); break;
                     }
                     return false;
                     
