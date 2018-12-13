@@ -234,7 +234,7 @@ class Task implements Runnable {
         try {
             if (db.checkPassword(request.getUsername(), request.getPassword())) {
                 if (request.IsMailWellFormed()) {
-                    String rec = (request.getMail().getReceiver()).replaceAll("\\s+", "");
+                    String rec = (request.getMail().getReceiver());
                     String[] receivers = rec.split(";");
 
                     if (receivers.length == 1) {
@@ -247,11 +247,12 @@ class Task implements Runnable {
                             return new ResponseMailSent(receivers[0], "");
                         }
                     }
-
+                    
                     rec = "";
                     String refused = "";
 
                     for (int i = 0; i < receivers.length; i++) {
+                        receivers[i] = receivers[i].trim();
                         if (db.isUser(receivers[i])) {
                             rec = rec + ";" + receivers[i];
                         } else {

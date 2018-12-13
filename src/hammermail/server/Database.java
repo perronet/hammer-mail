@@ -231,7 +231,7 @@ public class Database {
 //        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        int mailID = -1;
+//        int mailID = -1;
         
         try {
 //            conn = DriverManager.getConnection(DB_URL);
