@@ -91,7 +91,6 @@ public class Database {
             
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
             try {
@@ -123,7 +122,6 @@ public class Database {
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
 
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
                 if (rs != null) rs.close();
@@ -149,7 +147,6 @@ public class Database {
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
 
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
                 if (rs != null) rs.close();
@@ -181,12 +178,10 @@ public class Database {
             if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-//                dbStatus();
         }
     }
 
@@ -201,14 +196,12 @@ public class Database {
 
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
             }
         }
 
@@ -235,7 +228,6 @@ public class Database {
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
 
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
                 if (pstmt != null) pstmt.close();
@@ -307,9 +299,7 @@ public class Database {
         } catch (SQLException ex) {
             if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
-
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
                 if (rs != null) rs.close();
@@ -352,7 +342,6 @@ public class Database {
             if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
             System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
                 if (rs != null) rs.close();
@@ -376,10 +365,9 @@ public class Database {
     private void dropDB() {
         try {
             Files.deleteIfExists(Paths.get(URL));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
+        } catch (IOException ex) {
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        } 
 
     }
 
@@ -397,8 +385,6 @@ public class Database {
             DatabaseMetaData dbMeta = conn.getMetaData();
             
         } catch (SQLException ex) {
-//            if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
-//                throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         } 
     }
@@ -432,9 +418,8 @@ public class Database {
             }
       
         } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
-            ex.printStackTrace(System.out);
-        }
+            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        } 
   }
   
     protected void resetTables() {
@@ -452,8 +437,7 @@ public class Database {
             try {
                 if (stmt != null) stmt.close();
             } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                ex.printStackTrace(System.out);
+                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
