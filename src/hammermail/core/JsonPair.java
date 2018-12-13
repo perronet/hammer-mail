@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Francesco
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,10 +19,6 @@ package hammermail.core;
 import java.sql.Timestamp;
 import java.util.List;
 
-/**
- *
- * @author Rondi
- */
 public class JsonPair {
     private Timestamp lastReq;
     private List<Mail> mails;

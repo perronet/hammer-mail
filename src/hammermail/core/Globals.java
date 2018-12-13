@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ package hammermail.core;
  * This class will contain all the constants and globals of the program. It does
  * not hold user preferences, here is the place in which we put hard-coded
  * stuff.
- * @author 00mar
  */
 public class Globals {
 

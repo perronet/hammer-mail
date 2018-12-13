@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@ import javafx.scene.control.TextArea;
 
 /**
  * FXML Controller class
- *
- * @author 00mar
  */
 public class UIController {
     

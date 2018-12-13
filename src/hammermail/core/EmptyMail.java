@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 marco
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,10 +16,6 @@
  */
 package hammermail.core;
 
-/**
- *
- * @author marco
- */
 public class EmptyMail extends Mail{
 
     public EmptyMail() {

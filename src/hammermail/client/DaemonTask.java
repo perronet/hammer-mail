@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 sai
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 
-/**
- *
- * @author sai
- */
 public class DaemonTask implements Runnable {
 
     private Socket clientSocket;

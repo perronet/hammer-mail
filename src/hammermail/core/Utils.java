@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +32,11 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-/**
- *
- * @author 00mar
- */
 public class Utils {
 
     public static boolean isNullOrWhiteSpace(String s) {
@@ -131,7 +126,8 @@ public class Utils {
     public static boolean isAuthenticationWellFormed(String username, String password) {
         return !isNullOrWhiteSpace(username) &&
                !isNullOrWhiteSpace(password) &&
-               !username.contains("@");
+               !username.contains("@") &&
+               !username.contains(" ");
     }
     
     public static void toggleCollapse(Node node, boolean isVisible)

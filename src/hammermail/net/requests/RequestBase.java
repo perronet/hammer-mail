@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 /**
  * A base class for requests made from client to server.
- * @author 00mar
  */
 public abstract class RequestBase implements Serializable {
     protected String username;

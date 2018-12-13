@@ -40,11 +40,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-/**
- * FXML Controller class
- *
- * @author marco
- */
 public class UIEditorController {
 
     private Stage stage;

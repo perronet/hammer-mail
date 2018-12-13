@@ -16,13 +16,12 @@
  */
 package hammermail.client;
 
-import hammermail.core.EmptyMail;
 import hammermail.core.Mail;
 import hammermail.core.Utils;
+import static hammermail.core.Utils.isNullOrWhiteSpace;
 import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
-import hammermail.server.Backend;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
@@ -40,7 +39,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class UILoginController implements Initializable {
