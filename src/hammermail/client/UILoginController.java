@@ -18,10 +18,10 @@ package hammermail.client;
 
 import hammermail.core.Mail;
 import hammermail.core.Utils;
-import static hammermail.core.Utils.isNullOrWhiteSpace;
 import static hammermail.core.Utils.sendRequest;
 import hammermail.net.requests.*;
 import hammermail.net.responses.*;
+import hammermail.server.Backend;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
@@ -56,8 +56,6 @@ public class UILoginController implements Initializable {
     private Label loginfailure;
 
     private void retrieveGet(){
-        System.out.println("In normal usage condition this doesn't print!!!");
-        
         int count = 0;
         ResponseBase response;
         try {
@@ -78,9 +76,8 @@ public class UILoginController implements Initializable {
                 spawnHome();
             }
         
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        } catch (ClassNotFoundException | IOException ex) {
+            showError("Internal error");
             Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -105,9 +102,7 @@ public class UILoginController implements Initializable {
                 showError("Insert a valid username and password!");
             }
         } catch (ClassNotFoundException | IOException ex) {
-            System.out.println(ex.getMessage());
             showError("Unable to connect to server.");
-            // set the response to error internal_error
         }
     }
 
@@ -118,7 +113,6 @@ public class UILoginController implements Initializable {
                 //Compose request and send
                 RequestSignUp requestSignUp = new RequestSignUp();
                 requestSignUp.SetAuthentication(username.getText(), password.getText());
-
                 ResponseBase response = sendRequest(requestSignUp);
 
                 //Username taken
@@ -140,11 +134,10 @@ public class UILoginController implements Initializable {
                     showError("Unable to contact server, retry");
                 }
             } else {
-                showError("Insert a valid username and password!");
+                showError("Insert a valid username and password (whitespace and @ are invalid)");
             }
         } catch (ClassNotFoundException | IOException classEx) {
             showError("Unable to connect to server.");
-            // set the response to error internal_error
         }
     }
 
@@ -158,17 +151,14 @@ public class UILoginController implements Initializable {
         Timestamp lastUpdate = Model.getModel().takeLastRequestTime();        
         Model.getModel().setLastRequestTime(new Timestamp(System.currentTimeMillis()));
         
-//        this.rollbackTime = new Timestamp(lastUpdate.getTime());
-
         System.out.println("Login: last update " + lastUpdate);
         RequestGetMails requestGetMail = new RequestGetMails(lastUpdate);
-
         requestGetMail.SetAuthentication(username.getText(), password.getText());
+        
         return sendRequest(requestGetMail);
     }
 
     private void updateModelReqMail(ResponseMails response) {
-        //Meglio confermare il login DOPO la response
         Model.getModel().setCurrentUser(username.getText(), password.getText());
 
         List<Mail> received = response.getReceivedMails();
@@ -179,7 +169,6 @@ public class UILoginController implements Initializable {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-       // Model.getModel().setCurrentMail(new EmptyMail()); //This is the first Model call, it will exectute the Model constructor
     }
     
     private void rollback() {
@@ -188,7 +177,6 @@ public class UILoginController implements Initializable {
     }
 
     private void spawnLogin() {
-        //spawn a new login view
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("UIlogin.fxml"));
@@ -214,7 +202,7 @@ public class UILoginController implements Initializable {
             Parent root;
             root = uiLoader.load();
             UIController uiController = uiLoader.getController();
-            stage.close(); //close login view
+            stage.close();
             Stage newstage = new Stage();
             newstage.setTitle("HammerMail - Home");
             newstage.getIcons().add(new Image("hammermail/resources/hammermail.png"));
@@ -240,15 +228,15 @@ public class UILoginController implements Initializable {
         password.textProperty().addListener(e -> loginfailure.setVisible(false));
     }
     
-//    public void startTestServer() {
-//        //Autostart server and login
-//        username.setText("a");
-//        password.setText("a");
-//        Thread t = new Thread(() -> {
-//            Backend b;
-//            b = new Backend();
-//            b.startServer();
-//        });
-//        t.start();
-//    }
+    public void startTestServer() {
+        //Autostart server and login, only used for testing
+        username.setText("a");
+        password.setText("a");
+        Thread t = new Thread(() -> {
+            Backend b;
+            b = new Backend();
+            b.startServer();
+        });
+        t.start();
+    }
 }

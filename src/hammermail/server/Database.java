@@ -124,9 +124,9 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                return dbPsw.equals(passW);
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            return dbPsw.equals(passW);
         }
     }
 
@@ -149,9 +149,9 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                return isUser;
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            return isUser;
         }
     }
 
@@ -180,8 +180,8 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
         }
     }
 
@@ -212,8 +212,7 @@ public class Database {
         ResultSet rs = null;
         
         try {
-            String sql = "INSERT INTO email(sender, receiver, title, email_text, time) "
-                           + "VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO email(sender, receiver, title, email_text, time) VALUES (?, ?, ?, ?, ?)";
          
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, mail.getSender());
@@ -230,8 +229,8 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (pstmt != null) pstmt.close();
-                if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            if (rs != null) rs.close();
         }
     }
 
@@ -254,7 +253,7 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (pstmt != null) pstmt.close();
+            if (pstmt != null) pstmt.close();
         }
     }
    
@@ -289,7 +288,7 @@ public class Database {
                         rs.getString("title"), 
                         rs.getString("email_text"), 
                         rs.getTimestamp("time"));
-                                                //ENSURE THAT FIX
+                
                 if (!(rs.getString("deleted").contains(";"+userN+";"))){
                     mailList.add(m);
                 }
@@ -302,9 +301,9 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                return mailList;
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            return mailList;
         }
     }
 
@@ -344,24 +343,22 @@ public class Database {
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                return mailList;
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+            return mailList;
         }
     }    
 
     protected void release(){
         try {
             conn.close();
-//            System.out.println("Releasing connection");
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
   }
   
-  
-  
     //EXTERNAL UTILS
+    
     private void dropDB() {
         try {
             Files.deleteIfExists(Paths.get(URL));
@@ -442,65 +439,4 @@ public class Database {
         }
     }
 
-//    public void dbStatus(){
-//        ArrayList<Mail> mailList = new ArrayList<>();;
-////        Connection conn = null;
-//        PreparedStatement pstmt = null;
-//        ResultSet rs = null;
-//
-//        try {
-////            conn = DriverManager.getConnection(DB_URL);
-//            String sql = "SELECT * FROM users";
-//            pstmt = conn.prepareStatement(sql);
-//            rs = pstmt.executeQuery();
-//            
-//            System.out.println("Hammer DB - Database status \n *********************************** \n");
-//            
-//            System.out.println("HammerMail users");
-//            System.out.println("Username \t | Password (Very safe with HammerMail!!!)");
-//            System.out.println("________________________________________________________");
-//            while (rs.next()) {
-//                System.out.println(rs.getString("username") + "\t | " + rs.getString("password"));
-//                System.out.println("________________________________________________________");
-//            }
-//            
-//            
-//            sql = "SELECT * FROM email ORDER BY time DESC";
-//            pstmt = conn.prepareStatement(sql);
-//            rs = pstmt.executeQuery();
-//
-//            System.out.println("\n\nHammerMail email");
-//            System.out.println("Id\t| From\t| To\t| Titolo\t| Text\t| Time\t\t| Deleted From");
-//            System.out.println("_________________________________________________________________________________________________");
-//            
-//            Timestamp t = null;
-//            while (rs.next()) {
-//                t = new Timestamp(rs.getDate("time").getTime());
-//                System.out.println(rs.getInt("email_id") 
-//                        + "\t | " + rs.getString("sender")
-//                        + "\t | " + rs.getString("receiver")
-//                        + "\t | " + rs.getString("title")
-//                        + "\t | " + rs.getString("email_text")
-//                        + "\t | " + t
-//                        + "\t | " + rs.getString("deleted")
-//                );
-//                System.out.println("_________________________________________________________________________________________________");
-//            }
-////
-//        } catch (SQLException ex) {
-//            System.out.println("SQLException: " + ex.getMessage());
-//            ex.printStackTrace(System.out);
-//
-//        } finally {
-//            try {
-//                if (rs != null) rs.close();
-//                if (pstmt != null) pstmt.close();
-////                conn.close();
-//            } catch (SQLException ex) {
-//                System.out.println("SQLException: " + ex.getMessage());
-//                ex.printStackTrace(System.out);
-//            }
-//        }
-//
-//    }
 }

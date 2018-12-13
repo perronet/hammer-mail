@@ -198,8 +198,8 @@ public class Model {
         mailsToNotify.removeAll(m);
     }
 
-    //JSON MANIPULATION
     //JSON PRIVATE METHODS
+    
     //Store mails into .json (each time read the file, append the new mail and write the file)
     private void storeMail(Mail mailToStore) {
         try {
@@ -289,7 +289,7 @@ public class Model {
     }
 
     //JSON PUBLIC METHODS
-    //TODO: clean this dirty code, add check if mail is already in the list
+    
     public void dispatchMail(List<Mail> newReceived, List<Mail> newSent) {
 
         //STEP 1: Load already stored mails into the model
@@ -325,7 +325,6 @@ public class Model {
             userFile.mkdirs();
             Gson file = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
             String filepath = this.currentUser.getUserFileFolder();
-            //userFile.mkdir();
             try {
                 JsonWriter writer = new JsonWriter(new FileWriter(filepath));
                 System.out.println(filepath);
@@ -343,7 +342,6 @@ public class Model {
         }
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
         JsonPair pairTest = null;
-        List<Mail> test = null;
         JsonReader reader;
         try {
             reader = new JsonReader(new FileReader(this.currentUser.getUserFileFolder()));
@@ -373,7 +371,7 @@ public class Model {
         }
         dir.delete();
         dir.getParentFile().delete();
-        System.out.println("Deleted");
+        System.out.println("Json deleted");
     }
 
 }

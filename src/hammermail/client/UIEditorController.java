@@ -30,7 +30,6 @@ import static hammermail.core.Utils.spawnError;
 import static hammermail.net.responses.ResponseError.ErrorType.SENDING_INVALID_MAIL;
 import static hammermail.net.responses.ResponseError.ErrorType.SENDING_TO_UNEXISTING_USER;
 import java.sql.Timestamp;
-
 import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -78,6 +77,7 @@ public class UIEditorController {
                     
                 }else if (response instanceof ResponseMailSent) {
                     spawnErrorIfWrongReceivers((ResponseMailSent)response);
+                    stage.close();
 
                 }else if (response instanceof ResponseRetrieve) {
                     response = sendRequest(request);
@@ -91,13 +91,12 @@ public class UIEditorController {
                         spawnError("Unable to contact server, retry to send");
                     }else{
                         spawnErrorIfWrongReceivers((ResponseMailSent)response);
+                        stage.close();
                     }
                 }
 
             } catch (ClassNotFoundException | IOException classEx) {
-                spawnError("Server: Internal error");
-            } finally {
-                stage.close();
+                spawnError("Internal error");
             }
         }
     }

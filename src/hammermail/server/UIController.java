@@ -30,7 +30,7 @@ public class UIController {
     private UIModel model;
     
     public void initModel(UIModel model) {
-        // ensure model is only set once:
+        //Ensure model is only set once
         if (this.model != null) {
             throw new IllegalStateException("Model can only be initialized once");
         }

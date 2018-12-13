@@ -1,5 +1,5 @@
 /*
- * Copyright (C)
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import static hammermail.net.responses.ResponseError.ErrorType.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -53,7 +52,7 @@ public class Backend {
             exec = Executors.newFixedThreadPool(Globals.HAMMERMAIL_SERVER_NUM_THREAD);
             logAction("Sockets and Threads created. Server starting...");
 
-            while (serverLoop());//#TODO fill this while with proper logging
+            while (serverLoop());
         } catch (IOException ex) {
             Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -67,11 +66,8 @@ public class Backend {
 
         try {
             Socket incoming = serverSocket.accept();
-            //logAction("Received request! Starting new task...");
             handleNewRequest(incoming);
         } catch (IOException ex) {
-            //No error: it can get here whene the backed is shut down
-            //Logger.getLogger(Backend.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
 
@@ -115,7 +111,6 @@ public class Backend {
         }
 
         logText.set(oldLog);
-        //System.out.println("°°°° BACKEND °°°° " + log);
     }
 
     public String GetLog() {
@@ -130,7 +125,6 @@ public class Backend {
 /**
  * Represents a single task of the HammerMail server
  *
- * @author 00mar
  */
 class Task implements Runnable {
 
@@ -201,7 +195,7 @@ class Task implements Runnable {
             return handleGetMails((RequestGetMails) request);
         } else if (request instanceof RequestDeleteMails) {
             return handleDeleteMails((RequestDeleteMails) request);
-        } else {//should never get here, #TODO do something if it happens
+        } else {
             return null;
         }
     }
@@ -256,7 +250,7 @@ class Task implements Runnable {
                         if (db.isUser(receivers[i])) {
                             rec = rec + ";" + receivers[i];
                         } else {
-                            refused = refused + ":" + receivers[i];
+                            refused = refused + ";" + receivers[i];
                         }
                     }
                     request.getMail().setReceiver(rec.substring(1));
@@ -330,7 +324,6 @@ class Task implements Runnable {
     }
 
     public synchronized void logAction(String log) {
-        //System.out.println("**** SERVER **** " + log);
         backend.logAction(log);
     }
 }

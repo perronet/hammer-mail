@@ -30,9 +30,6 @@ public class HammerMail extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         
-//        Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
-//      Uncomment to start with login
-        
         //Login Controller
         stage.initStyle(StageStyle.TRANSPARENT);
         FXMLLoader loginLoader = new FXMLLoader();
@@ -46,12 +43,11 @@ public class HammerMail extends Application {
         stage.setTitle("HammerMail - Login");
         stage.setScene(scene);
         stage.getIcons().add(new Image( "hammermail/resources/hammermail.png" )); 
-//        loginController.startTestServer();//uncomment to quicly test
         stage.show();
     }
     
     public static void main(String[] args) {
-		launch(args);
+        launch(args);
     }
     
 }

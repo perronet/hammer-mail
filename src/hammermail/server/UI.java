@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 00mar
+ * Copyright (C) 2018
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,35 +10,25 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * Stallman si mangia i piedi
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package hammermail.server;
 
-import hammermail.core.Mail;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-/**
- *
- * @author 00mar
- */
 public class UI extends Application {
 
     @Override
@@ -68,11 +58,13 @@ public class UI extends Application {
                 backend.stopServer();
             });
          
-        for (int i = 0; i <0; i++)//Up to 200 working on my machine
+        //Uncomment to test with DummyClient
+        /*
+        for (int i = 0; i < 100; i++)
         {
             testServer();
         }
-
+        */
     }
 
     Backend startServer() {
@@ -111,27 +103,12 @@ public class UI extends Application {
         t.start();
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) throws ParseException, InterruptedException, SQLException {
- 
         Database d = new Database(false);
         d.addUser("tano", "a");
         d.addUser("marco", "a");
         d.addUser("omar", "a");
         d.addUser("andrea", "a");
-//         int j = 0;
-//        for(int i = 0; i < 100; i++){
-//            d.addMail(new Mail(j++, "tano", "marco", "title", "text", new Timestamp(System.currentTimeMillis())));
-//            Thread.sleep(10);
-//        }
-//        
-//         for(int i = 0; i < 100; i++){
-//            d.addMail(new Mail(j++, "marco", "tano", "title", "text", new Timestamp(System.currentTimeMillis())));
-//            Thread.sleep(10);
-//        }
-         
         d.release();
 
         launch(args);    

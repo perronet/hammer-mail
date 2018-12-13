@@ -68,6 +68,8 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
 import static hammermail.core.Utils.spawnErrorIfWrongReceivers;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 
 public class UIController implements Initializable {
@@ -97,7 +99,7 @@ public class UIController implements Initializable {
     Thread daemon;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) { //Executes after @FXML fields are initialized, use this instead of constructor
+    public void initialize(URL url, ResourceBundle rb) {
         usernameLabel.setText(currentUser);
 
         //Setting up current mail listener
@@ -141,7 +143,7 @@ public class UIController implements Initializable {
         });
 
         //Setting up tab change
-        tabPane.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //if tab changes clear all selections and text
+        tabPane.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //If tab changes clear all selections and text
             clearAllSelections();
             System.out.println("Tab number " + newValue + " selected, list selections cleared");
 
@@ -168,8 +170,8 @@ public class UIController implements Initializable {
         //Sent list
         listsent.setItems(Model.getModel().getListSent()); //the ListView will automatically refresh the view to represent the items in the ObservableList
         listsent.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); //can only select one element at a time
-        listsent.setCellFactory(param -> new MailCell()); //the argument "param" is completely useless but you have to use it because of the Callback functional interface
-        listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { //implementation of ChangeListener
+        listsent.setCellFactory(param -> new MailCell());
+        listsent.getSelectionModel().selectedIndexProperty().addListener((obsValue, oldValue, newValue) -> { 
             int newindex = (int) newValue;
 
             if (!listsent.getSelectionModel().isEmpty() && newindex >= 0) {
@@ -247,7 +249,7 @@ public class UIController implements Initializable {
         });
 
         replyButton.setOnAction((ActionEvent e) -> {
-            openEditor(getCurrentMail().getSender(), "", "", false);
+            openEditor(getCurrentMail().getSender(), "Re: " + getCurrentMail().getTitle(), "", false);
         });
 
         replyAllButton.setOnAction((ActionEvent e) -> {
@@ -262,7 +264,7 @@ public class UIController implements Initializable {
                 }
             }
             newReceiver = newReceiver + sender;
-            openEditor(newReceiver, "", "", false);
+            openEditor(newReceiver, "Re: " + getCurrentMail().getTitle(), "", false);
         });
     }
 
@@ -290,6 +292,7 @@ public class UIController implements Initializable {
     }
 
     //SHOW-HIDE BUTTONS
+    
     private void inboxTabShow() {
         Utils.toggleCollapse(deleteButton, true);
         Utils.toggleCollapse(forwardButton, true);
@@ -318,6 +321,7 @@ public class UIController implements Initializable {
     }
     
     //EDIT-SEND MAIL METHODS
+    
     private void openEditor(String sndrcv, String title, String body, boolean modifiable) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
@@ -334,13 +338,14 @@ public class UIController implements Initializable {
 
             stage.show();
 
-            // Handler to save drafts when closing the window
+            //Handler to save drafts when closing the window
             stage.setOnCloseRequest(e -> {
                 editorController.handleSave(e);
                 System.out.println("Stage is closing");
             });
 
         } catch (IOException e) {
+            spawnError("Internal error");
             System.out.println(e.toString());
         }
     }
@@ -433,7 +438,6 @@ public class UIController implements Initializable {
             label.setText(text);
         }
 
-        //I should've used CSS, i know...
         pane.getChildren().add(label);
         pane.setBackground(
             new Background(new BackgroundFill(Paint.valueOf("#3A506B"), corner, Insets.EMPTY))
@@ -454,7 +458,6 @@ public class UIController implements Initializable {
             Model.getModel().removeNotify(newMails);
         });
 
-        //HAMMER TIME
         hammer.setVolume(.5);
         popup.setOnShown((e) -> {
             popup.setX(stage.getX() + stage.getWidth() - popup.getWidth() - adjustment);
@@ -490,7 +493,8 @@ public class UIController implements Initializable {
                     } 
                 }
             } catch (ClassNotFoundException | IOException ex) {
-                //TODO
+                spawnError("Internal error");
+                Logger.getLogger(UIController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }  
         return mailsToDelete;
@@ -509,7 +513,7 @@ class MailCell extends ListCell<Mail> { //Custom cells for the list, we can show
             if (containsUser(item.getReceiver(), Model.getModel().getCurrentUser().getUsername())) { //Mail was received
                 setText(item.getSender() + " - " + item.getTitle());
             } else {
-                if (item.getTitle().isEmpty() || item.getReceiver().isEmpty()) { //Handle drafts with empty fields (can't use isDraft() here)
+                if (item.getTitle().isEmpty() || item.getReceiver().isEmpty()) { //Handle drafts with empty fields
                     setText("(No subject)");
                 } else {
                     setText(item.getReceiver() + " - " + item.getTitle());

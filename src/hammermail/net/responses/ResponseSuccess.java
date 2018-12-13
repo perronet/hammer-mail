@@ -20,8 +20,5 @@ package hammermail.net.responses;
  * The operation was successful
  */
 public class ResponseSuccess extends ResponseBase {
-    /**
-     * No code is currently needed. 
-     * Maybe we can add a message
-    */
+
 }
