@@ -42,14 +42,14 @@ public class Utils {
     public static boolean isNullOrWhiteSpace(String s) {
         return s == null || s.isEmpty() || s.trim().isEmpty();
     }
-    
-    public static boolean containsUser(String container, String sub){
+
+    public static boolean containsUser(String container, String sub) {
         StringTokenizer st = new StringTokenizer(container, ";");
         Boolean isContained = false;
         String test;
-        while(st.hasMoreTokens() && !isContained){
+        while (st.hasMoreTokens() && !isContained) {
             test = st.nextToken();
-            if(test.equals(sub)){
+            if (test.equals(sub)) {
                 isContained = true;
             }
         }
@@ -79,28 +79,26 @@ public class Utils {
     public static void spawnError(String text) {
         Stage stage = new Stage();
         Label errorLabel = new Label(text);
-        
+
         Button button = new Button("   Ok   ");
-        button.setOnAction( e -> stage.close());
-        
-        //TODO style button (Sorry Omar)
-        
+        button.setOnAction(e -> stage.close());
+
         VBox box = new VBox(errorLabel, button);
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(40));
         box.setSpacing(20);
-        
+        box.getStyleClass().add("main-ui-root");
+
         Parent root = new AnchorPane(box);
         Scene scene = new Scene(root);
         stage.setTitle("Error");
         stage.setScene(scene);
-        root.setStyle("-fx-background-color: #262626;");
-        errorLabel.setStyle("-fx-font-size: 12pt; -fx-fill: #ff4444; -fx-text-fill: #ff4444;");
+        scene.getStylesheets().add("hammermail/resources/dark.css");
         stage.show();
     }
-    
-    public static void spawnErrorIfWrongReceivers(ResponseMailSent response){
-        if (response.getRefusedName().length() > 0){
+
+    public static void spawnErrorIfWrongReceivers(ResponseMailSent response) {
+        if (response.getRefusedName().length() > 0) {
             StringTokenizer stRefused = new StringTokenizer(response.getRefusedName(), ";");
             StringTokenizer stSent = new StringTokenizer(response.getSentTo(), ";");
             String newRefused = new String();
@@ -114,30 +112,30 @@ public class Utils {
             spawnError("The following receivers were invalid:\n" + newRefused + "\nThe mail was sent to:\n" + newSent);
         }
     }
-    
-    public static ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException,  IOException{
+
+    public static ResponseBase sendRequest(RequestBase request) throws ClassNotFoundException, UnknownHostException, IOException {
         Socket socket = new Socket(Inet4Address.getLocalHost().getHostAddress(), Globals.HAMMERMAIL_SERVER_PORT_NUMBER);
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
         out.writeObject(request);
-        return (ResponseBase)in.readObject();
+        return (ResponseBase) in.readObject();
     }
 
     public static boolean isAuthenticationWellFormed(String username, String password) {
-        return !isNullOrWhiteSpace(username) &&
-               !isNullOrWhiteSpace(password) &&
-               !username.contains("@") &&
-               !username.contains(" ");
+        return !isNullOrWhiteSpace(username)
+                && !isNullOrWhiteSpace(password)
+                && !username.contains("@")
+                && !username.contains(" ");
     }
-    
-    public static void toggleCollapse(Node node, boolean isVisible)
-    {
+
+    public static void toggleCollapse(Node node, boolean isVisible) {
         node.setVisible(isVisible);
         node.setManaged(isVisible);
     }
-     /**
-     * An authentication is well formed if it makes sense 
-     * (no empty username/password, no invalid characters)
+    /**
+     * An authentication is well formed if it makes sense (no empty
+     * username/password, no invalid characters)
+     *
      * @param username
      * @param password
      * @return true if the authentication is well-formed
@@ -171,5 +169,5 @@ public class Utils {
 //        return new Timestamp(0);
 //    }
 //
-    
+
 }
