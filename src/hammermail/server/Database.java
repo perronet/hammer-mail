@@ -91,7 +91,6 @@ public class Database {
             
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
-            ex.printStackTrace(System.out);
 
         } finally {
             try {
