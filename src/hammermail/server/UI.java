@@ -31,6 +31,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -47,6 +48,8 @@ public class UI extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("UI.fxml"));
         primaryStage.setScene(new Scene(loader.load()));
         primaryStage.setMaximized(true);
+        primaryStage.getIcons().add(new Image( "hammermail/resources/hammermail.png" )); 
+
 
         UIController uiController = loader.getController();
         UIModel model = new UIModel();

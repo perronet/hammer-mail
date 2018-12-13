@@ -39,6 +39,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class UILoginController implements Initializable {
@@ -199,8 +200,9 @@ public class UILoginController implements Initializable {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("HammerMail - Login");
-            stage.show(); 
-        }   catch (IOException ex) {
+            stage.getIcons().add(new Image("hammermail/resources/hammermail.png"));
+            stage.show();
+        } catch (IOException ex) {
             Logger.getLogger(UILoginController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -215,6 +217,7 @@ public class UILoginController implements Initializable {
             stage.close(); //close login view
             Stage newstage = new Stage();
             newstage.setTitle("HammerMail - Home");
+            newstage.getIcons().add(new Image("hammermail/resources/hammermail.png"));
             newstage.setScene(new Scene(root));
             uiController.setStage(newstage);
             newstage.show();
