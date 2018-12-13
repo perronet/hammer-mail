@@ -66,7 +66,6 @@ public class Database {
 
     private void createTables() {
         String sqlUser = "CREATE TABLE IF NOT EXISTS users (\n"
-                //+ " user_id INTEGER AUTO_INCREMENT PRIMARY KEY,\n"
                 + " username VARCHAR(255) PRIMARY KEY,\n"
                 + " password VARCHAR(255) NOT NULL\n"
                 + ");";
@@ -84,10 +83,8 @@ public class Database {
                 + " ON UPDATE CASCADE \n"
                 + " ON DELETE CASCADE \n"
                 + ");";
-//        Connection conn = null;
         Statement stmt = null;
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
             stmt.execute(sqlUser);
             stmt.execute(sqlEmail);
@@ -99,7 +96,6 @@ public class Database {
         } finally {
             try {
                 if (stmt != null) stmt.close();
-//                conn.close();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
@@ -113,11 +109,9 @@ public class Database {
         }
         
         String dbPsw = "";
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -139,12 +133,10 @@ public class Database {
     }
 
     protected boolean isUser(String userN) throws SQLException{
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         boolean isUser = false;
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -167,11 +159,9 @@ public class Database {
     }
 
     protected void addUser(String userN, String psw) throws SQLException {
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -201,11 +191,9 @@ public class Database {
     }
 
     protected void removeUser(String userN) {
-//        Connection conn = null;
         PreparedStatement pstmt = null;
 
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "DELETE FROM users WHERE username = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userN);
@@ -218,7 +206,6 @@ public class Database {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
@@ -228,13 +215,10 @@ public class Database {
     }
 
     protected void addMail(Mail mail) throws SQLException {
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-//        int mailID = -1;
         
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "INSERT INTO email(sender, receiver, title, email_text, time) "
                            + "VALUES (?, ?, ?, ?, ?)";
          
@@ -245,23 +229,7 @@ public class Database {
             pstmt.setString(4, mail.getText());
             pstmt.setTimestamp(5, mail.getDate());
             pstmt.executeUpdate();
-            
-//            sql = "SELECT email_id FROM email   WHERE sender = ? "
-//                           + "AND receiver = ? AND title = ? AND email_text = ? AND time = ?";
-//            pstmt = conn.prepareStatement(sql);
-//            pstmt.setString(1, mail.getSender());
-//            pstmt.setString(2, mail.getReceiver());
-//            pstmt.setString(3, mail.getTitle());
-//            pstmt.setString(4, mail.getText());
-//            pstmt.setTimestamp(5, mail.getDate());
-//            rs = pstmt.executeQuery();
-//            
-//            if(rs.next())
-//                mailID = rs.getInt("email_id");
-//            else {
-//                System.out.println("Temp print, hope that never print!!!");
-//            }
-            
+    
         } catch (SQLException ex) {
             if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
@@ -272,17 +240,14 @@ public class Database {
         } finally {
                 if (pstmt != null) pstmt.close();
                 if (rs != null) rs.close();
-//                return mailID;
         }
     }
 
     protected void removeMail(int mailID, String toRemove) throws SQLException {
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "UPDATE email SET deleted = deleted || ? || ';' WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
             String replaceID = Integer.toString(mailID);
@@ -294,7 +259,6 @@ public class Database {
         }catch (SQLException ex) {
             if (((SQLiteException)ex).getResultCode().equals(SQLiteErrorCode.SQLITE_BUSY))
                 throw new SQLiteException("retrieve", SQLiteErrorCode.SQLITE_BUSY);
-            
             System.out.println("SQLException: " + ex.getMessage());
 
         } finally {
@@ -304,12 +268,10 @@ public class Database {
    
     protected ArrayList<Mail> getReceivedMails(String userN, Timestamp time) throws SQLException {
         ArrayList<Mail> mailList = new ArrayList<>();
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
                     + "WHERE time > ?"
                     + "AND (receiver = ? "
@@ -358,12 +320,10 @@ public class Database {
 
     protected ArrayList<Mail> getSentMails(String userN, Timestamp time) throws SQLException {
         ArrayList<Mail> mailList = new ArrayList<>();
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email "
                         + "WHERE sender = ? "
                         + "AND (deleted NOT LIKE ? )"
@@ -448,12 +408,10 @@ public class Database {
   }
   
     private void checkRemove(int mailID){
-//        Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             String sql = "SELECT * FROM email WHERE email_id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, Integer.toString(mailID));
@@ -480,10 +438,8 @@ public class Database {
   }
   
     protected void resetTables() {
-//        Connection conn = null;
         Statement stmt = null;
         try {
-//            conn = DriverManager.getConnection(DB_URL);
             stmt = conn.createStatement();
             stmt.executeUpdate("DELETE FROM users");
             stmt.executeUpdate("DELETE FROM email");
@@ -495,7 +451,6 @@ public class Database {
         } finally {
             try {
                 if (stmt != null) stmt.close();
-//                conn.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
                 ex.printStackTrace(System.out);
