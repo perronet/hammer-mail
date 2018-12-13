@@ -68,6 +68,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.TextAlignment;
 import static hammermail.core.Utils.spawnErrorIfWrongReceivers;
+import javafx.scene.image.Image;
 
 public class UIController implements Initializable {
 
@@ -329,6 +330,8 @@ public class UIController implements Initializable {
             editorController.setTextAreas(sndrcv, title, body, modifiable);
             stage.setTitle("Write a mail...");
             stage.setScene(scene);
+            stage.getIcons().add(new Image( "hammermail/resources/hammermail.png" )); 
+
             stage.show();
 
             // Handler to save drafts when closing the window
