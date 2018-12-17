@@ -26,7 +26,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class UI extends Application {
@@ -54,9 +53,9 @@ public class UI extends Application {
             });
         });
         
-         primaryStage.setOnCloseRequest(e -> {
-                backend.stopServer();
-            });
+        primaryStage.setOnCloseRequest(e -> {
+            backend.stopServer();
+        });
          
         //Uncomment to test with DummyClient
         /*
