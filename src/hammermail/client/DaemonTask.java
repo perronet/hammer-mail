@@ -66,13 +66,13 @@ public class DaemonTask implements Runnable {
                     }
 
                 } catch (IOException ex) {
-                    Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("ERROR: Daemon was unable to contact server");
                 }
 
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(DaemonTask.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println("ERROR: Daemon task interrupted");
                 }
             }
         } catch (ClassNotFoundException ex) {

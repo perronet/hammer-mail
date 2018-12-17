@@ -403,7 +403,7 @@ public class UIController implements Initializable {
                 }
 
             } catch (ClassNotFoundException | IOException classEx) {
-                spawnError("Internal error");
+                spawnError("Unable to contact server");
                 return false;
             }
         }
@@ -455,7 +455,7 @@ public class UIController implements Initializable {
         popup.setHideOnEscape(true);
 
         popup.setOnHidden((e) -> {
-            Model.getModel().removeNotify(newMails);
+            System.out.println("Popup notification closed");
         });
 
         hammer.setVolume(.5);
@@ -463,6 +463,7 @@ public class UIController implements Initializable {
             popup.setX(stage.getX() + stage.getWidth() - popup.getWidth() - adjustment);
             popup.setY(stage.getY() + stage.getHeight() - popup.getHeight() - adjustment);
             hammer.play();
+            Model.getModel().removeNotify(newMails); //Remove from model
         });
         popup.show(stage);
     }
@@ -493,8 +494,7 @@ public class UIController implements Initializable {
                     } 
                 }
             } catch (ClassNotFoundException | IOException ex) {
-                spawnError("Internal error");
-                Logger.getLogger(UIController.class.getName()).log(Level.SEVERE, null, ex);
+                spawnError("Unable to contact server, mail will be deleted on this machine");
             }
         }  
         return mailsToDelete;

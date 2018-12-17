@@ -137,7 +137,7 @@ public class UILoginController implements Initializable {
                 showError("Insert a valid username and password (whitespace and @ are invalid)");
             }
         } catch (ClassNotFoundException | IOException classEx) {
-            showError("Unable to connect to server.");
+            showError("Unable to contact server.");
         }
     }
 

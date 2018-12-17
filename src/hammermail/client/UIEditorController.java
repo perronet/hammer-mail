@@ -96,7 +96,7 @@ public class UIEditorController {
                 }
 
             } catch (ClassNotFoundException | IOException classEx) {
-                spawnError("Internal error");
+                spawnError("Unable to contact server");
             }
         }
     }
